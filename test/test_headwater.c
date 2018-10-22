@@ -6,9 +6,19 @@
 TEST_GROUP(headwater);
 
 
-struct ClockState dummy_clock_state;
+ClockState dummy_clock_state;
 uint8_t dummy_output;
 uint8_t dummy_multiplied;
+
+
+void dummy_update_output(uint8_t enabled) {
+  dummy_output = enabled;
+}
+
+
+void dummy_update_multiplied(uint8_t enabled) {
+  dummy_multiplied = enabled;
+}
 
 
 TEST_SETUP(headwater) {
@@ -132,8 +142,8 @@ TEST(headwater, test_cycle_clock) {
   for(uint8_t i = 0; i < 8; i++) {
     cycle_clock(
         &dummy_clock_state,
-        &dummy_output,
-        &dummy_multiplied
+        &dummy_update_output,
+        &dummy_update_multiplied
     );
 
     char fail_message[80];
@@ -165,8 +175,8 @@ TEST(headwater, test_cycle_clock) {
 TEST(headwater, test_stop_clock) {
   cycle_clock(
       &dummy_clock_state,
-      &dummy_output,
-      &dummy_multiplied
+      &dummy_update_output,
+      &dummy_update_multiplied
   );
 
   TEST_ASSERT_EQUAL(1, dummy_output);
@@ -175,8 +185,8 @@ TEST(headwater, test_stop_clock) {
 
   cycle_clock(
       &dummy_clock_state,
-      &dummy_output,
-      &dummy_multiplied
+      &dummy_update_output,
+      &dummy_update_multiplied
   );
 
   TEST_ASSERT_EQUAL(0, dummy_output);
@@ -188,8 +198,8 @@ TEST(headwater, test_stop_clock) {
   for(uint8_t i; i < 10; i++) {
     cycle_clock(
         &dummy_clock_state,
-        &dummy_output,
-        &dummy_multiplied
+        &dummy_update_output,
+        &dummy_update_multiplied
     );
 
     TEST_ASSERT_EQUAL(0, dummy_output);
@@ -201,8 +211,8 @@ TEST(headwater, test_stop_clock) {
 
   cycle_clock(
       &dummy_clock_state,
-      &dummy_output,
-      &dummy_multiplied
+      &dummy_update_output,
+      &dummy_update_multiplied
   );
 
   TEST_ASSERT_EQUAL(1, dummy_output);

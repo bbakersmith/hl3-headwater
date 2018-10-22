@@ -22,8 +22,6 @@ static uint16_t CLOCK_STATE_DEFAULT_SAMPLES_PER_MULTIPLIED = 500;
 static uint16_t CLOCK_STATE_DEFAULT_SAMPLE_COUNT = 0;
 static uint16_t CLOCK_STATE_DEFAULT_MULTIPLIED_COUNT = 0;
 
-volatile struct ClockState clock_state;
-
 
 int8_t rotary_encoder_modifier(int8_t b_value) {
   if(b_value) {
@@ -86,8 +84,8 @@ uint16_t samples_per_multiplied(uint16_t tbpm, uint8_t multiplier) {
 }
 
 
-struct ClockState create_clock_state() {
-  struct ClockState clock_state;
+ClockState create_clock_state() {
+  ClockState clock_state;
   clock_state.tbpm = CLOCK_STATE_DEFAULT_TBPM;
   clock_state.multiplier = CLOCK_STATE_DEFAULT_MULTIPLIER;
   clock_state.running = CLOCK_STATE_DEFAULT_PLAY;
@@ -99,7 +97,7 @@ struct ClockState create_clock_state() {
 }
 
 
-void update_clock_config(struct ClockState *clock_state, int16_t tbpm, int8_t multiplier) {
+void update_clock_config(ClockState *clock_state, int16_t tbpm, int8_t multiplier) {
   clock_state->tbpm = tbpm;
   clock_state->multiplier = multiplier;
   clock_state->samples_per_output = samples_per_output(tbpm);
@@ -107,19 +105,19 @@ void update_clock_config(struct ClockState *clock_state, int16_t tbpm, int8_t mu
 }
 
 
-void stop_clock(struct ClockState *clock_state) {
+void stop_clock(ClockState *clock_state) {
   clock_state->running = 0;
 }
 
 
-void start_clock(struct ClockState *clock_state) {
+void start_clock(ClockState *clock_state) {
   clock_state->running = 1;
   clock_state->sample_count = 0;
   clock_state->multiplied_count = 0;
 }
 
 
-void increment_clock(struct ClockState *clock_state) {
+void increment_clock(ClockState *clock_state) {
   clock_state->sample_count += 1;
   if(clock_state->samples_per_output <= clock_state->sample_count) {
     clock_state->sample_count = 0;
@@ -128,28 +126,28 @@ void increment_clock(struct ClockState *clock_state) {
 }
 
 
-void update_clock_outputs(struct ClockState *clock_state, uint8_t *output, uint8_t *multiplied) {
+void update_clock_outputs(ClockState *clock_state, UpdateOutputFn output_fn, UpdateOutputFn multiplied_fn) {
   uint8_t remainder;
   if(clock_state->sample_count == 0) {
-    *output = 1;
-    *multiplied = 1;
+    output_fn(1);
+    multiplied_fn(1);
     clock_state->multiplied_count += 1;
   } else {
-    *output = 0;
+    output_fn(0);
     remainder = clock_state->sample_count % clock_state->samples_per_multiplied;
     if(remainder == 0 && clock_state->multiplied_count < clock_state->multiplier) {
-      *multiplied = 1;
+      multiplied_fn(1);
       clock_state->multiplied_count += 1;
     } else {
-      *multiplied = 0;
+      multiplied_fn(0);
     }
   }
 }
 
 
-void cycle_clock(struct ClockState *clock_state, uint8_t *output, uint8_t *multiplied) {
+void cycle_clock(ClockState *clock_state, UpdateOutputFn output_fn, UpdateOutputFn multiplied_fn) {
   if(clock_state->running == 1) {
-    update_clock_outputs(clock_state, output, multiplied);
+    update_clock_outputs(clock_state, output_fn, multiplied_fn);
     increment_clock(clock_state);
   } else {
     // do nothing

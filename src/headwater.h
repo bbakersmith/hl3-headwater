@@ -1,7 +1,7 @@
 #include "stdint.h"
 
 
-struct ClockState {
+typedef struct ClockState {
   int16_t tbpm;
   int8_t multiplier;
   uint8_t running;
@@ -11,7 +11,10 @@ struct ClockState {
   uint16_t multiplied_count;
   uint8_t output;
   uint8_t multiplied;
-};
+} ClockState;
+
+
+typedef void (UpdateOutputFn)(uint8_t enabled);
 
 
 int8_t rotary_encoder_modifier(int8_t b_value);
@@ -23,7 +26,7 @@ uint16_t samples_per_multiplied(uint16_t tbpm, uint8_t multiplier);
 struct ClockState create_clock_state();
 void update_clock_config(struct ClockState *clock_state, int16_t tbpm, int8_t multiplier);
 void increment_clock(struct ClockState *clock_state);
-void update_clock_outputs(struct ClockState *clock_state, uint8_t *output, uint8_t *multiplied);
+void update_clock_outputs(struct ClockState *clock_state, UpdateOutputFn output_fn, UpdateOutputFn multiplied_fn);
 void stop_clock(struct ClockState *clock_state);
 void start_clock(struct ClockState *clock_state);
-void cycle_clock(struct ClockState *clock_state, uint8_t *output, uint8_t *multiplied);
+void cycle_clock(struct ClockState *clock_state, UpdateOutputFn output_fn, UpdateOutputFn multiplied_fn);
