@@ -16,11 +16,11 @@ static uint16_t SYSTEM_CLOCK_HZ = 1000;
 
 static int16_t CLOCK_STATE_DEFAULT_TBPM = 1200;
 static int8_t CLOCK_STATE_DEFAULT_MULTIPLIER = 1;
+static int8_t CLOCK_STATE_DEFAULT_PLAY = 0;
 static uint16_t CLOCK_STATE_DEFAULT_SAMPLES_PER_OUTPUT = 500;
-static uint16_t CLOCK_STATE_DEFAULT_SAMPLES_PER_OUTPUT_MULTIPLIED = 500;
+static uint16_t CLOCK_STATE_DEFAULT_SAMPLES_PER_MULTIPLIED = 500;
 static uint16_t CLOCK_STATE_DEFAULT_SAMPLE_COUNT = 0;
-static uint16_t CLOCK_STATE_DEFAULT_MULTIPLIER_COUNT = 0;
-
+static uint16_t CLOCK_STATE_DEFAULT_MULTIPLIED_COUNT = 0;
 
 volatile struct ClockState clock_state;
 
@@ -81,7 +81,7 @@ uint16_t samples_per_output(uint16_t tbpm) {
 }
 
 
-uint16_t samples_per_output_multiplied(uint16_t tbpm, uint8_t multiplier) {
+uint16_t samples_per_multiplied(uint16_t tbpm, uint8_t multiplier) {
   return samples_per_output(tbpm) / multiplier;
 }
 
@@ -90,10 +90,11 @@ struct ClockState create_clock_state() {
   struct ClockState clock_state;
   clock_state.tbpm = CLOCK_STATE_DEFAULT_TBPM;
   clock_state.multiplier = CLOCK_STATE_DEFAULT_MULTIPLIER;
+  clock_state.running = CLOCK_STATE_DEFAULT_PLAY;
   clock_state.samples_per_output = CLOCK_STATE_DEFAULT_SAMPLES_PER_OUTPUT;
-  clock_state.samples_per_output_multiplied = CLOCK_STATE_DEFAULT_SAMPLES_PER_OUTPUT_MULTIPLIED;
+  clock_state.samples_per_multiplied = CLOCK_STATE_DEFAULT_SAMPLES_PER_MULTIPLIED;
   clock_state.sample_count = CLOCK_STATE_DEFAULT_SAMPLE_COUNT;
-  clock_state.multiplier_count = CLOCK_STATE_DEFAULT_MULTIPLIER_COUNT;
+  clock_state.multiplied_count = CLOCK_STATE_DEFAULT_MULTIPLIED_COUNT;
   return clock_state;
 }
 
@@ -102,18 +103,55 @@ void update_clock_config(struct ClockState *clock_state, int16_t tbpm, int8_t mu
   clock_state->tbpm = tbpm;
   clock_state->multiplier = multiplier;
   clock_state->samples_per_output = samples_per_output(tbpm);
-  clock_state->samples_per_output_multiplied = samples_per_output_multiplied(tbpm, multiplier);
+  clock_state->samples_per_multiplied = samples_per_multiplied(tbpm, multiplier);
 }
 
 
-// use modulus to determine interim multiplier beats?
-
-/*
-struct increment_clock(struct clock_state) {
-  clock_state.sample_count += 1;
-
-
+void stop_clock(struct ClockState *clock_state) {
+  clock_state->running = 0;
 }
-*/
 
-// sample count, pw count, tbpm count
+
+void start_clock(struct ClockState *clock_state) {
+  clock_state->running = 1;
+  clock_state->sample_count = 0;
+  clock_state->multiplied_count = 0;
+}
+
+
+void increment_clock(struct ClockState *clock_state) {
+  clock_state->sample_count += 1;
+  if(clock_state->samples_per_output <= clock_state->sample_count) {
+    clock_state->sample_count = 0;
+    clock_state->multiplied_count = 0;
+  }
+}
+
+
+void update_clock_outputs(struct ClockState *clock_state, uint8_t *output, uint8_t *multiplied) {
+  uint8_t remainder;
+  if(clock_state->sample_count == 0) {
+    *output = 1;
+    *multiplied = 1;
+    clock_state->multiplied_count += 1;
+  } else {
+    *output = 0;
+    remainder = clock_state->sample_count % clock_state->samples_per_multiplied;
+    if(remainder == 0 && clock_state->multiplied_count < clock_state->multiplier) {
+      *multiplied = 1;
+      clock_state->multiplied_count += 1;
+    } else {
+      *multiplied = 0;
+    }
+  }
+}
+
+
+void cycle_clock(struct ClockState *clock_state, uint8_t *output, uint8_t *multiplied) {
+  if(clock_state->running == 1) {
+    update_clock_outputs(clock_state, output, multiplied);
+    increment_clock(clock_state);
+  } else {
+    // do nothing
+  }
+}

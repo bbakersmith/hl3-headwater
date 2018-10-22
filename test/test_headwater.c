@@ -6,14 +6,16 @@
 TEST_GROUP(headwater);
 
 
-// extern uint16_t tenths_of_bpm;
-
-
 struct ClockState dummy_clock_state;
+uint8_t dummy_output;
+uint8_t dummy_multiplied;
 
 
 TEST_SETUP(headwater) {
   dummy_clock_state = create_clock_state();
+  dummy_clock_state.running = 1;
+  dummy_output = 0;
+  dummy_multiplied = 0;
 }
 
 
@@ -64,13 +66,13 @@ TEST(headwater, test_samples_per_output) {
 }
 
 
-TEST(headwater, test_samples_per_output_multiplied) {
-  TEST_ASSERT_EQUAL(20, samples_per_output_multiplied(600, 50));
-  TEST_ASSERT_EQUAL(50, samples_per_output_multiplied(1200, 10));
-  TEST_ASSERT_EQUAL(50, samples_per_output_multiplied(2400, 5));
-  TEST_ASSERT_EQUAL(2, samples_per_output_multiplied(3000, 100));
-  TEST_ASSERT_EQUAL(60000, samples_per_output_multiplied(10, 1));
-  TEST_ASSERT_EQUAL(49, samples_per_output_multiplied(1205, 10));
+TEST(headwater, test_samples_per_multiplied) {
+  TEST_ASSERT_EQUAL(20, samples_per_multiplied(600, 50));
+  TEST_ASSERT_EQUAL(50, samples_per_multiplied(1200, 10));
+  TEST_ASSERT_EQUAL(50, samples_per_multiplied(2400, 5));
+  TEST_ASSERT_EQUAL(2, samples_per_multiplied(3000, 100));
+  TEST_ASSERT_EQUAL(60000, samples_per_multiplied(10, 1));
+  TEST_ASSERT_EQUAL(49, samples_per_multiplied(1205, 10));
 }
 
 
@@ -78,18 +80,134 @@ TEST(headwater, test_update_clock_config) {
   int16_t dummy_tbpm = 3000;
   int8_t dummy_multiplier = 5;
   uint16_t dummy_sample_count = 32;
-  uint16_t dummy_multiplier_count = 21;
+  uint16_t dummy_multiplied_count = 21;
 
   dummy_clock_state.sample_count = dummy_sample_count;
-  dummy_clock_state.multiplier_count = dummy_multiplier_count;
+  dummy_clock_state.multiplied_count = dummy_multiplied_count;
 
   update_clock_config(&dummy_clock_state, dummy_tbpm, dummy_multiplier);
   TEST_ASSERT_EQUAL(dummy_tbpm, dummy_clock_state.tbpm);
   TEST_ASSERT_EQUAL(dummy_multiplier, dummy_clock_state.multiplier);
   TEST_ASSERT_EQUAL(200, dummy_clock_state.samples_per_output);
-  TEST_ASSERT_EQUAL(40, dummy_clock_state.samples_per_output_multiplied);
+  TEST_ASSERT_EQUAL(40, dummy_clock_state.samples_per_multiplied);
   TEST_ASSERT_EQUAL(dummy_sample_count, dummy_clock_state.sample_count);
-  TEST_ASSERT_EQUAL(dummy_multiplier_count, dummy_clock_state.multiplier_count);
+  TEST_ASSERT_EQUAL(dummy_multiplied_count, dummy_clock_state.multiplied_count);
+}
+
+
+TEST(headwater, test_increment_clock) {
+  dummy_clock_state.samples_per_output = 3;
+  TEST_ASSERT_EQUAL(0, dummy_clock_state.sample_count);
+  increment_clock(&dummy_clock_state);
+  TEST_ASSERT_EQUAL(1, dummy_clock_state.sample_count);
+  increment_clock(&dummy_clock_state);
+  TEST_ASSERT_EQUAL(2, dummy_clock_state.sample_count);
+  increment_clock(&dummy_clock_state);
+  TEST_ASSERT_EQUAL(0, dummy_clock_state.sample_count);
+  increment_clock(&dummy_clock_state);
+  TEST_ASSERT_EQUAL(1, dummy_clock_state.sample_count);
+}
+
+
+TEST(headwater, test_cycle_clock) {
+  int8_t dummy_multiplier = 3;
+  int16_t dummy_samples_per_output = 7;
+  int8_t dummy_samples_per_multiplied = 2;
+
+  dummy_clock_state.multiplier = dummy_multiplier;
+  dummy_clock_state.samples_per_output = dummy_samples_per_output;
+  dummy_clock_state.samples_per_multiplied = dummy_samples_per_multiplied;
+
+  int8_t expected_outputs[8][2] = {
+    {1, 1},
+    {0, 0},
+    {0, 1},
+    {0, 0},
+    {0, 1},
+    {0, 0},
+    {0, 0},
+    {1, 1}
+  };
+
+  for(uint8_t i = 0; i < 8; i++) {
+    cycle_clock(
+        &dummy_clock_state,
+        &dummy_output,
+        &dummy_multiplied
+    );
+
+    char fail_message[80];
+    sprintf(
+        fail_message,
+        "Iteration %i failed, expected {%i, %i}, got {%i, %i}",
+        i,
+        expected_outputs[i][0],
+        expected_outputs[i][1],
+        dummy_output,
+        dummy_multiplied
+    );
+
+    TEST_ASSERT_EQUAL_MESSAGE(
+        expected_outputs[i][0],
+        dummy_output,
+        fail_message
+    );
+
+    TEST_ASSERT_EQUAL_MESSAGE(
+        expected_outputs[i][1],
+        dummy_multiplied,
+        fail_message
+    );
+  }
+}
+
+
+TEST(headwater, test_stop_clock) {
+  cycle_clock(
+      &dummy_clock_state,
+      &dummy_output,
+      &dummy_multiplied
+  );
+
+  TEST_ASSERT_EQUAL(1, dummy_output);
+  TEST_ASSERT_EQUAL(1, dummy_output);
+  TEST_ASSERT_EQUAL(1, dummy_clock_state.sample_count);
+
+  cycle_clock(
+      &dummy_clock_state,
+      &dummy_output,
+      &dummy_multiplied
+  );
+
+  TEST_ASSERT_EQUAL(0, dummy_output);
+  TEST_ASSERT_EQUAL(0, dummy_output);
+  TEST_ASSERT_EQUAL(2, dummy_clock_state.sample_count);
+
+  stop_clock(&dummy_clock_state);
+
+  for(uint8_t i; i < 10; i++) {
+    cycle_clock(
+        &dummy_clock_state,
+        &dummy_output,
+        &dummy_multiplied
+    );
+
+    TEST_ASSERT_EQUAL(0, dummy_output);
+    TEST_ASSERT_EQUAL(0, dummy_output);
+    TEST_ASSERT_EQUAL(2, dummy_clock_state.sample_count);
+  }
+
+  start_clock(&dummy_clock_state);
+
+  cycle_clock(
+      &dummy_clock_state,
+      &dummy_output,
+      &dummy_multiplied
+  );
+
+  TEST_ASSERT_EQUAL(1, dummy_output);
+  TEST_ASSERT_EQUAL(1, dummy_output);
+  TEST_ASSERT_EQUAL(1, dummy_clock_state.sample_count);
 }
 
 
@@ -100,4 +218,7 @@ TEST_GROUP_RUNNER(headwater) {
   RUN_TEST_CASE(headwater, test_modify_multiplier);
   RUN_TEST_CASE(headwater, test_samples_per_output);
   RUN_TEST_CASE(headwater, test_update_clock_config);
+  RUN_TEST_CASE(headwater, test_increment_clock);
+  RUN_TEST_CASE(headwater, test_cycle_clock);
+  RUN_TEST_CASE(headwater, test_stop_clock);
 }
