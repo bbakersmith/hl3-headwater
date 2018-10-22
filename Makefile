@@ -1,57 +1,26 @@
-# ==========================================
-#   Unity Project - A Test Framework for C
-#   Copyright (c) 2007 Mike Karlesky, Mark VanderVoord, Greg Williams
-#   [Released under MIT License. Please refer to license.txt for details]
-# ==========================================
-
-#We try to detect the OS we are running on, and adjust commands as needed
-ifeq ($(OS),Windows_NT)
-  ifeq ($(shell uname -s),) # not in a bash-like shell
-	CLEANUP = del /F /Q
-	MKDIR = mkdir
-  else # in a bash-like shell, like msys
-	CLEANUP = rm -f
-	MKDIR = mkdir -p
-  endif
-	TARGET_EXTENSION=.exe
-else
-	CLEANUP = rm -f
-	MKDIR = mkdir -p
-	TARGET_EXTENSION=.out
-endif
-
 C_COMPILER=gcc
-ifeq ($(shell uname -s), Darwin)
-C_COMPILER=clang
-endif
 
-UNITY_ROOT=./Unity
+BUILD_DIR=./build
+UNITY_DIR=./Unity
 
 CFLAGS=
 
-TARGET_BASE1=all_tests
-TARGET1 = $(TARGET_BASE1)$(TARGET_EXTENSION)
-SRC_FILES1=\
-  $(UNITY_ROOT)/src/unity.c \
-  $(UNITY_ROOT)/extras/fixture/src/unity_fixture.c \
-  src/ProductionCode.c \
-  src/ProductionCode2.c \
-  test/TestProductionCode.c \
-  test/TestProductionCode2.c \
-  test/test_runners/TestProductionCode_Runner.c \
-  test/test_runners/TestProductionCode2_Runner.c \
-  test/test_runners/all_tests.c
-INC_DIRS=-Isrc -I$(UNITY_ROOT)/src -I$(UNITY_ROOT)/extras/fixture/src
-SYMBOLS=
+TEST_TARGET = $(BUILD_DIR)/run_tests.o
 
-all: clean default
+TEST_SOURCE_FILES=\
+  $(UNITY_DIR)/src/unity.c \
+  $(UNITY_DIR)/extras/fixture/src/unity_fixture.c \
+  src/headwater.c \
+  test/test_headwater.c \
+	test/run_tests.c
 
-default:
-	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SYMBOLS) $(SRC_FILES1) -o $(TARGET1)
-	- ./$(TARGET1) -v
+INC_DIRS=-Isrc -I$(UNITY_DIR)/src -I$(UNITY_DIR)/extras/fixture/src
+
+all: clean $(TEST_TARGET)
+
+$(TEST_TARGET):
+	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(TEST_SOURCE_FILES) -o $(TEST_TARGET)
+	- $(TEST_TARGET) -v
 
 clean:
-	$(CLEANUP) $(TARGET1)
-
-ci: CFLAGS += -Werror
-ci: default
+	rm $(TEST_TARGET) || true
