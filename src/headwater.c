@@ -84,6 +84,7 @@ uint16_t samples_per_multiplied(uint16_t tbpm, uint8_t multiplier) {
 }
 
 
+// TODO take system clock speed? sample rate?
 ClockState create_clock_state() {
   ClockState clock_state;
   clock_state.tbpm = CLOCK_STATE_DEFAULT_TBPM;

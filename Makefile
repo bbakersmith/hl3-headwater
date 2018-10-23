@@ -1,9 +1,14 @@
-C_COMPILER=gcc
+TEST_COMPILER=gcc
 
 BUILD_DIR=./build
 UNITY_DIR=./Unity
 
-CFLAGS=
+TARGET_ELF=$(BUILD_DIR)/headwater_atmega.elf
+TARGET_HEX=$(TARGET_ELF:%.elf=%.hex)
+
+SOURCE_FILES=\
+  src/headwater.c \
+	src/headwater_atmega.c
 
 TEST_TARGET = $(BUILD_DIR)/run_tests.o
 
@@ -14,13 +19,26 @@ TEST_SOURCE_FILES=\
   test/test_headwater.c \
 	test/run_tests.c
 
-INC_DIRS=-Isrc -I$(UNITY_DIR)/src -I$(UNITY_DIR)/extras/fixture/src
+TEST_INC_DIRS=-Isrc -I$(UNITY_DIR)/src -I$(UNITY_DIR)/extras/fixture/src
 
-all: clean $(TEST_TARGET)
+all:
+	make clean
+	make $(TARGET_HEX)
 
-$(TEST_TARGET):
-	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(TEST_SOURCE_FILES) -o $(TEST_TARGET)
-	- $(TEST_TARGET) -v
+flash: all
+	sudo avrdude -c usbtiny -p atmega328p -U flash:w:$(TARGET_HEX)
+
+$(TARGET_HEX): $(TARGET_ELF)
+	avr-objcopy -j .text -j .data -O ihex $< $@
+
+$(TARGET_ELF):
+	avr-gcc -g -Os -mmcu=atmega328p -o $@ $(SOURCE_FILES)
+
+test: $(TEST_TARGET)
+
+$(TEST_TARGET): clean
+	$(TEST_COMPILER) $(TEST_INC_DIRS) $(TEST_SOURCE_FILES) -o $(TEST_TARGET)
+	$(TEST_TARGET) -v
 
 clean:
-	rm $(TEST_TARGET) || true
+	rm $(BUILD_DIR)/* || true
