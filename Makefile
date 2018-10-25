@@ -7,14 +7,18 @@ TARGET_ELF=$(BUILD_DIR)/headwater_atmega.elf
 TARGET_HEX=$(TARGET_ELF:%.elf=%.hex)
 
 SOURCE_FILES=\
+	src/samples_per_output_lookup.c \
   src/headwater.c \
 	src/headwater_atmega.c
+
+AVR_FUSES=-U lfuse:w:0xD7:m
 
 TEST_TARGET = $(BUILD_DIR)/run_tests.o
 
 TEST_SOURCE_FILES=\
   $(UNITY_DIR)/src/unity.c \
   $(UNITY_DIR)/extras/fixture/src/unity_fixture.c \
+	src/samples_per_output_lookup.c \
   src/headwater.c \
   test/test_headwater.c \
 	test/run_tests.c
@@ -26,7 +30,7 @@ all:
 	make $(TARGET_HEX)
 
 flash: all
-	sudo avrdude -c usbtiny -p atmega328p -U flash:w:$(TARGET_HEX)
+	sudo avrdude -c usbtiny -p atmega328p $(AVR_FUSES) -U flash:w:$(TARGET_HEX)
 
 $(TARGET_HEX): $(TARGET_ELF)
 	avr-objcopy -j .text -j .data -O ihex $< $@

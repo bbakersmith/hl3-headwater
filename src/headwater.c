@@ -1,5 +1,6 @@
 #include "stdint.h"
 #include "headwater.h"
+#include "samples_per_output_lookup.h"
 
 
 static uint16_t MIN_BPM = 10;
@@ -20,6 +21,7 @@ static int8_t CLOCK_STATE_DEFAULT_PLAY = 0;
 static uint16_t CLOCK_STATE_DEFAULT_SAMPLES_PER_OUTPUT = 500;
 static uint16_t CLOCK_STATE_DEFAULT_SAMPLES_PER_MULTIPLIED = 500;
 static uint16_t CLOCK_STATE_DEFAULT_SAMPLE_COUNT = 0;
+static uint16_t CLOCK_STATE_DEFAULT_MULTIPLIED_SAMPLE_COUNT = 0;
 static uint16_t CLOCK_STATE_DEFAULT_MULTIPLIED_COUNT = 0;
 
 
@@ -43,8 +45,9 @@ int8_t tbpm_encoder_modifier(int8_t b_value, int8_t tenths_button) {
 }
 
 
+// TODO either switch to unsigned for tbpm and mult or limit to 2bpm
 int16_t modify_tbpm(int16_t tbpm, int8_t b_value, int8_t tenths_button) {
-  int8_t modifier =tbpm_encoder_modifier(b_value, tenths_button);
+  int8_t modifier = tbpm_encoder_modifier(b_value, tenths_button);
   int16_t new_tbpm = tbpm + modifier;
 
   if(new_tbpm < MIN_BPM) {
@@ -74,12 +77,14 @@ int8_t modify_multiplier(int8_t multiplier, int8_t b_value) {
 // TODO: update LED functions
 
 
-uint16_t samples_per_output(uint16_t tbpm) {
-  return (SYSTEM_CLOCK_HZ * SECONDS_IN_MINUTE * 10) / tbpm;
+// FIXME works in tests (gcc) not in atmega
+uint16_t samples_per_output(int16_t tbpm) {
+  // not as accurate as (system * 60s * 10) / tbps
+  return samples_per_output_lookup(tbpm);
 }
 
 
-uint16_t samples_per_multiplied(uint16_t tbpm, uint8_t multiplier) {
+uint16_t samples_per_multiplied(int16_t tbpm, int8_t multiplier) {
   return samples_per_output(tbpm) / multiplier;
 }
 
@@ -93,6 +98,7 @@ ClockState create_clock_state() {
   clock_state.samples_per_output = CLOCK_STATE_DEFAULT_SAMPLES_PER_OUTPUT;
   clock_state.samples_per_multiplied = CLOCK_STATE_DEFAULT_SAMPLES_PER_MULTIPLIED;
   clock_state.sample_count = CLOCK_STATE_DEFAULT_SAMPLE_COUNT;
+  clock_state.multiplied_sample_count = CLOCK_STATE_DEFAULT_MULTIPLIED_SAMPLE_COUNT;
   clock_state.multiplied_count = CLOCK_STATE_DEFAULT_MULTIPLIED_COUNT;
   return clock_state;
 }
@@ -120,25 +126,29 @@ void start_clock(ClockState *clock_state) {
 
 void increment_clock(ClockState *clock_state) {
   clock_state->sample_count += 1;
+  clock_state->multiplied_sample_count += 1;
+  // TODO move this into update clock outputs to reduce branching?
   if(clock_state->samples_per_output <= clock_state->sample_count) {
     clock_state->sample_count = 0;
+    clock_state->multiplied_sample_count = 0;
     clock_state->multiplied_count = 0;
   }
 }
 
 
 void update_clock_outputs(ClockState *clock_state, UpdateOutputFn output_fn, UpdateOutputFn multiplied_fn) {
-  uint8_t remainder;
   if(clock_state->sample_count == 0) {
     output_fn(1);
     multiplied_fn(1);
     clock_state->multiplied_count += 1;
   } else {
     output_fn(0);
-    remainder = clock_state->sample_count % clock_state->samples_per_multiplied;
-    if(remainder == 0 && clock_state->multiplied_count < clock_state->multiplier) {
-      multiplied_fn(1);
+    if(clock_state->multiplied_count < clock_state->multiplier &&
+        clock_state->samples_per_multiplied <= clock_state->multiplied_sample_count) {
+
       clock_state->multiplied_count += 1;
+      clock_state->multiplied_sample_count = 0;
+      multiplied_fn(1);
     } else {
       multiplied_fn(0);
     }
@@ -147,10 +157,10 @@ void update_clock_outputs(ClockState *clock_state, UpdateOutputFn output_fn, Upd
 
 
 void cycle_clock(ClockState *clock_state, UpdateOutputFn output_fn, UpdateOutputFn multiplied_fn) {
+  // TODO handle this at the interrupt level?
+  // ex. play button enables TIMER1_COMPA interrupt, stop disables it
   if(clock_state->running == 1) {
     update_clock_outputs(clock_state, output_fn, multiplied_fn);
     increment_clock(clock_state);
-  } else {
-    // do nothing
   }
 }

@@ -71,8 +71,8 @@ TEST(headwater, test_samples_per_output) {
   TEST_ASSERT_EQUAL(500, samples_per_output(1200));
   TEST_ASSERT_EQUAL(250, samples_per_output(2400));
   TEST_ASSERT_EQUAL(200, samples_per_output(3000));
-  TEST_ASSERT_EQUAL(60000, samples_per_output(10));
   TEST_ASSERT_EQUAL(497, samples_per_output(1205));
+  TEST_ASSERT_EQUAL(60000, samples_per_output(10));
 }
 
 
@@ -81,8 +81,8 @@ TEST(headwater, test_samples_per_multiplied) {
   TEST_ASSERT_EQUAL(50, samples_per_multiplied(1200, 10));
   TEST_ASSERT_EQUAL(50, samples_per_multiplied(2400, 5));
   TEST_ASSERT_EQUAL(2, samples_per_multiplied(3000, 100));
-  TEST_ASSERT_EQUAL(60000, samples_per_multiplied(10, 1));
   TEST_ASSERT_EQUAL(49, samples_per_multiplied(1205, 10));
+  TEST_ASSERT_EQUAL(60000, samples_per_multiplied(10, 1));
 }
 
 
@@ -96,12 +96,26 @@ TEST(headwater, test_update_clock_config) {
   dummy_clock_state.multiplied_count = dummy_multiplied_count;
 
   update_clock_config(&dummy_clock_state, dummy_tbpm, dummy_multiplier);
+
   TEST_ASSERT_EQUAL(dummy_tbpm, dummy_clock_state.tbpm);
   TEST_ASSERT_EQUAL(dummy_multiplier, dummy_clock_state.multiplier);
   TEST_ASSERT_EQUAL(200, dummy_clock_state.samples_per_output);
   TEST_ASSERT_EQUAL(40, dummy_clock_state.samples_per_multiplied);
   TEST_ASSERT_EQUAL(dummy_sample_count, dummy_clock_state.sample_count);
   TEST_ASSERT_EQUAL(dummy_multiplied_count, dummy_clock_state.multiplied_count);
+}
+
+
+TEST(headwater, test_update_clock_config_2) {
+  int16_t dummy_tbpm = 600;
+  int8_t dummy_multiplier = 4;
+
+  update_clock_config(&dummy_clock_state, dummy_tbpm, dummy_multiplier);
+
+  TEST_ASSERT_EQUAL(dummy_tbpm, dummy_clock_state.tbpm);
+  TEST_ASSERT_EQUAL(dummy_multiplier, dummy_clock_state.multiplier);
+  TEST_ASSERT_EQUAL(1000, dummy_clock_state.samples_per_output);
+  TEST_ASSERT_EQUAL(250, dummy_clock_state.samples_per_multiplied);
 }
 
 
@@ -228,6 +242,7 @@ TEST_GROUP_RUNNER(headwater) {
   RUN_TEST_CASE(headwater, test_modify_multiplier);
   RUN_TEST_CASE(headwater, test_samples_per_output);
   RUN_TEST_CASE(headwater, test_update_clock_config);
+  RUN_TEST_CASE(headwater, test_update_clock_config_2);
   RUN_TEST_CASE(headwater, test_increment_clock);
   RUN_TEST_CASE(headwater, test_cycle_clock);
   RUN_TEST_CASE(headwater, test_stop_clock);
