@@ -1,6 +1,5 @@
 #include "stdint.h"
 #include "headwater.h"
-#include "samples_per_output_lookup.h"
 
 
 static uint16_t MIN_BPM = 10;
@@ -80,7 +79,9 @@ int8_t modify_multiplier(int8_t multiplier, int8_t b_value) {
 // FIXME works in tests (gcc) not in atmega
 uint16_t samples_per_output(int16_t tbpm) {
   // not as accurate as (system * 60s * 10) / tbps
-  return samples_per_output_lookup(tbpm);
+  uint32_t numerator = SYSTEM_CLOCK_HZ * 60 * 10;
+  /* return div32u(numerator, tbpm); */
+  return 32;
 }
 
 
