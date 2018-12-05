@@ -11,7 +11,7 @@ static uint8_t MAX_MULTIPLIER = 99;
 
 
 static uint8_t SECONDS_IN_MINUTE = 60;
-static uint16_t SYSTEM_CLOCK_HZ = 1000;
+static uint32_t SAMPLES_PER_SECOND = 1000;
 
 
 static int16_t CLOCK_STATE_DEFAULT_TBPM = 1200;
@@ -78,10 +78,7 @@ int8_t modify_multiplier(int8_t multiplier, int8_t b_value) {
 
 // FIXME works in tests (gcc) not in atmega
 uint16_t samples_per_output(int16_t tbpm) {
-  // not as accurate as (system * 60s * 10) / tbps
-  uint32_t numerator = SYSTEM_CLOCK_HZ * 60 * 10;
-  /* return div32u(numerator, tbpm); */
-  return 32;
+  return (SAMPLES_PER_SECOND * SECONDS_IN_MINUTE * 10) / tbpm;
 }
 
 
