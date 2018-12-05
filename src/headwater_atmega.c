@@ -100,7 +100,7 @@ static uint8_t MAX7221_DISPLAY_TEST = 16;
 
 static uint8_t MAX7221_DIGIT_DECIMAL_BIT = 7;
 static uint8_t MAX7221_DIGIT_VALUE_DASH = 10;
-static uint8_t MAX7221_DIGIT_VALUE_OFF = 16;
+static uint8_t MAX7221_DIGIT_VALUE_OFF = 15;
 
 static uint8_t MAX7221_INTENSITY_MIN = 0;
 static uint8_t MAX7221_INTENSITY_MAX = 16;
@@ -161,8 +161,10 @@ void max7221_disable_display_test(void) {
 }
 
 
+// FIXME
 uint8_t max7221_digit_with_decimal(uint8_t digit) {
-  return digit |= (1 << MAX7221_DIGIT_DECIMAL_BIT);
+  digit |= (1 << MAX7221_DIGIT_DECIMAL_BIT);
+  return digit;
 }
 
 
@@ -175,15 +177,20 @@ void max7221_write_dash(uint8_t digit) {
   max7221_write(digit, MAX7221_DIGIT_VALUE_DASH);
 }
 
+
 void max7221_write_4digit_number(uint16_t number) {
   uint8_t index = 4;
   while(0 < index) {
-    uint8_t digit = 0;
     if(0 < number) {
-      digit = number % 10;
+      uint8_t digit = number % 10;
+      if(index == 3) {
+        digit = max7221_digit_with_decimal(digit);
+      }
+      max7221_write(index, digit);
       number /= 10;
+    } else {
+      max7221_write_blank(index);
     }
-    max7221_write(index, digit);
     index -= 1;
   }
 }
@@ -255,26 +262,27 @@ void main(void) {
     if(!(PIND & (1 << ENC1A))) {
       if(enc1_enabled == 0) {
         uint16_t new_tbpm;
+        uint8_t increment;
+
         enc1_enabled = 1;
-        if(!(PIND & (1 << ENC1B))) {
-          new_tbpm = clock_state.tbpm + 10;
+
+        // if encoder pushed, increment by tenths
+        if(!(PIND & (1 << ENC1SW))) {
+          increment = 1;
         } else {
-          new_tbpm = clock_state.tbpm - 10;
+          // TODO also set tenths to 0 like mpc
+          increment = 10;
+        }
+
+        if(!(PIND & (1 << ENC1B))) {
+          new_tbpm = clock_state.tbpm + increment;
+        } else {
+          new_tbpm = clock_state.tbpm - increment;
         }
         update_clock_config(&clock_state, new_tbpm, clock_state.multiplier);
       }
     } else {
       enc1_enabled = 0;
-    }
-
-    /* handle rotary encoder pushbutton input */
-    if(!(PIND & (1 << ENC1SW))) {
-      if(enc1sw_enabled == 0) {
-        enc1sw_enabled = 1;
-        update_clock_config(&clock_state, 1200, clock_state.multiplier);
-      }
-    } else {
-      enc1sw_enabled = 0;
     }
 
     max7221_write_4digit_number(clock_state.tbpm);

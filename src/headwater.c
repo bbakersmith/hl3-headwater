@@ -76,7 +76,6 @@ int8_t modify_multiplier(int8_t multiplier, int8_t b_value) {
 // TODO: update LED functions
 
 
-// FIXME works in tests (gcc) not in atmega
 uint16_t samples_per_output(int16_t tbpm) {
   return (SAMPLES_PER_SECOND * SECONDS_IN_MINUTE * 10) / tbpm;
 }
