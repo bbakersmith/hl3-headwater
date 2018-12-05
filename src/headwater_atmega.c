@@ -72,7 +72,7 @@ void spi_master_init(void) {
   /* Set MOSI, SCK, and SS (PORTB2) output, all others input */
   DDRB = (1 << MOSI) | (1 << SCK) | (1 << SS);
   /* Enable SPI, Master, set clock rate fck/16 */
-  SPCR = (1 << SPE) | (1 << MSTR) | (1 << SPR1) | (0 << SPR0);
+  SPCR = (1 << SPE) | (1 << MSTR) | (0 << SPR1) | (1 << SPR0);
 }
 
 
