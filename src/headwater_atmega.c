@@ -59,11 +59,16 @@ void atmega_update_multiplied(uint8_t enabled) {
 #define MOSI PORTB3
 #define SCK PORTB5
 #define SS PORTB2
+#define ENC1A PORTD0
+#define ENC1B PORTD1
+#define ENC1SW PORTD2
 
 
 void spi_master_init(void) {
   // set CS high
   PORTB |= (1 << SS);
+  /* Set PORTD0 and 1 to inputs pulled high for rotary encoder */
+  PORTD |= (1 << ENC1A) | (1 << ENC1B) | (1 << ENC1SW);
   /* Set MOSI, SCK, and SS (PORTB2) output, all others input */
   DDRB = (1 << MOSI) | (1 << SCK) | (1 << SS);
   /* Enable SPI, Master, set clock rate fck/16 */
@@ -207,26 +212,10 @@ void max7221_initialize(uint8_t intensity, uint8_t num_digits) {
 
   */
 
-
-  uint32_t x = 200000;
-  uint32_t y = 28;
-
-  uint16_t number = x / y;
-  /* uint16_t number = 3001; */
-  /* uint16_t number = 1089; */
-
-  uint8_t index = 4;
-  while(0 < index && 0 < number) {
-    uint8_t digit = number % 10;
-    max7221_write(index, digit);
-    number /= 10;
-    index -= 1;
-  }
-
-  /* max7221_write(MAX7221_DIGIT_0, digits[0]); */
-  /* max7221_write(MAX7221_DIGIT_1, digits[1]); */
-  /* max7221_write(MAX7221_DIGIT_2, digits[2]); */
-  /* max7221_write(MAX7221_DIGIT_3, digits[3]); */
+  max7221_write(MAX7221_DIGIT_0, 0);
+  max7221_write(MAX7221_DIGIT_1, 0);
+  max7221_write(MAX7221_DIGIT_2, 0);
+  max7221_write(MAX7221_DIGIT_3, 0);
 
   /* max7221_enable_display_test(); */
   max7221_start();
@@ -234,6 +223,18 @@ void max7221_initialize(uint8_t intensity, uint8_t num_digits) {
   /* max7221_stop(); */
 }
 
+void max7221_write_4digit_number(uint16_t number) {
+  uint8_t index = 4;
+  while(0 < index) {
+    uint8_t digit = 0;
+    if(0 < number) {
+      digit = number % 10;
+      number /= 10;
+    }
+    max7221_write(index, digit);
+    index -= 1;
+  }
+}
 
 uint8_t debug_toggle_state = 0;
 void debug_toggle(void) {
@@ -247,7 +248,6 @@ void debug_toggle(void) {
     debug_toggle_state = 1;
   }
 }
-
 
 void main(void) {
   // enable pins
@@ -271,6 +271,7 @@ void main(void) {
   sei();
   */
 
+  _delay_ms(1000);
   spi_master_init();
   max7221_initialize(0, 4);
 
@@ -280,12 +281,56 @@ void main(void) {
   // update_clock_config(&clock_state, 1200, 50);
   // start_clock(&clock_state);
 
+  // PIND contains the value of ENC1A and B
+
+  /*
+  uint32_t x = 200000;
+  uint32_t y = 28;
+  uint16_t number = x / y;
+  uint16_t number = 3001;
+  uint16_t number = 1089;
+  */
+
+  uint16_t total = 0;
+  uint8_t enc1_enabled = 0;
+  uint8_t enc1sw_enabled = 0;
+
   while(1) {
-    debug_toggle();
-    _delay_ms(1000);
-    max7221_intensity(0);
-    _delay_ms(1000);
-    max7221_intensity(5);
+    /* handle rotary encoder input */
+    if(!(PIND & (1 << ENC1A))) {
+      if(enc1_enabled == 0) {
+        enc1_enabled = 1;
+        if(!(PIND & (1 << ENC1B))) {
+          total += 1;
+        } else {
+          total -= 1;
+        }
+      }
+    } else {
+      enc1_enabled = 0;
+    }
+
+    /* handle rotary encoder pushbutton input */
+    if(!(PIND & (1 << ENC1SW))) {
+      if(enc1sw_enabled == 0) {
+        enc1sw_enabled = 1;
+        total = 0;
+      }
+    } else {
+      enc1sw_enabled = 0;
+    }
+
+    max7221_write_4digit_number(total);
+
+    /* total += 1; */
+    /* max7221_write_4digit_number(total); */
+    /* _delay_ms(1000); */
+    /* debug_toggle(); */
+
+    /* _delay_ms(1000); */
+    /* max7221_intensity(0); */
+    /* _delay_ms(1000); */
+    /* max7221_intensity(5); */
   }
 }
 
