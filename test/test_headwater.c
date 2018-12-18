@@ -33,36 +33,36 @@ TEST_TEAR_DOWN(headwater) {}
 
 
 TEST(headwater, test_rotary_encoder_modifier) {
-  TEST_ASSERT_EQUAL(1, rotary_encoder_modifier(1));
-  TEST_ASSERT_EQUAL(-1, rotary_encoder_modifier(0));
+  TEST_ASSERT_EQUAL(-1, rotary_encoder_modifier(1));
+  TEST_ASSERT_EQUAL(1, rotary_encoder_modifier(0));
 }
 
 
 TEST(headwater, test_tbpm_encoder_modifier) {
-  TEST_ASSERT_EQUAL(1, tbpm_encoder_modifier(1, 1));
-  TEST_ASSERT_EQUAL(-1, tbpm_encoder_modifier(0, 1));
-  TEST_ASSERT_EQUAL(10, tbpm_encoder_modifier(1, 0));
-  TEST_ASSERT_EQUAL(-10, tbpm_encoder_modifier(0, 0));
+  TEST_ASSERT_EQUAL(-1, tbpm_encoder_modifier(1, 1));
+  TEST_ASSERT_EQUAL(1, tbpm_encoder_modifier(0, 1));
+  TEST_ASSERT_EQUAL(-10, tbpm_encoder_modifier(1, 0));
+  TEST_ASSERT_EQUAL(10, tbpm_encoder_modifier(0, 0));
 }
 
 
 TEST(headwater, test_modify_tbpm) {
-  TEST_ASSERT_EQUAL(601, modify_tbpm(600, 1, 1));
-  TEST_ASSERT_EQUAL(610, modify_tbpm(600, 1, 0));
-  TEST_ASSERT_EQUAL(599, modify_tbpm(600, 0, 1));
-  TEST_ASSERT_EQUAL(590, modify_tbpm(600, 0, 0));
-  TEST_ASSERT_EQUAL(3000, modify_tbpm(3000, 1, 1));
-  TEST_ASSERT_EQUAL(3000, modify_tbpm(2995, 1, 0));
-  TEST_ASSERT_EQUAL(10, modify_tbpm(1, 0, 1));
-  TEST_ASSERT_EQUAL(10, modify_tbpm(5, 0, 0));
+  TEST_ASSERT_EQUAL(599, modify_tbpm(600, 1, 1));
+  TEST_ASSERT_EQUAL(590, modify_tbpm(600, 1, 0));
+  TEST_ASSERT_EQUAL(601, modify_tbpm(600, 0, 1));
+  TEST_ASSERT_EQUAL(610, modify_tbpm(600, 0, 0));
+  TEST_ASSERT_EQUAL(3000, modify_tbpm(3000, 0, 1));
+  TEST_ASSERT_EQUAL(3000, modify_tbpm(2995, 0, 0));
+  TEST_ASSERT_EQUAL(10, modify_tbpm(1, 1, 1));
+  TEST_ASSERT_EQUAL(10, modify_tbpm(5, 1, 0));
 }
 
 
 TEST(headwater, test_modify_multiplier) {
-  TEST_ASSERT_EQUAL(11, modify_multiplier(10, 1));
-  TEST_ASSERT_EQUAL(9, modify_multiplier(10, 0));
-  TEST_ASSERT_EQUAL(99, modify_multiplier(99, 1));
-  TEST_ASSERT_EQUAL(1, modify_multiplier(1, 0));
+  TEST_ASSERT_EQUAL(11, modify_multiplier(10, 0));
+  TEST_ASSERT_EQUAL(9, modify_multiplier(10, 1));
+  TEST_ASSERT_EQUAL(99, modify_multiplier(99, 0));
+  TEST_ASSERT_EQUAL(1, modify_multiplier(1, 1));
 }
 
 

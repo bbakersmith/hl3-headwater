@@ -12,21 +12,52 @@
 #define INPUT_DDR DDRC
 
 
-#define OUTPUT_PORT PORTB
-#define OUTPUT_DDR DDRB
+#define OUTPUT_PORT PORTD
+#define OUTPUT_DDR DDRD
+
+
+#define MULTIPLEX_PORT PORTB
+#define MULTIPLEX_DDR DDRB
+
+
+static uint8_t MULTIPLEX_S1 = PORTB0;
+static uint8_t MULTIPLEX_S2 = PORTB1;
 
 
 static uint8_t TBPM_ENCODER_A = PORTC0;
 static uint8_t TBPM_ENCODER_B = PORTC1;
 
 
-static uint8_t OUTPUT_PIN = PORTB0;
-static uint8_t MULTIPLIED_PIN = PORTB1;
-static uint8_t DEBUG_PIN = PORTB2;
+static uint8_t OUTPUT_PIN = PORTD5;
+static uint8_t MULTIPLIED_PIN = PORTD6;
+static uint8_t DEBUG_PIN = PORTD7;
+
+
+static const uint8_t MULTIPLEX_SELECT_MODA = 0;
+static const uint8_t MULTIPLEX_SELECT_MODB = 1;
+static const uint8_t MULTIPLEX_SELECT_PRESET = 2;
+static const uint8_t MULTIPLEX_SELECT_BPM = 3;
 
 
 // should be volatile?
 ClockState clock_state;
+
+
+void atmega_multiplexer_select(uint8_t channel) {
+  if(channel == 0) {
+      MULTIPLEX_PORT &= ~(1 << MULTIPLEX_S1);
+      MULTIPLEX_PORT &= ~(1 << MULTIPLEX_S2);
+  } else if(channel == 1) {
+      MULTIPLEX_PORT &= ~(1 << MULTIPLEX_S1);
+      MULTIPLEX_PORT |= (1 << MULTIPLEX_S2);
+  } else if(channel == 2) {
+      MULTIPLEX_PORT |= (1 << MULTIPLEX_S1);
+      MULTIPLEX_PORT &= ~(1 << MULTIPLEX_S2);
+  } else if(channel == 3) {
+      MULTIPLEX_PORT |= (1 << MULTIPLEX_S1);
+      MULTIPLEX_PORT |= (1 << MULTIPLEX_S2);
+  }
+}
 
 
 void atmega_update_output(uint8_t enabled) {
@@ -205,20 +236,18 @@ void max7221_initialize(uint8_t intensity, uint8_t num_digits) {
 uint8_t debug_toggle_state = 0;
 void debug_toggle(void) {
   if(debug_toggle_state) {
-    atmega_update_output(0);
-    atmega_update_multiplied(1);
+    OUTPUT_PORT &= ~(1 << DEBUG_PIN);
     debug_toggle_state = 0;
   } else {
-    atmega_update_output(1);
-    atmega_update_multiplied(0);
+    OUTPUT_PORT |= (1 << DEBUG_PIN);
     debug_toggle_state = 1;
   }
 }
 
 void main(void) {
   // enable pins
-  /* INPUT_DDR = (1 << TBPM_ENCODER_A) | (1 << TBPM_ENCODER_B); */
-  OUTPUT_DDR = (1 << OUTPUT_PIN) | (1 << MULTIPLIED_PIN) | (1 << DEBUG_PIN);
+  OUTPUT_DDR |= (1 << OUTPUT_PIN) | (1 << MULTIPLIED_PIN) | (1 << DEBUG_PIN);
+  MULTIPLEX_DDR |= (1 << MULTIPLEX_S1) | (1 << MULTIPLEX_S2);
 
   /* Enable rotary encoder inputs */
   PORTD |= (1 << ENC1A) | (1 << ENC1B) | (1 << ENC1SW);
@@ -246,8 +275,8 @@ void main(void) {
   update_clock_config(&clock_state, 1200, 2);
   start_clock(&clock_state);
 
-  uint8_t enc1_enabled = 0;
-  uint8_t enc1sw_enabled = 0;
+  uint8_t enc_bpm_enabled = 0;
+  uint8_t enc_moda_enabled = 0;
 
   /*
   uint32_t x = 200000;
@@ -259,38 +288,62 @@ void main(void) {
 
   while(1) {
     /* handle rotary encoder input */
+    uint8_t changed = 0;
+    uint16_t new_tbpm = clock_state.tbpm;
+    uint8_t new_multiplier = clock_state.multiplier;
+
+    /* debug_toggle(); */
+
+    // TODO set BPM encoder multiplexer address
+    // seems to work externally but won't read or respond to inputs
+    // when set to anything but 0
+    atmega_multiplexer_select(MULTIPLEX_SELECT_BPM);
+
+    // this sucks, hopefully a breadboard problem
+    _delay_us(500);
+
     if(!(PIND & (1 << ENC1A))) {
-      if(enc1_enabled == 0) {
-        uint16_t new_tbpm;
-        uint8_t increment;
-
-        enc1_enabled = 1;
-
-        // if encoder pushed, increment by tenths
-        if(!(PIND & (1 << ENC1SW))) {
-          increment = 1;
-        } else {
-          // TODO also set tenths to 0 like mpc
-          increment = 10;
-        }
-
-        if(!(PIND & (1 << ENC1B))) {
-          new_tbpm = clock_state.tbpm + increment;
-        } else {
-          new_tbpm = clock_state.tbpm - increment;
-        }
-        update_clock_config(&clock_state, new_tbpm, clock_state.multiplier);
+      if(enc_bpm_enabled == 0) {
+        new_tbpm = modify_tbpm(
+          clock_state.tbpm,
+          (PIND & (1 << ENC1B)),
+          (PIND & (1 << ENC1SW))
+        );
+        enc_bpm_enabled = 1;
+        changed = 1;
       }
     } else {
-      enc1_enabled = 0;
+      enc_bpm_enabled = 0;
+    }
+
+    atmega_multiplexer_select(MULTIPLEX_SELECT_MODA);
+
+    // this sucks, hopefully a breadboard problem
+    _delay_us(500);
+
+    if(!(PIND & (1 << ENC1A))) {
+      if(enc_moda_enabled == 0) {
+        new_multiplier = modify_multiplier(
+          clock_state.multiplier,
+          (PIND & (1 << ENC1B))
+        );
+        enc_moda_enabled = 1;
+        changed = 1;
+      }
+    } else {
+      enc_moda_enabled = 0;
+    }
+
+    if(changed == 1) {
+      update_clock_config(&clock_state, new_tbpm, new_multiplier);
     }
 
     max7221_write_4digit_number(clock_state.tbpm);
 
+    /* debug_toggle(); */
+
     /* total += 1; */
     /* max7221_write_4digit_number(total); */
-    /* _delay_ms(1000); */
-    /* debug_toggle(); */
 
     /* _delay_ms(1000); */
     /* max7221_intensity(0); */

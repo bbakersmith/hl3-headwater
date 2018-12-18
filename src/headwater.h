@@ -2,6 +2,7 @@
 
 
 typedef struct ClockState {
+  int8_t ext_mode;
   int16_t tbpm;
   int8_t multiplier;
   uint8_t running;
