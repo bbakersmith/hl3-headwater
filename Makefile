@@ -8,7 +8,9 @@ TARGET_HEX=$(TARGET_ELF:%.elf=%.hex)
 
 SOURCE_FILES=\
   src/headwater.c \
-	src/headwater_atmega.c
+  src/spi.c \
+	src/atmega/headwater.c \
+	src/atmega/spi.c
 
 AVR_FUSES=-U lfuse:w:0xD7:m
 
@@ -18,6 +20,7 @@ TEST_SOURCE_FILES=\
   $(UNITY_DIR)/src/unity.c \
   $(UNITY_DIR)/extras/fixture/src/unity_fixture.c \
   src/headwater.c \
+  test/test_spi.c \
   test/test_headwater.c \
 	test/run_tests.c
 
