@@ -45,17 +45,17 @@ ClockState clock_state;
 
 void atmega_update_output(uint8_t enabled) {
   if(enabled == 0) {
-    OUTPUT_PORT &= ~(1 << BPM_PIN);
-  } else {
     OUTPUT_PORT |= (1 << BPM_PIN);
+  } else {
+    OUTPUT_PORT &= ~(1 << BPM_PIN);
   }
 }
 
 void atmega_update_multiplied(uint8_t enabled) {
   if(enabled == 0) {
-    OUTPUT_PORT &= ~(1 << MULTIPLIED_PIN);
-  } else {
     OUTPUT_PORT |= (1 << MULTIPLIED_PIN);
+  } else {
+    OUTPUT_PORT &= ~(1 << MULTIPLIED_PIN);
   }
 }
 
