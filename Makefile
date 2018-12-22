@@ -7,7 +7,7 @@ TARGET_ELF=$(BUILD_DIR)/headwater_atmega.elf
 TARGET_HEX=$(TARGET_ELF:%.elf=%.hex)
 
 SOURCE_FILES=\
-  src/headwater.c \
+  src/clock.c \
   src/spi.c \
 	src/atmega/headwater.c \
 	src/atmega/spi.c
@@ -47,3 +47,7 @@ $(TEST_TARGET): clean
 
 clean:
 	rm $(BUILD_DIR)/* || true
+
+term:
+	# m 5 4 1 2 1 2 2
+	picocom -b115200 /dev/ttyUSB0
