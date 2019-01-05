@@ -16,12 +16,18 @@ void api_parse_header(APIRequest *request, uint8_t header) {
   );
 }
 
-void api_new_payload(APIRequest *request, uint8_t payload[8], uint8_t size) {
-  for(uint8_t i = 0; i < size; i++) {
+void api_new_payload(APIRequest *request, uint8_t payload[8]) {
+  for(uint8_t i = 0; i < request->size; i++) {
     request->payload[i] = payload[i];
   }
-  request->size = size;
   request->index = 0;
+}
+
+void api_handle_request(APIRequest *request, uint8_t *serial_register) {
+  uint8_t incoming_value = *serial_register;
+  *serial_register = request->payload[request->index];
+  request->payload[request->index] = incoming_value;
+  request->index++;
 }
 
 /* HeadwaterAPIRequest headwater_api_create_request(uint8_t header) { */

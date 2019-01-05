@@ -26,7 +26,8 @@ typedef struct APIRequest {
 } APIRequest;
 
 void api_parse_header(APIRequest *request, uint8_t header);
-void api_new_payload(APIRequest *request, uint8_t payload[8], uint8_t size);
+void api_new_payload(APIRequest *request, uint8_t payload[8]);
+void api_handle_request(APIRequest *request, uint8_t *serial_register);
 
 APIRequest api_new_request();
 
