@@ -1,11 +1,13 @@
 #include "stdint.h"
 #include <avr/io.h>
 
+#include "atmega_spi.h"
+
 #define MOSI PORTB3
 #define SCK PORTB5
 #define SS PORTB2
 
-void spi_master_init(void) {
+void atmega_spi_master_init(void) {
   // set CS high
   PORTB |= (1 << SS);
   // Set MOSI, SCK, and SS output, all others input
@@ -14,7 +16,7 @@ void spi_master_init(void) {
   SPCR = (1 << SPE) | (1 << MSTR) | (0 << SPR1) | (1 << SPR0);
 }
 
-void spi_slave_init(void) {
+void atmega_spi_slave_init(void) {
   // Set MISO output, all others input
   DDRB = (1 << PINB4);
   // Enable SPI, slave, interrupt enable
@@ -23,20 +25,20 @@ void spi_slave_init(void) {
   SPDR = 0;
 }
 
-void spi_queue_transfer(uint8_t data) {
+void atmega_spi_queue_transfer(uint8_t data) {
   SPDR = data;
 }
 
-uint8_t spi_transfer(uint8_t data) {
+uint8_t atmega_spi_transfer(uint8_t data) {
   // Start transmission
-  spi_queue_transfer(data);
+  atmega_spi_queue_transfer(data);
   // Wait for transmission complete
   while(!(SPSR & (1 << SPIF)));
   // Return data from MISO?
   return(SPDR);
 }
 
-uint8_t spi_receive(void) {
+uint8_t atmega_spi_receive(void) {
   // Wait for transmission complete
   while(!(SPSR & (1 << SPIF)));
   // Return data from MISO?

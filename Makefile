@@ -3,14 +3,14 @@ TEST_COMPILER=gcc
 BUILD_DIR=./build
 UNITY_DIR=./Unity
 
-TARGET_ELF=$(BUILD_DIR)/headwater_atmega.elf
+TARGET_ELF=$(BUILD_DIR)/headwater.elf
 TARGET_HEX=$(TARGET_ELF:%.elf=%.hex)
 
 SOURCE_FILES=\
-  src/clock.c \
-  src/spi.c \
-	src/atmega/headwater.c \
-	src/atmega/spi.c
+	src/atmega_headwater.c \
+	src/atmega_spi.c \
+  src/headwater_state.c \
+  src/spi.c
 
 AVR_FUSES=-U lfuse:w:0xD7:m
 
@@ -19,9 +19,12 @@ TEST_TARGET = $(BUILD_DIR)/run_tests.o
 TEST_SOURCE_FILES=\
   $(UNITY_DIR)/src/unity.c \
   $(UNITY_DIR)/extras/fixture/src/unity_fixture.c \
-  src/headwater.c \
+  src/api.c \
+  src/headwater_state.c \
+	src/spi.c \
+  test/test_api.c \
+  test/test_headwater_state.c \
   test/test_spi.c \
-  test/test_headwater.c \
 	test/run_tests.c
 
 TEST_INC_DIRS=-Isrc -I$(UNITY_DIR)/src -I$(UNITY_DIR)/extras/fixture/src
@@ -42,7 +45,7 @@ $(TARGET_ELF):
 test: $(TEST_TARGET)
 
 $(TEST_TARGET): clean
-	$(TEST_COMPILER) $(TEST_INC_DIRS) $(TEST_SOURCE_FILES) -o $(TEST_TARGET)
+	$(TEST_COMPILER) -g $(TEST_INC_DIRS) $(TEST_SOURCE_FILES) -o $(TEST_TARGET)
 	$(TEST_TARGET) -v
 
 clean:
