@@ -5,12 +5,16 @@
 
 typedef struct HeadwaterState {
   uint16_t tbpm;
-  uint8_t multiplier;
+  uint8_t multiplier; // TODO remove
+  uint8_t multiplier_a;
+  uint8_t multiplier_b;
   uint8_t running;
   uint16_t reset;
   uint16_t samples_since_reset_count;
   uint16_t samples_per_beat;
-  uint16_t samples_per_multiplied;
+  uint16_t samples_per_multiplied; // TODO remove
+  uint16_t samples_per_multiplier_a;
+  uint16_t samples_per_multiplier_b;
   uint16_t sample_count;
   uint16_t multiplied_sample_count;
   uint16_t multiplied_count;

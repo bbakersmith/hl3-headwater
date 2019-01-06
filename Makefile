@@ -14,17 +14,21 @@ SOURCE_FILES=\
 
 AVR_FUSES=-U lfuse:w:0xD7:m
 
-TEST_TARGET = $(BUILD_DIR)/run_tests.o
+TEST_TARGET=$(BUILD_DIR)/run_tests.o
+
+FLAGS=-g
 
 TEST_SOURCE_FILES=\
   $(UNITY_DIR)/src/unity.c \
   $(UNITY_DIR)/extras/fixture/src/unity_fixture.c \
   src/api.c \
+	src/bytes.c \
+  src/headwater_api.c \
   src/headwater_state.c \
-	src/spi.c \
   test/test_api.c \
+  test/test_headwater_api.c \
   test/test_headwater_state.c \
-  test/test_spi.c \
+  test/test_bytes.c \
 	test/run_tests.c
 
 TEST_INC_DIRS=-Isrc -I$(UNITY_DIR)/src -I$(UNITY_DIR)/extras/fixture/src
@@ -45,7 +49,7 @@ $(TARGET_ELF):
 test: $(TEST_TARGET)
 
 $(TEST_TARGET): clean
-	$(TEST_COMPILER) -g $(TEST_INC_DIRS) $(TEST_SOURCE_FILES) -o $(TEST_TARGET)
+	$(TEST_COMPILER) $(FLAGS) $(TEST_INC_DIRS) $(TEST_SOURCE_FILES) -o $(TEST_TARGET)
 	$(TEST_TARGET) -v
 
 clean:
