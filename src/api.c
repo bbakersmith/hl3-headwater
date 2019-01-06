@@ -26,89 +26,27 @@ void api_new_payload(APIRequest *request, uint8_t payload[8]) {
 void api_handle_request(APIRequest *request, uint8_t *serial_register) {
   uint8_t incoming_value = *serial_register;
   *serial_register = request->payload[request->index];
-  request->payload[request->index] = incoming_value;
+  if(0 < request->index) {
+    request->payload[request->index - 1] = incoming_value;
+  }
   request->index++;
 }
 
-/* HeadwaterAPIRequest headwater_api_create_request(uint8_t header) { */
-/*   HEADWATER_API_COMMAND command = header & ~( */
-/*    (1 << HEADWATER_API_REQUEST_HEADER_SIZE0) */
-/*     | (1 << HEADWATER_API_REQUEST_HEADER_SIZE1) */
-/*   ); */
-/*  */
-/*   HEADWATER_API_PAYLOAD_SIZE size = ( */
-/*     (1 << HEADWATER_API_REQUEST_HEADER_SIZE0) */
-/*     | (1 << HEADWATER_API_REQUEST_HEADER_SIZE1) */
-/*   ); */
-/*  */
-/*   HEADWATER_API_REQUEST_TYPE type = ( */
-/*     (1 << HEADWATER_API_REQUEST_HEADER_TYPE) & header */
-/*   ); */
-/*  */
-/*   HeadwaterAPIRequest req = { */
-/*     .command = command, */
-/*     .header = header, */
-/*     .index = 0, */
-/*     .type = type, */
-/*     .size = size */
-/*   }; */
-/*  */
-/*   return req; */
-/* } */
-/*  */
-/* void headwater_api_handle_interrupt(HeadwaterAPI *api) { */
-/*   if(api->request->command == HEADWATER_API_NEW_COMMAND) { */
-/*     uint8_t header = *api->serial_register; */
-/*     HeadwaterAPIRequest req = headwater_api_create_request(header); */
-/*     api->request = &req; */
-/*  */
-/*     if(api->request->type == HEADWATER_API_REQUEST_TYPE_GET) { */
-/*       // populate payload */
-/*       api->get(api); */
-/*     } */
-/*   } */
-/*  */
-/*   if(api->request->index < api->request->size) { */
-/*     *api->serial_register = api->request->payload[api->request->index]; */
-/*     api->request->index++; */
-/*   } */
-/*  */
-/*   #<{(| if(api.request.size == 0) { |)}># */
-/*   #<{(|   api.postprocessor(api); |)}># */
-/*   #<{(|   api->request->command = HEADWATER_API_NEW_COMMAND; |)}># */
-/*   #<{(| } |)}># */
-/*  */
-/*   #<{(| switch(api.request.type) { |)}># */
-/*   #<{(|   case HEADWATER_API_REQUEST_TYPE_GET: |)}># */
-/*   #<{(|     if(api.request.index < api.request.size) { |)}># */
-/*   #<{(|       api->serial_register = api.request.payload[api.request.index]; |)}># */
-/*   #<{(|       api->request->index++; |)}># */
-/*   #<{(|     } else { |)}># */
-/*   #<{(|       api->request->command = HEADWATER_API_NEW_COMMAND; |)}># */
-/*   #<{(|     } |)}># */
-/*   #<{(|     break; |)}># */
-/*   #<{(|   case HEADWATER_API_REQUEST_TYPE_UPDATE: |)}># */
-/*   #<{(|     if(api.request.size == 0) { |)}># */
-/*   #<{(|       api.update_handler_fn(api); |)}># */
-/*   #<{(|       api->request->command = HEADWATER_API_NEW_COMMAND; |)}># */
-/*   #<{(|     } else { |)}># */
-/*   #<{(|       api->request->payload[api.request.index - 1] = api.serial_register; |)}># */
-/*   #<{(|     } |)}># */
-/*   #<{(|  |)}># */
-/*   #<{(|     // if size 0 call handler |)}># */
-/*   #<{(|     // if size 1 index 0 do nothing |)}># */
-/*   #<{(|     // if size 1 index 1 copy it |)}># */
-/*   #<{(|     // if size 2 index 1 copy it |)}># */
-/*   #<{(|     // if size 2 index 2 copy it |)}># */
-/*   #<{(|     if(api.request.index < api.request.size) { |)}># */
-/*   #<{(|       if(0 < api.request.index) { |)}># */
-/*   #<{(|         api->request->payload[api.request.index - 1] = api.serial_register; |)}># */
-/*   #<{(|       } |)}># */
-/*   #<{(|       api->request->index++; |)}># */
-/*   #<{(|     } else { |)}># */
-/*   #<{(|       api.update_handler_fn(api); |)}># */
-/*   #<{(|     } |)}># */
-/*   #<{(|     break; |)}># */
-/*   #<{(| } |)}># */
-/*  */
-/* } */
+void api_payload_preprocessor(API *api) {
+  api->payload_preprocessor(api);
+  *api->serial_register = api->request->payload[api->request->index]; // ?
+}
+
+void api_handle_interrupt(API *api) {
+  if(api->request->command == API_CMD_NEW_REQUEST) {
+    api_parse_header(api->request, *api->serial_register);
+    api->payload_preprocessor(api);
+  }
+
+  api_handle_request(api->request, api->serial_register);
+
+  if(api->request->size < api->request->index) {
+    api->payload_postprocessor(api);
+    *api->request = api_new_request();
+  }
+}

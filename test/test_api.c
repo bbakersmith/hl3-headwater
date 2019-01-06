@@ -100,17 +100,17 @@ TEST(api, test_api_handle_request_size1) {
   uint8_t incoming_value = 12;
   uint8_t outgoing_value = 34;
 
-  dummy_request.index = 0;
-  dummy_request.size = 1;
+  dummy_request.index = 1;
+  dummy_request.size = 2;
 
-  dummy_request.payload[0] = outgoing_value;
+  dummy_request.payload[1] = outgoing_value;
   dummy_serial_register = incoming_value;
 
   api_handle_request(&dummy_request, &dummy_serial_register);
 
   TEST_ASSERT_EQUAL(outgoing_value, dummy_serial_register);
   TEST_ASSERT_EQUAL(incoming_value, dummy_request.payload[0]);
-  TEST_ASSERT_EQUAL(1, dummy_request.index);
+  TEST_ASSERT_EQUAL(2, dummy_request.index);
 }
 
 TEST(api, test_api_handle_request_size2) {
@@ -120,10 +120,10 @@ TEST(api, test_api_handle_request_size2) {
   uint8_t incoming_value2 = 56;
   uint8_t outgoing_value2 = 78;
 
-  dummy_request.index = 0;
-  dummy_request.size = 1;
-  dummy_request.payload[0] = outgoing_value1;
-  dummy_request.payload[1] = outgoing_value2;
+  dummy_request.index = 1;
+  dummy_request.size = 3;
+  dummy_request.payload[1] = outgoing_value1;
+  dummy_request.payload[2] = outgoing_value2;
 
   dummy_serial_register = incoming_value1;
 
@@ -131,7 +131,7 @@ TEST(api, test_api_handle_request_size2) {
 
   TEST_ASSERT_EQUAL(outgoing_value1, dummy_serial_register);
   TEST_ASSERT_EQUAL(incoming_value1, dummy_request.payload[0]);
-  TEST_ASSERT_EQUAL(1, dummy_request.index);
+  TEST_ASSERT_EQUAL(2, dummy_request.index);
 
   dummy_serial_register = incoming_value2;
 
@@ -139,7 +139,154 @@ TEST(api, test_api_handle_request_size2) {
 
   TEST_ASSERT_EQUAL(outgoing_value2, dummy_serial_register);
   TEST_ASSERT_EQUAL(incoming_value2, dummy_request.payload[1]);
-  TEST_ASSERT_EQUAL(2, dummy_request.index);
+  TEST_ASSERT_EQUAL(3, dummy_request.index);
+}
+
+void dummy_payload_preprocessor(API *api) {
+  uint8_t dummy_payload[8] = {3, 2, 1};
+  api_new_payload(api->request, dummy_payload);
+}
+
+TEST(api, test_api_payload_preprocessor) {
+  uint8_t dummy_size = 3;
+  dummy_request.size = dummy_size;
+  API dummy_api = {
+    .request = &dummy_request,
+    .payload_preprocessor = &dummy_payload_preprocessor,
+    .serial_register = &dummy_serial_register,
+  };
+
+  api_payload_preprocessor(&dummy_api);
+
+  uint8_t expected_payload[8] = {3, 2, 1};
+  assert_payload_equal(expected_payload, dummy_api.request->payload, dummy_size);
+  TEST_ASSERT_EQUAL(0, dummy_request.index);
+}
+
+void dummy_payload_preprocessor_full(API *api) {
+  if(api->request->command == 1) {
+    uint8_t dummy_payload[8] = {14, 15, 16};
+    api_new_payload(api->request, dummy_payload);
+  }
+}
+
+uint8_t dummy_payload_postprocessor_result1[2] = {0, 0};
+uint8_t dummy_payload_postprocessor_result2 = 0;
+
+void dummy_payload_postprocessor_full(API *api) {
+  switch(api->request->command) {
+    case 1:
+      dummy_payload_postprocessor_result1[0] = api->request->payload[0];
+      dummy_payload_postprocessor_result1[1] = api->request->payload[1];
+      break;
+    case 2:
+      dummy_payload_postprocessor_result2 = api->request->payload[0];
+      break;
+  }
+}
+
+TEST(api, test_api_handle_interrupt) {
+  API dummy_api = {
+    .request = &dummy_request,
+    .payload_preprocessor = &dummy_payload_preprocessor_full,
+    .payload_postprocessor = &dummy_payload_postprocessor_full,
+    .serial_register = &dummy_serial_register
+  };
+
+  // A new
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_api.request->index, "A index");
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_api.request->size, "A size");
+
+  // B header size 2
+  dummy_serial_register = (1 << API_HEADER_SIZE1) | (1 << API_HEADER_CMD0);
+  api_handle_interrupt(&dummy_api);
+
+  TEST_ASSERT_EQUAL_MESSAGE(1, dummy_api.request->index, "B index");
+  TEST_ASSERT_EQUAL_MESSAGE(2, dummy_api.request->size, "B size");
+  TEST_ASSERT_EQUAL_MESSAGE(14, dummy_serial_register, "B serial_register");
+
+  // C payload 1
+  dummy_serial_register = 11;
+  api_handle_interrupt(&dummy_api);
+
+  TEST_ASSERT_EQUAL_MESSAGE(2, dummy_api.request->index, "C index");
+  TEST_ASSERT_EQUAL_MESSAGE(2, dummy_api.request->size, "C size");
+  TEST_ASSERT_EQUAL_MESSAGE(15, dummy_serial_register, "C serial_register");
+
+  // D payload 2
+  dummy_serial_register = 22;
+  api_handle_interrupt(&dummy_api);
+
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_api.request->index, "D index");
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_api.request->size, "D size");
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_serial_register, "D serial_register");
+  TEST_ASSERT_EQUAL_MESSAGE(
+    11,
+    dummy_payload_postprocessor_result1[0],
+    "D post0"
+  );
+  TEST_ASSERT_EQUAL_MESSAGE(
+    22,
+    dummy_payload_postprocessor_result1[1],
+    "D post0"
+  );
+  TEST_ASSERT_EQUAL_MESSAGE(
+    API_CMD_NEW_REQUEST,
+    dummy_api.request->command,
+    "D command"
+  );
+
+  // E header size 0
+  dummy_serial_register = (1 << API_HEADER_CMD3);
+  api_handle_interrupt(&dummy_api);
+
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_api.request->index, "E index");
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_api.request->size, "E size");
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_serial_register, "E serial_register");
+  TEST_ASSERT_EQUAL_MESSAGE(
+    API_CMD_NEW_REQUEST,
+    dummy_api.request->command,
+    "E command"
+  );
+
+  // F header size 1
+  dummy_serial_register = (1 << API_HEADER_SIZE0) | (1 << API_HEADER_CMD1);
+  api_handle_interrupt(&dummy_api);
+
+  TEST_ASSERT_EQUAL_MESSAGE(1, dummy_api.request->index, "F index");
+  TEST_ASSERT_EQUAL_MESSAGE(1, dummy_api.request->size, "F size");
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_serial_register, "F serial_register");
+
+  // G payload 1
+  dummy_serial_register = 77;
+  api_handle_interrupt(&dummy_api);
+
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_api.request->index, "G index");
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_api.request->size, "G size");
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_serial_register, "G serial_register");
+  TEST_ASSERT_EQUAL_MESSAGE(
+    77,
+    dummy_payload_postprocessor_result2,
+    "G post"
+  );
+  TEST_ASSERT_EQUAL_MESSAGE(
+    API_CMD_NEW_REQUEST,
+    dummy_api.request->command,
+    "G command"
+  );
+
+  // H header size 0
+  dummy_serial_register = (1 << API_HEADER_CMD3);
+  api_handle_interrupt(&dummy_api);
+
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_api.request->index, "H index");
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_api.request->size, "H size");
+  TEST_ASSERT_EQUAL_MESSAGE(0, dummy_serial_register, "H serial_register");
+  TEST_ASSERT_EQUAL_MESSAGE(
+    API_CMD_NEW_REQUEST,
+    dummy_api.request->command,
+    "H command"
+  );
 }
 
 TEST_GROUP_RUNNER(api) {
@@ -152,75 +299,6 @@ TEST_GROUP_RUNNER(api) {
   RUN_TEST_CASE(api, test_api_new_payload_size8);
   RUN_TEST_CASE(api, test_api_handle_request_size1);
   RUN_TEST_CASE(api, test_api_handle_request_size2);
+  RUN_TEST_CASE(api, test_api_payload_preprocessor);
+  RUN_TEST_CASE(api, test_api_handle_interrupt);
 }
-
-/* HeadwaterAPI dummy_api; */
-/* HeadwaterAPIRequest dummy_request; */
-/* HeadwaterState dummy_state; */
-/* uint8_t dummy_serial_register; */
-/* uint8_t dummy_payload_get[4]; */
-/* uint8_t dummy_payload_update[4]; */
-/* uint8_t dummy_payload_empty[4] = {0, 0, 0, 0}; */
-/*  */
-/* void copy_payload(uint8_t src[4], uint8_t *dest) { */
-/*   for(uint8_t i = 0; i < 4; i++) { */
-/*     dest[i] = src[i]; */
-/*   } */
-/* } */
-/*  */
-/* TEST_GROUP(headwater_api); */
-/*  */
-/* TEST_SETUP(headwater_api) { */
-/*   dummy_serial_register = 0; */
-/*   dummy_state = create_headwater_state(); // TODO headwater_state_create */
-/*   HeadwaterAPIRequest dummy_request = { */
-/*     .command = HEADWATER_API_NEW_COMMAND */
-/*   }; */
-/*   HeadwaterAPI dummy_api = { */
-/*     .request = &dummy_request, */
-/*     .serial_register = &dummy_serial_register, */
-/*     .state = &dummy_state, */
-/*     .get = &dummy_get_handler, */
-/*     .update = &dummy_update_handler */
-/*   }; */
-/* }; */
-/*  */
-/* TEST_TEAR_DOWN(headwater_api) {}; */
-/*  */
-/* TEST(headwater_api, test_headwater_api_get) { */
-/*   dummy_serial_register = 0x80; */
-/*  */
-/*   dummy_payload_get[0] = 0x04; */
-/*   dummy_payload_get[1] = 0xD2; */
-/*  */
-/*   TEST_ASSERT_EQUAL(0, dummy_api.request->index); */
-/*  */
-/*   headwater_api_handle_interrupt(&dummy_api); */
-/*   TEST_ASSERT_EQUAL(0x04, dummy_serial_register); */
-/*   TEST_ASSERT_EQUAL(1, dummy_api.request->index); */
-/*  */
-/*   headwater_api_handle_interrupt(&dummy_api); */
-/*   TEST_ASSERT_EQUAL(0xD2, dummy_serial_register); */
-/*   TEST_ASSERT_EQUAL(HEADWATER_API_NEW_COMMAND, dummy_api.request->command); */
-/* } */
-/*  */
-/* TEST(headwater_api, test_headwater_api_get_samples_per_beat) { */
-/*   #<{(| uint16_t dummy_samples_per_beat = 1234; |)}># */
-/*   #<{(| dummy_state.samples_per_beat = dummy_samples_per_beat; |)}># */
-/*   #<{(|  |)}># */
-/*   #<{(| dummy_serial_register = HEADWATER_API_GET_SAMPLES_PER_BEAT; |)}># */
-/*   #<{(| headwater_api_handle_interrupt(dummy_api); |)}># */
-/*   #<{(| uint8_t high = dummy_serial_register; |)}># */
-/*   #<{(|  |)}># */
-/*   #<{(| // state change should not affect transfer in progress |)}># */
-/*   #<{(| dummy_state.samples_per_beat = 4567; |)}># */
-/*   #<{(|  |)}># */
-/*   #<{(| headwater_api_handle_interrupt(dummy_api); |)}># */
-/*   #<{(| uint8_t low = dummy_serial_register; |)}># */
-/*   #<{(|  |)}># */
-/*   #<{(| TEST_ASSERT_EQUAL(dummy_samples_per_beat, (high << 8) | low); |)}># */
-/* } */
-/*  */
-/* TEST_GROUP_RUNNER(headwater_api) { */
-/*   RUN_TEST_CASE(headwater_api, test_headwater_api_get); */
-/* } */
