@@ -18,7 +18,7 @@ void dummy_update_multiplied(uint8_t enabled) {
 }
 
 TEST_SETUP(headwater_state) {
-  dummy_state = create_headwater_state();
+  dummy_state = headwater_state_new();
   dummy_state.running = 1;
   dummy_output = 0;
   dummy_multiplied = 0;

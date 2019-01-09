@@ -9,9 +9,11 @@ void headwater_api_16bit_payload(uint8_t payload[8], uint16_t value) {
 void headwater_api_payload_preprocessor(API *api) {
   HEADWATER_API_CMD command = api->request->command;
   switch(command) {
-    case HEADWATER_API_GET_RUNNING:
+    case HEADWATER_API_GET_OUTPUT_ENABLED:
+      api->request->payload[0] = api->state->output_enabled;
       break;
     case HEADWATER_API_GET_MODE:
+      api->request->payload[0] = api->state->mode;
       break;
     case HEADWATER_API_GET_BPM:
       headwater_api_16bit_payload(
@@ -89,6 +91,19 @@ void headwater_api_payload_preprocessor(API *api) {
 void headwater_api_payload_postprocessor(API *api) {
   HEADWATER_API_CMD command = api->request->command;
   switch(command) {
+    case HEADWATER_API_UPDATE_PLAY:
+      api->state->change_flags |= (1 << HEADWATER_STATE_CHANGE_PLAY);
+      break;
+    case HEADWATER_API_UPDATE_RESET:
+      api->state->change_flags |= (1 << HEADWATER_STATE_CHANGE_RESET);
+      break;
+    case HEADWATER_API_UPDATE_STOP:
+      api->state->change_flags |= (1 << HEADWATER_STATE_CHANGE_STOP);
+      break;
+    case HEADWATER_API_UPDATE_MODE:
+      api->state->mode = api->request->payload[0];
+      api->state->change_flags |= (1 << HEADWATER_STATE_CHANGE_MODE);
+      break;
     case HEADWATER_API_UPDATE_BPM:
       api->state->bpm = bytes_high_low_to_16bit(
         api->request->payload[0],
@@ -103,19 +118,6 @@ void headwater_api_payload_postprocessor(API *api) {
     case HEADWATER_API_UPDATE_MULTIPLIER_B:
       api->state->multiplier_b = api->request->payload[0];
       api->state->change_flags |= (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
-      break;
-    case HEADWATER_API_UPDATE_PLAY:
-      api->state->change_flags |= (1 << HEADWATER_STATE_CHANGE_PLAY);
-      break;
-    case HEADWATER_API_UPDATE_RESET:
-      api->state->change_flags |= (1 << HEADWATER_STATE_CHANGE_RESET);
-      break;
-    case HEADWATER_API_UPDATE_STOP:
-      api->state->change_flags |= (1 << HEADWATER_STATE_CHANGE_STOP);
-      break;
-    case HEADWATER_API_UPDATE_MODE:
-      api->state->mode = api->request->payload[0];
-      api->state->change_flags |= (1 << HEADWATER_STATE_CHANGE_MODE);
       break;
   }
 }

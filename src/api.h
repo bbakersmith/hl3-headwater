@@ -1,10 +1,6 @@
 #ifndef _API_H_
 #define _API_H_
 
-#ifdef API_STATE_INCLUDE
-#include API_STATE_INCLUDE
-#endif
-
 #ifdef API_STATE
 #define APIState API_STATE
 #endif
@@ -35,7 +31,6 @@ typedef struct API {
   APIRequest *request;
   void (*payload_preprocessor)(struct API *api);
   void (*payload_postprocessor)(struct API *api);
-  uint8_t *serial_register;
 #ifdef API_STATE
   APIState *state;
 #endif
@@ -43,9 +38,8 @@ typedef struct API {
 
 void api_parse_header(APIRequest *request, uint8_t header);
 void api_new_payload(APIRequest *request, uint8_t payload[8]);
-void api_handle_request(APIRequest *request, uint8_t *serial_register);
-void api_payload_preprocessor(API *api);
-void api_handle_interrupt(API *api);
+uint8_t api_handle_request(APIRequest *request, uint8_t incoming_value);
+uint8_t api_handle_interrupt(API *api, uint8_t incoming_value);
 APIRequest api_new_request();
 
 #endif

@@ -23,30 +23,28 @@ void api_new_payload(APIRequest *request, uint8_t payload[8]) {
   request->index = 0;
 }
 
-void api_handle_request(APIRequest *request, uint8_t *serial_register) {
-  uint8_t incoming_value = *serial_register;
-  *serial_register = request->payload[request->index];
+uint8_t api_handle_request(APIRequest *request, uint8_t incoming_value) {
+  uint8_t outgoing_value = request->payload[request->index];
   if(0 < request->index) {
     request->payload[request->index - 1] = incoming_value;
   }
   request->index++;
+  return outgoing_value;
 }
 
-void api_payload_preprocessor(API *api) {
-  api->payload_preprocessor(api);
-  *api->serial_register = api->request->payload[api->request->index]; // ?
-}
-
-void api_handle_interrupt(API *api) {
+uint8_t api_handle_interrupt(API *api, uint8_t incoming_value) {
   if(api->request->command == API_CMD_NEW_REQUEST) {
-    api_parse_header(api->request, *api->serial_register);
+    api_parse_header(api->request, incoming_value);
     api->payload_preprocessor(api);
   }
 
-  api_handle_request(api->request, api->serial_register);
+  uint8_t outgoing_value = api_handle_request(api->request, incoming_value);
 
   if(api->request->size < api->request->index) {
     api->payload_postprocessor(api);
     *api->request = api_new_request();
+    outgoing_value = 0;
   }
+
+  return outgoing_value;
 }

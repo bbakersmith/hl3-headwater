@@ -9,8 +9,10 @@ TARGET_HEX=$(TARGET_ELF:%.elf=%.hex)
 SOURCE_FILES=\
 	src/atmega_headwater.c \
 	src/atmega_spi.c \
-  src/headwater_state.c \
-  src/spi.c
+	src/api.c \
+	src/bytes.c \
+	src/headwater_api.c \
+	src/headwater_state.c
 
 AVR_FUSES=-U lfuse:w:0xD7:m
 

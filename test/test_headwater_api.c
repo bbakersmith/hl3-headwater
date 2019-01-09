@@ -8,7 +8,6 @@
 API dummy_api;
 APIRequest dummy_request;
 HeadwaterState dummy_state;
-uint8_t dummy_serial_register;
 
 TEST_GROUP(headwater_api);
 
@@ -23,7 +22,6 @@ TEST_SETUP(headwater_api) {
     .payload_preprocessor = &headwater_api_payload_preprocessor,
     .payload_postprocessor = &headwater_api_payload_postprocessor,
     .request = &dummy_request,
-    .serial_register = &dummy_serial_register,
     .state = &dummy_state
   };
   dummy_api = dummy_api_;
@@ -33,7 +31,7 @@ TEST_TEAR_DOWN(headwater_api) {};
 
 // GET Tests
 
-void assert_headwater_api_get(
+void assert_headwater_api_get_8bit(
   API *api,
   HEADWATER_API_CMD command,
   uint8_t *target,
@@ -41,12 +39,11 @@ void assert_headwater_api_get(
 ) {
   uint8_t result;
   *target = value;
+  uint8_t header = (1 << API_HEADER_SIZE1) | command;
 
-  dummy_serial_register = (1 << API_HEADER_SIZE1) | command;
+  uint8_t outgoing = api_handle_interrupt(api, header);
 
-  api_handle_interrupt(api);
-
-  TEST_ASSERT_EQUAL(value, dummy_serial_register);
+  TEST_ASSERT_EQUAL(value, outgoing);
 }
 
 void assert_headwater_api_get_16bit(
@@ -55,19 +52,31 @@ void assert_headwater_api_get_16bit(
   uint16_t *target,
   uint16_t value
 ) {
-  uint8_t high;
-  uint8_t low;
+  uint8_t header = (1 << API_HEADER_SIZE1) | command;
   *target = value;
 
-  dummy_serial_register = (1 << API_HEADER_SIZE1) | command;
-
-  api_handle_interrupt(api);
-  high = dummy_serial_register;
-
-  api_handle_interrupt(api);
-  low = dummy_serial_register;
+  uint8_t high = api_handle_interrupt(api, header);
+  uint8_t low = api_handle_interrupt(api, 0);
 
   TEST_ASSERT_EQUAL(value, bytes_high_low_to_16bit(high, low));
+}
+
+TEST(headwater_api, test_api_cmd_get_output_enabled) {
+  assert_headwater_api_get_8bit(
+    &dummy_api,
+    HEADWATER_API_GET_OUTPUT_ENABLED,
+    &dummy_state.output_enabled,
+    1
+  );
+}
+
+TEST(headwater_api, test_api_cmd_get_mode) {
+  assert_headwater_api_get_8bit(
+    &dummy_api,
+    HEADWATER_API_GET_MODE,
+    &dummy_state.mode,
+    3
+  );
 }
 
 TEST(headwater_api, test_api_cmd_get_bpm) {
@@ -80,7 +89,7 @@ TEST(headwater_api, test_api_cmd_get_bpm) {
 }
 
 TEST(headwater_api, test_api_cmd_get_multiplier_a) {
-  assert_headwater_api_get(
+  assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_MULTIPLIER_A,
     &dummy_state.multiplier_a,
@@ -89,7 +98,7 @@ TEST(headwater_api, test_api_cmd_get_multiplier_a) {
 }
 
 TEST(headwater_api, test_api_cmd_get_multiplier_b) {
-  assert_headwater_api_get(
+  assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_MULTIPLIER_B,
     &dummy_state.multiplier_b,
@@ -170,7 +179,7 @@ TEST(headwater_api, test_api_cmd_get_sample_count_multiplier_b) {
 }
 
 TEST(headwater_api, test_api_cmd_get_cv_bpm) {
-  assert_headwater_api_get(
+  assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_CV_BPM,
     &dummy_state.cv_bpm,
@@ -179,7 +188,7 @@ TEST(headwater_api, test_api_cmd_get_cv_bpm) {
 }
 
 TEST(headwater_api, test_api_cmd_get_cv_bpm0) {
-  assert_headwater_api_get(
+  assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_CV_BPM,
     &dummy_state.cv_bpm,
@@ -188,7 +197,7 @@ TEST(headwater_api, test_api_cmd_get_cv_bpm0) {
 }
 
 TEST(headwater_api, test_api_cmd_get_cv_multiplier_a) {
-  assert_headwater_api_get(
+  assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_CV_MULTIPLIER_A,
     &dummy_state.cv_multiplier_a,
@@ -197,7 +206,7 @@ TEST(headwater_api, test_api_cmd_get_cv_multiplier_a) {
 }
 
 TEST(headwater_api, test_api_cmd_get_cv_multiplier_b) {
-  assert_headwater_api_get(
+  assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_CV_MULTIPLIER_B,
     &dummy_state.cv_multiplier_b,
@@ -207,22 +216,6 @@ TEST(headwater_api, test_api_cmd_get_cv_multiplier_b) {
 
 // UPDATE Tests
 
-// TODO remove?
-void assert_headwater_api_update(
-  API *api,
-  HEADWATER_API_CMD command,
-  uint8_t *target,
-  uint8_t value,
-  uint8_t change_flags
-) {
-  dummy_serial_register = command;
-
-  api_handle_interrupt(api);
-
-  TEST_ASSERT_EQUAL(value, *target);
-  TEST_ASSERT_EQUAL(change_flags, api->state->change_flags);
-}
-
 void assert_headwater_api_update_8bit(
   API *api,
   HEADWATER_API_CMD command,
@@ -230,13 +223,10 @@ void assert_headwater_api_update_8bit(
   uint8_t value,
   uint8_t change_flags
 ) {
-  dummy_serial_register = (1 << API_HEADER_SIZE0) | command;
+  uint8_t header = (1 << API_HEADER_SIZE0) | command;
 
-  api_handle_interrupt(api);
-
-  dummy_serial_register = value;
-
-  api_handle_interrupt(api);
+  api_handle_interrupt(api, header);
+  api_handle_interrupt(api, value);
 
   TEST_ASSERT_EQUAL(value, *target);
   TEST_ASSERT_EQUAL(change_flags, api->state->change_flags);
@@ -249,20 +239,13 @@ void assert_headwater_api_update_16bit(
   uint16_t value,
   uint8_t change_flags
 ) {
+  uint8_t header = (1 << API_HEADER_SIZE1) | command;
   uint8_t high = bytes_16bit_to_high(value);
   uint8_t low = bytes_16bit_to_low(value);
 
-  dummy_serial_register = (1 << API_HEADER_SIZE1) | command;
-
-  api_handle_interrupt(api);
-
-  dummy_serial_register = high;
-
-  api_handle_interrupt(api);
-
-  dummy_serial_register = low;
-
-  api_handle_interrupt(api);
+  api_handle_interrupt(api, header);
+  api_handle_interrupt(api, high);
+  api_handle_interrupt(api, low);
 
   TEST_ASSERT_EQUAL(value, *target);
   TEST_ASSERT_EQUAL(change_flags, api->state->change_flags);
@@ -299,9 +282,7 @@ TEST(headwater_api, test_api_cmd_update_multiplier_b) {
 }
 
 TEST(headwater_api, test_api_cmd_update_play) {
-  dummy_serial_register = HEADWATER_API_UPDATE_PLAY;
-
-  api_handle_interrupt(&dummy_api);
+  api_handle_interrupt(&dummy_api, HEADWATER_API_UPDATE_PLAY);
 
   TEST_ASSERT_EQUAL(
     (1 << HEADWATER_STATE_CHANGE_PLAY),
@@ -310,9 +291,7 @@ TEST(headwater_api, test_api_cmd_update_play) {
 }
 
 TEST(headwater_api, test_api_cmd_update_reset) {
-  dummy_serial_register = HEADWATER_API_UPDATE_RESET;
-
-  api_handle_interrupt(&dummy_api);
+  api_handle_interrupt(&dummy_api, HEADWATER_API_UPDATE_RESET);
 
   TEST_ASSERT_EQUAL(
     (1 << HEADWATER_STATE_CHANGE_RESET),
@@ -321,9 +300,7 @@ TEST(headwater_api, test_api_cmd_update_reset) {
 }
 
 TEST(headwater_api, test_api_cmd_update_stop) {
-  dummy_serial_register = HEADWATER_API_UPDATE_STOP;
-
-  api_handle_interrupt(&dummy_api);
+  api_handle_interrupt(&dummy_api, HEADWATER_API_UPDATE_STOP);
 
   TEST_ASSERT_EQUAL(
     (1 << HEADWATER_STATE_CHANGE_STOP),
@@ -343,6 +320,8 @@ TEST(headwater_api, test_api_cmd_update_mode) {
 
 TEST_GROUP_RUNNER(headwater_api) {
   // GET
+  RUN_TEST_CASE(headwater_api, test_api_cmd_get_output_enabled);
+  RUN_TEST_CASE(headwater_api, test_api_cmd_get_mode);
   RUN_TEST_CASE(headwater_api, test_api_cmd_get_bpm);
   RUN_TEST_CASE(headwater_api, test_api_cmd_get_multiplier_a);
   RUN_TEST_CASE(headwater_api, test_api_cmd_get_multiplier_b);

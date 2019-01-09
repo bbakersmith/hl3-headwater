@@ -5,11 +5,11 @@
 
 // TODO is there an abstraction for each of the channels here?
 typedef struct HeadwaterState {
+  uint8_t mode;
+  uint8_t output_enabled;
   uint16_t bpm;
   uint8_t multiplier_a;
   uint8_t multiplier_b;
-  uint8_t running; // TODO rename?
-  uint16_t samples_since_reset_count;
   uint16_t samples_per_bpm;
   uint16_t samples_per_multiplier_a;
   uint16_t samples_per_multiplier_b;
@@ -25,8 +25,9 @@ typedef struct HeadwaterState {
   uint8_t output_multiplier_a;
   uint8_t output_multiplier_b;
   uint8_t change_flags;
-  uint8_t mode;
+  uint16_t samples_since_reset_count; // TODO used?
 
+  uint8_t running; // TODO remove?
   uint16_t reset; // TODO remove
   uint16_t tbpm; // TODO remove
   uint8_t multiplier; // TODO remove
@@ -39,20 +40,19 @@ typedef struct HeadwaterState {
 } HeadwaterState;
 
 typedef enum {
-  HEADWATER_STATE_CHANGE_BPM,
-  HEADWATER_STATE_CHANGE_MULTIPLIER_A,
-  HEADWATER_STATE_CHANGE_MULTIPLIER_B,
   HEADWATER_STATE_CHANGE_PLAY,
   HEADWATER_STATE_CHANGE_RESET,
   HEADWATER_STATE_CHANGE_STOP,
-  HEADWATER_STATE_CHANGE_MODE
-} HeadwaterStateChange;
+  HEADWATER_STATE_CHANGE_MODE,
+  HEADWATER_STATE_CHANGE_BPM,
+  HEADWATER_STATE_CHANGE_MULTIPLIER_A,
+  HEADWATER_STATE_CHANGE_MULTIPLIER_B
+} HEADWATER_STATE_CHANGE;
 
 // TODO should be able to avoid dealing with this in state module
 typedef void (HeadwaterOutputFn)(uint8_t enabled);
 
-HeadwaterState create_headwater_state();
-
+HeadwaterState headwater_state_new();
 uint16_t headwater_state_samples_per_bpm(int16_t tbpm);
 void headwater_state_increment_counts(HeadwaterState *state);
 void headwater_state_update(
@@ -68,5 +68,6 @@ void headwater_state_cycle(
   HeadwaterOutputFn output_fn,
   HeadwaterOutputFn multiplied_fn
 );
+void headwater_state_change(HeadwaterState *state);
 
 #endif
