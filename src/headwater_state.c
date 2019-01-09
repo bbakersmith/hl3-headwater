@@ -16,7 +16,7 @@ HeadwaterState create_headwater_state() {
     .multiplier = 4,
     .reset = 0, // TODO enum
     .samples_since_reset_count = 0,
-    .samples_per_beat = 1000,
+    .samples_per_bpm = 1000,
     .samples_per_multiplied = 250,
     .sample_count = 0,
     .multiplied_sample_count = 0,
@@ -25,7 +25,7 @@ HeadwaterState create_headwater_state() {
   return state;
 }
 
-uint16_t headwater_state_samples_per_beat(int16_t tbpm) {
+uint16_t headwater_state_samples_per_bpm(int16_t tbpm) {
   return (SAMPLES_PER_SECOND * SECONDS_IN_MINUTE * 10) / tbpm;
 }
 
@@ -37,8 +37,8 @@ void headwater_state_update(
   state->tbpm = tbpm;
   state->multiplier = multiplier;
 
-  uint16_t tbpm_samples = headwater_state_samples_per_beat(tbpm);
-  state->samples_per_beat = tbpm_samples;
+  uint16_t tbpm_samples = headwater_state_samples_per_bpm(tbpm);
+  state->samples_per_bpm = tbpm_samples;
   state->samples_per_multiplied = tbpm_samples / multiplier;
 }
 
@@ -66,7 +66,7 @@ void headwater_state_increment_counts(HeadwaterState *state) {
   // TODO prevent overflow, timeout reset
   state->samples_since_reset_count += 1;
   // TODO move this into update clock outputs to reduce branching?
-  if(state->samples_per_beat <= state->sample_count) {
+  if(state->samples_per_bpm <= state->sample_count) {
     state->sample_count = 0;
     state->multiplied_sample_count = 0;
     state->multiplied_count = 0;
