@@ -28,11 +28,11 @@ typedef struct APIRequest {
 } APIRequest;
 
 typedef struct API {
-  APIRequest *request;
+  APIRequest request;
   void (*payload_preprocessor)(struct API *api);
   void (*payload_postprocessor)(struct API *api);
 #ifdef API_STATE
-  APIState *state;
+  APIState state;
 #endif
 } API;
 
@@ -41,5 +41,6 @@ void api_new_payload(APIRequest *request, uint8_t payload[8]);
 uint8_t api_handle_request(APIRequest *request, uint8_t incoming_value);
 uint8_t api_handle_interrupt(API *api, uint8_t incoming_value);
 APIRequest api_new_request();
+void api_request_reset(APIRequest *request);
 
 #endif

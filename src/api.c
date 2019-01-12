@@ -1,9 +1,25 @@
+#include <stdio.h>
+
 #include "api.h"
 
+void api_request_reset(APIRequest *request) {
+  request->command = API_CMD_NEW_REQUEST;
+  request->payload[0] = 0;
+  request->payload[1] = 0;
+  request->payload[2] = 0;
+  request->payload[3] = 0;
+  request->payload[4] = 0;
+  request->payload[5] = 0;
+  request->payload[6] = 0;
+  request->payload[7] = 0;
+  request->index = 0;
+  request->size = 0;
+}
+
+// TODO rename api_request_new
 APIRequest api_new_request() {
-  APIRequest request = {
-    .command = API_CMD_NEW_REQUEST
-  };
+  APIRequest request;
+  api_request_reset(&request);
   return request;
 }
 
@@ -33,16 +49,18 @@ uint8_t api_handle_request(APIRequest *request, uint8_t incoming_value) {
 }
 
 uint8_t api_handle_interrupt(API *api, uint8_t incoming_value) {
-  if(api->request->command == API_CMD_NEW_REQUEST) {
-    api_parse_header(api->request, incoming_value);
+  uint8_t outgoing_value;
+
+  if(api->request.command == API_CMD_NEW_REQUEST) {
+    api_parse_header(&api->request, incoming_value);
     api->payload_preprocessor(api);
   }
 
-  uint8_t outgoing_value = api_handle_request(api->request, incoming_value);
+  outgoing_value = api_handle_request(&api->request, incoming_value);
 
-  if(api->request->size < api->request->index) {
+  if(api->request.size < api->request.index) {
     api->payload_postprocessor(api);
-    *api->request = api_new_request();
+    api_request_reset(&api->request);
     outgoing_value = 0;
   }
 

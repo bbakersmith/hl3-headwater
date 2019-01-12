@@ -3,8 +3,8 @@
 #include <avr/io.h>
 
 #include "atmega_spi.h"
+#include "headwater_api.h"
 #include "headwater_state.h"
-#include "spi.h"
 
 #define F_CPU 16000000UL  // 16 MHz
 #include <util/delay.h>
@@ -21,29 +21,7 @@
 #define BPM_PIN PORTC0
 #define MULTIPLIED_PIN PORTC1
 
-enum SPI_HEADER {
-  SPI_HEADER_PLAY,
-  SPI_HEADER_STOP,
-  SPI_HEADER_RESET,
-  SPI_HEADER_UPDATE
-};
-
-enum SPI_STATE {
-  SPI_STATE_HEADER,
-  SPI_STATE_RESET_HIGH,
-  SPI_STATE_RESET_LOW,
-  SPI_STATE_BPM_HIGH,
-  SPI_STATE_BPM_LOW,
-  SPI_STATE_MULTA_HIGH,
-  SPI_STATE_MULTA_LOW
-};
-
-static volatile uint8_t spi_state = SPI_STATE_HEADER;
-static volatile uint16_t spi_reset_cache = 0;
-static volatile uint16_t spi_bpm_cache = 0;
-static volatile uint16_t spi_multa_cache = 0;
-
-HeadwaterState headwater_state;
+API headwater_api;
 
 void atmega_headwater_output_fn(uint8_t enabled) {
   if(enabled == 0) {
@@ -91,73 +69,56 @@ void main(void) {
   atmega_spi_slave_init();
   sei();
 
-  headwater_state = create_headwater_state();
-  headwater_state_start(&headwater_state);
+  atmega_headwater_output_fn(0);
+  atmega_headwater_multiplied_fn(0);
 
-  while(1) {}
+  HeadwaterState headwater_state = headwater_state_new();
+  APIRequest headwater_api_request = api_new_request();
+
+  API headwater_api_ = {
+    .state = headwater_state,
+    .request = headwater_api_request,
+    .payload_preprocessor = &headwater_api_payload_preprocessor,
+    .payload_postprocessor = &headwater_api_payload_postprocessor
+  };
+  headwater_api = headwater_api_;
+
+  // TODO don't start automatically
+  headwater_state_start(&headwater_api.state);
+
+  while(1) {
+    SPDR = headwater_api.state.change_flags;
+    // TODO move into headwater_state?
+    if(headwater_api.state.change_flags == 0) {
+      // TODO cv
+    } else {
+      headwater_state_change(&headwater_api.state);
+    }
+  }
 }
 
 ISR(TIMER1_COMPA_vect) {
-  headwater_state_cycle(
-    &headwater_state,
-    &atmega_headwater_output_fn,
-    &atmega_headwater_multiplied_fn
-  );
+  headwater_state_cycle(&headwater_api.state);
+  atmega_headwater_output_fn(headwater_api.state.bpm_channel.output);
+  atmega_headwater_multiplied_fn(headwater_api.state.multiplier_a_channel.output);
 }
 
 ISR(SPI_STC_vect) {
-  if(spi_state == SPI_STATE_HEADER) {
-    uint8_t header = SPDR;
-    if(header & (1 << SPI_HEADER_PLAY)) {
-      headwater_state_start(&headwater_state);
-    } else if(header & (1 << SPI_HEADER_STOP)) {
-      headwater_state_stop(&headwater_state);
-    } else if(header & (1 << SPI_HEADER_RESET)) {
-      atmega_spi_queue_transfer(spi_get_high_byte(spi_reset_cache));
-      spi_state = SPI_STATE_RESET_HIGH;
-    } else if(header & (1 << SPI_HEADER_UPDATE)) {
-      spi_bpm_cache = 0;
-      spi_multa_cache = 0;
-      spi_state = SPI_STATE_BPM_HIGH;
-    }
-  } else if(spi_state == SPI_STATE_RESET_HIGH) {
-    atmega_spi_queue_transfer(spi_get_low_byte(spi_reset_cache));
-    spi_state = SPI_STATE_RESET_LOW;
-  } else if(spi_state == SPI_STATE_RESET_LOW) {
-    spi_state = SPI_STATE_HEADER;
-  } else if(spi_state == SPI_STATE_BPM_HIGH) {
-    spi_bpm_cache = (SPDR << 8);
-    spi_state = SPI_STATE_BPM_LOW;
-  } else if(spi_state == SPI_STATE_BPM_LOW) {
-    spi_bpm_cache |= SPDR;
-    spi_state = SPI_STATE_MULTA_HIGH;
-  } else if(spi_state == SPI_STATE_MULTA_HIGH) {
-    spi_multa_cache = (SPDR << 8);
-    spi_state = SPI_STATE_MULTA_LOW;
-  } else if(spi_state == SPI_STATE_MULTA_LOW) {
-    spi_multa_cache |= SPDR;
-    spi_state = SPI_STATE_HEADER;
-
-    headwater_state_update(
-      &headwater_state,
-      spi_bpm_cache,
-      spi_multa_cache
-    );
-  }
+  SPDR = api_handle_interrupt(&headwater_api, SPDR);
 }
 
 // TODO make work, debounce
 ISR(PCINT2_vect) {
-  if(!(PIND & (1 << STOP_PIN))) {
-    headwater_state_stop(&headwater_state);
+  if(!(PIND & (1 << PLAY_PIN))) {
+    headwater_api.state.change_flags |= HEADWATER_STATE_CHANGE_PLAY;
   }
 
   if(!(PIND & (1 << RESET_PIN))) {
-    spi_reset_cache = headwater_state.samples_since_reset_count;
-    headwater_state_reset(&headwater_state);
+    headwater_api.state.change_flags |= HEADWATER_STATE_CHANGE_RESET;
+    /* uint16_t spi_reset_cache = headwater_api.state.samples_since_reset_count; */
   }
 
-  if(!(PIND & (1 << PLAY_PIN))) {
-    headwater_state_start(&headwater_state);
+  if(!(PIND & (1 << STOP_PIN))) {
+    headwater_api.state.change_flags |= HEADWATER_STATE_CHANGE_STOP;
   }
 }

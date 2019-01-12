@@ -6,23 +6,18 @@
 #include "headwater_state.h"
 
 API dummy_api;
-APIRequest dummy_request;
-HeadwaterState dummy_state;
 
 TEST_GROUP(headwater_api);
 
 TEST_SETUP(headwater_api) {
-  dummy_request = api_new_request();
-
-  // TODO creation function?
-  HeadwaterState dummy_state_;
-  dummy_state = dummy_state_;
+  APIRequest dummy_request = api_new_request();
+  HeadwaterState dummy_state = headwater_state_new();
 
   API dummy_api_ = {
     .payload_preprocessor = &headwater_api_payload_preprocessor,
     .payload_postprocessor = &headwater_api_payload_postprocessor,
-    .request = &dummy_request,
-    .state = &dummy_state
+    .request = dummy_request,
+    .state = dummy_state
   };
   dummy_api = dummy_api_;
 };
@@ -39,7 +34,7 @@ void assert_headwater_api_get_8bit(
 ) {
   uint8_t result;
   *target = value;
-  uint8_t header = (1 << API_HEADER_SIZE1) | command;
+  uint8_t header = (1 << API_HEADER_SIZE0) | command;
 
   uint8_t outgoing = api_handle_interrupt(api, header);
 
@@ -65,7 +60,7 @@ TEST(headwater_api, test_api_cmd_get_output_enabled) {
   assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_OUTPUT_ENABLED,
-    &dummy_state.output_enabled,
+    &dummy_api.state.output_enabled,
     1
   );
 }
@@ -74,7 +69,7 @@ TEST(headwater_api, test_api_cmd_get_mode) {
   assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_MODE,
-    &dummy_state.mode,
+    &dummy_api.state.mode,
     3
   );
 }
@@ -83,7 +78,7 @@ TEST(headwater_api, test_api_cmd_get_bpm) {
   assert_headwater_api_get_16bit(
     &dummy_api,
     HEADWATER_API_GET_BPM,
-    &dummy_state.bpm,
+    &dummy_api.state.bpm,
     1357
   );
 }
@@ -92,7 +87,7 @@ TEST(headwater_api, test_api_cmd_get_multiplier_a) {
   assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_MULTIPLIER_A,
-    &dummy_state.multiplier_a,
+    &dummy_api.state.multiplier_a,
     5
   );
 }
@@ -101,7 +96,7 @@ TEST(headwater_api, test_api_cmd_get_multiplier_b) {
   assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_MULTIPLIER_B,
-    &dummy_state.multiplier_b,
+    &dummy_api.state.multiplier_b,
     97
   );
 }
@@ -110,7 +105,7 @@ TEST(headwater_api, test_api_cmd_get_samples_per_bpm) {
   assert_headwater_api_get_16bit(
     &dummy_api,
     HEADWATER_API_GET_SAMPLES_PER_BPM,
-    &dummy_state.samples_per_bpm,
+    &dummy_api.state.bpm_channel.samples_per_beat,
     1122
   );
 }
@@ -119,7 +114,7 @@ TEST(headwater_api, test_api_cmd_get_samples_per_multiplier_a) {
   assert_headwater_api_get_16bit(
     &dummy_api,
     HEADWATER_API_GET_SAMPLES_PER_MULTIPLIER_A,
-    &dummy_state.samples_per_multiplier_a,
+    &dummy_api.state.multiplier_a_channel.samples_per_beat,
     1
   );
 }
@@ -128,7 +123,7 @@ TEST(headwater_api, test_api_cmd_get_samples_per_multiplier_b) {
   assert_headwater_api_get_16bit(
     &dummy_api,
     HEADWATER_API_GET_SAMPLES_PER_MULTIPLIER_B,
-    &dummy_state.samples_per_multiplier_b,
+    &dummy_api.state.multiplier_b_channel.samples_per_beat,
     60000
   );
 }
@@ -137,7 +132,7 @@ TEST(headwater_api, test_api_cmd_get_count_multiplier_a) {
   assert_headwater_api_get_16bit(
     &dummy_api,
     HEADWATER_API_GET_COUNT_MULTIPLIER_A,
-    &dummy_state.count_multiplier_a,
+    &dummy_api.state.multiplier_a_channel.beats,
     133
   );
 }
@@ -146,7 +141,7 @@ TEST(headwater_api, test_api_cmd_get_count_multiplier_b) {
   assert_headwater_api_get_16bit(
     &dummy_api,
     HEADWATER_API_GET_COUNT_MULTIPLIER_B,
-    &dummy_state.count_multiplier_b,
+    &dummy_api.state.multiplier_b_channel.beats,
     31000
   );
 }
@@ -155,7 +150,7 @@ TEST(headwater_api, test_api_cmd_get_sample_count_bpm) {
   assert_headwater_api_get_16bit(
     &dummy_api,
     HEADWATER_API_GET_SAMPLE_COUNT_BPM,
-    &dummy_state.sample_count_bpm,
+    &dummy_api.state.bpm_channel.samples,
     2345
   );
 }
@@ -164,7 +159,7 @@ TEST(headwater_api, test_api_cmd_get_sample_count_multiplier_a) {
   assert_headwater_api_get_16bit(
     &dummy_api,
     HEADWATER_API_GET_SAMPLE_COUNT_MULTIPLIER_A,
-    &dummy_state.sample_count_multiplier_a,
+    &dummy_api.state.multiplier_a_channel.samples,
     10000
   );
 }
@@ -173,7 +168,7 @@ TEST(headwater_api, test_api_cmd_get_sample_count_multiplier_b) {
   assert_headwater_api_get_16bit(
     &dummy_api,
     HEADWATER_API_GET_SAMPLE_COUNT_MULTIPLIER_B,
-    &dummy_state.sample_count_multiplier_b,
+    &dummy_api.state.multiplier_b_channel.samples,
     13
   );
 }
@@ -182,7 +177,7 @@ TEST(headwater_api, test_api_cmd_get_cv_bpm) {
   assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_CV_BPM,
-    &dummy_state.cv_bpm,
+    &dummy_api.state.bpm_channel.modifier,
     1
   );
 }
@@ -191,7 +186,7 @@ TEST(headwater_api, test_api_cmd_get_cv_bpm0) {
   assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_CV_BPM,
-    &dummy_state.cv_bpm,
+    &dummy_api.state.bpm_channel.modifier,
     0
   );
 }
@@ -200,7 +195,7 @@ TEST(headwater_api, test_api_cmd_get_cv_multiplier_a) {
   assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_CV_MULTIPLIER_A,
-    &dummy_state.cv_multiplier_a,
+    &dummy_api.state.multiplier_a_channel.modifier,
     10
   );
 }
@@ -209,7 +204,7 @@ TEST(headwater_api, test_api_cmd_get_cv_multiplier_b) {
   assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_CV_MULTIPLIER_B,
-    &dummy_state.cv_multiplier_b,
+    &dummy_api.state.multiplier_b_channel.modifier,
     255
   );
 }
@@ -229,7 +224,7 @@ void assert_headwater_api_update_8bit(
   api_handle_interrupt(api, value);
 
   TEST_ASSERT_EQUAL(value, *target);
-  TEST_ASSERT_EQUAL(change_flags, api->state->change_flags);
+  TEST_ASSERT_EQUAL(change_flags, api->state.change_flags);
 }
 
 void assert_headwater_api_update_16bit(
@@ -248,14 +243,14 @@ void assert_headwater_api_update_16bit(
   api_handle_interrupt(api, low);
 
   TEST_ASSERT_EQUAL(value, *target);
-  TEST_ASSERT_EQUAL(change_flags, api->state->change_flags);
+  TEST_ASSERT_EQUAL(change_flags, api->state.change_flags);
 }
 
 TEST(headwater_api, test_api_cmd_update_bpm) {
   assert_headwater_api_update_16bit(
     &dummy_api,
     HEADWATER_API_UPDATE_BPM,
-    &dummy_state.bpm,
+    &dummy_api.state.bpm,
     543,
     (1 << HEADWATER_STATE_CHANGE_BPM)
   );
@@ -265,7 +260,7 @@ TEST(headwater_api, test_api_cmd_update_multiplier_a) {
   assert_headwater_api_update_8bit(
     &dummy_api,
     HEADWATER_API_UPDATE_MULTIPLIER_A,
-    &dummy_state.multiplier_a,
+    &dummy_api.state.multiplier_a,
     123,
     (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A)
   );
@@ -275,7 +270,7 @@ TEST(headwater_api, test_api_cmd_update_multiplier_b) {
   assert_headwater_api_update_8bit(
     &dummy_api,
     HEADWATER_API_UPDATE_MULTIPLIER_B,
-    &dummy_state.multiplier_b,
+    &dummy_api.state.multiplier_b,
     255,
     (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B)
   );
@@ -286,7 +281,7 @@ TEST(headwater_api, test_api_cmd_update_play) {
 
   TEST_ASSERT_EQUAL(
     (1 << HEADWATER_STATE_CHANGE_PLAY),
-    dummy_api.state->change_flags
+    dummy_api.state.change_flags
   );
 }
 
@@ -295,7 +290,7 @@ TEST(headwater_api, test_api_cmd_update_reset) {
 
   TEST_ASSERT_EQUAL(
     (1 << HEADWATER_STATE_CHANGE_RESET),
-    dummy_api.state->change_flags
+    dummy_api.state.change_flags
   );
 }
 
@@ -304,7 +299,7 @@ TEST(headwater_api, test_api_cmd_update_stop) {
 
   TEST_ASSERT_EQUAL(
     (1 << HEADWATER_STATE_CHANGE_STOP),
-    dummy_api.state->change_flags
+    dummy_api.state.change_flags
   );
 }
 
@@ -312,7 +307,7 @@ TEST(headwater_api, test_api_cmd_update_mode) {
   assert_headwater_api_update_8bit(
     &dummy_api,
     HEADWATER_API_UPDATE_MODE,
-    &dummy_state.mode,
+    &dummy_api.state.mode,
     3,
     (1 << HEADWATER_STATE_CHANGE_MODE)
   );
