@@ -28,8 +28,7 @@ HeadwaterState headwater_state_new(void) {
 
   HeadwaterState state = {
     .bpm = 600,
-    .multiplier_a = 4,
-    .reset = 0, // TODO enum
+    .multiplier_a = 1,
     .samples_since_reset_count = 0,
     .bpm_channel = bpm_channel,
     .multiplier_a_channel = multiplier_a_channel,
@@ -42,18 +41,22 @@ uint16_t headwater_state_samples_per_bpm(int16_t bpm) {
   return (SAMPLES_PER_SECOND * SECONDS_IN_MINUTE * 10) / bpm;
 }
 
-// TODO separate out bpm and multiplier recalculations
-void headwater_state_update(
-  HeadwaterState *state,
-  int16_t bpm,
-  int8_t multiplier_a
+// TODO remove
+void headwater_state_update_bpm(
+  HeadwaterStateChannel *channel,
+  uint16_t bpm
 ) {
-  state->bpm = bpm;
-  state->multiplier_a = multiplier_a;
+  channel->samples_per_beat = headwater_state_samples_per_bpm(bpm);
+}
 
-  uint16_t bpm_samples = headwater_state_samples_per_bpm(bpm);
-  state->bpm_channel.samples_per_beat = bpm_samples;
-  state->multiplier_a_channel.samples_per_beat = bpm_samples / multiplier_a;
+// TODO remove
+void headwater_state_update_multiplier(
+  HeadwaterStateChannel *bpm_channel,
+  HeadwaterStateChannel *multiplier_channel,
+  uint8_t multiplier
+) {
+  multiplier_channel->samples_per_beat =
+    bpm_channel->samples_per_beat / multiplier;
 }
 
 void headwater_state_stop(HeadwaterState *state) {
@@ -142,17 +145,30 @@ void headwater_state_change(HeadwaterState *state) {
 
   } else if((change_flags & (1 << HEADWATER_STATE_CHANGE_BPM))) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_BPM);
-    // TODO update bpm
-    // TODO update multiplier a
-    // TODO update multiplier b
+    state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A);
+    state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
+
+    uint16_t samples_per_bpm = headwater_state_samples_per_bpm(state->bpm);
+
+    state->bpm_channel.samples_per_beat = samples_per_bpm;
+
+    state->multiplier_a_channel.samples_per_beat =
+      samples_per_bpm / state->multiplier_a;
+
+    // TODO multiplier b
+    /* state->multiplier_b_channel.samples_per_beat = */
+    /*   samples_per_bpm / state->multiplier_b; */
 
   } else if((change_flags & (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A))) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A);
-    // TODO update multiplier a
+    state->multiplier_a_channel.samples_per_beat =
+      state->bpm_channel.samples_per_beat / state->multiplier_a;
 
   } else if((change_flags & (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B))) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
-    // TODO update multiplier b
+    // TODO multiplier b
+    /* state->multiplier_b_channel.samples_per_beat = */
+    /*   state->bpm_channel.samples_per_beat / state->multiplier_b; */
 
   }
 }

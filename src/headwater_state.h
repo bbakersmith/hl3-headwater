@@ -12,7 +12,6 @@ typedef struct HeadwaterStateChannel {
   uint8_t output; // output_multiplier_a
 } HeadwaterStateChannel;
 
-// TODO is there an abstraction for each of the channels here?
 typedef struct HeadwaterState {
   uint8_t mode;
   uint8_t output_enabled;
@@ -23,10 +22,7 @@ typedef struct HeadwaterState {
   HeadwaterStateChannel multiplier_a_channel;
   HeadwaterStateChannel multiplier_b_channel; // TODO test!
   uint8_t change_flags;
-
-  uint16_t samples_since_reset_count; // TODO used?
-
-  uint16_t reset; // TODO remove
+  uint16_t samples_since_reset_count; // TODO used? rename?
 } HeadwaterState;
 
 typedef enum {
@@ -45,11 +41,20 @@ typedef void (HeadwaterOutputFn)(uint8_t enabled);
 HeadwaterState headwater_state_new(void);
 uint16_t headwater_state_samples_per_bpm(int16_t bpm);
 void headwater_state_increment_counts(HeadwaterState *state);
+
 void headwater_state_update(
   HeadwaterState *state,
   int16_t bpm,
   int8_t multiplier
 );
+
+void headwater_state_update_bpm(HeadwaterStateChannel *channel, uint16_t bpm);
+void headwater_state_update_multiplier(
+  HeadwaterStateChannel *bpm_channel,
+  HeadwaterStateChannel *multiplier_channel,
+  uint8_t multiplier
+);
+
 void headwater_state_stop(HeadwaterState *state);
 void headwater_state_reset(HeadwaterState *state);
 void headwater_state_start(HeadwaterState *state);

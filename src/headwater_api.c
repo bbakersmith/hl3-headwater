@@ -84,6 +84,11 @@ void headwater_api_payload_preprocessor(API *api) {
     case HEADWATER_API_GET_CV_MULTIPLIER_B:
       api->request.payload[0] = api->state.multiplier_b_channel.modifier;
       break;
+
+    // TODO test
+    case HEADWATER_API_GET_CHANGE_FLAGS:
+      api->request.payload[0] = api->state.change_flags;
+      break;
   }
 
 }

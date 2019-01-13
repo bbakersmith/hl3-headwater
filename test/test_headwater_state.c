@@ -26,38 +26,33 @@ TEST(headwater_state, test_headwater_state_samples_per_bpm) {
   TEST_ASSERT_EQUAL(60000, headwater_state_samples_per_bpm(10));
 }
 
-TEST(headwater_state, test_headwater_state_update) {
+TEST(headwater_state, test_headwater_state_update_bpm) {
   int16_t dummy_bpm = 3000;
-  int8_t dummy_multiplier_a = 5;
   uint16_t dummy_sample_count = 32;
-  uint16_t dummy_multiplier_count = 21;
 
   dummy_state.bpm_channel.samples = dummy_sample_count;
-  dummy_state.multiplier_a_channel.beats = dummy_multiplier_count;
 
-  headwater_state_update(&dummy_state, dummy_bpm, dummy_multiplier_a);
+  headwater_state_update_bpm(&dummy_state.bpm_channel, dummy_bpm);
 
-  TEST_ASSERT_EQUAL(dummy_bpm, dummy_state.bpm);
-  TEST_ASSERT_EQUAL(dummy_multiplier_a, dummy_state.multiplier_a);
   TEST_ASSERT_EQUAL(200, dummy_state.bpm_channel.samples_per_beat);
-  TEST_ASSERT_EQUAL(40, dummy_state.multiplier_a_channel.samples_per_beat);
   TEST_ASSERT_EQUAL(dummy_sample_count, dummy_state.bpm_channel.samples);
-  TEST_ASSERT_EQUAL(
-    dummy_multiplier_count,
-    dummy_state.multiplier_a_channel.beats
-  );
 }
 
-TEST(headwater_state, test_headwater_state_update_2) {
-  int16_t dummy_bpm = 600;
-  int8_t dummy_multiplier_a = 4;
+TEST(headwater_state, test_headwater_state_update_multiplier) {
+  int16_t dummy_samples_per_bpm = 2000;
+  int8_t dummy_multiplier = 4;
 
-  headwater_state_update(&dummy_state, dummy_bpm, dummy_multiplier_a);
+  dummy_state.bpm_channel.samples_per_beat = dummy_samples_per_bpm;
 
-  TEST_ASSERT_EQUAL(dummy_bpm, dummy_state.bpm);
-  TEST_ASSERT_EQUAL(dummy_multiplier_a, dummy_state.multiplier_a);
-  TEST_ASSERT_EQUAL(1000, dummy_state.bpm_channel.samples_per_beat);
-  TEST_ASSERT_EQUAL(250, dummy_state.multiplier_a_channel.samples_per_beat);
+  headwater_state_update_multiplier(
+    &dummy_state.bpm_channel,
+    &dummy_state.multiplier_a_channel,
+    dummy_multiplier
+  );
+
+  TEST_ASSERT_EQUAL(2000, dummy_state.bpm_channel.samples_per_beat);
+  TEST_ASSERT_EQUAL(500, dummy_state.multiplier_a_channel.samples_per_beat);
+  // TODO assert multiplier count change behavior
 }
 
 TEST(headwater_state, test_headwater_state_increment_counts) {
@@ -137,8 +132,8 @@ TEST(headwater_state, test_headwater_state_stop) {
 
 TEST_GROUP_RUNNER(headwater_state) {
   RUN_TEST_CASE(headwater_state, test_headwater_state_samples_per_bpm);
-  RUN_TEST_CASE(headwater_state, test_headwater_state_update);
-  RUN_TEST_CASE(headwater_state, test_headwater_state_update_2);
+  RUN_TEST_CASE(headwater_state, test_headwater_state_update_bpm);
+  RUN_TEST_CASE(headwater_state, test_headwater_state_update_multiplier);
   RUN_TEST_CASE(headwater_state, test_headwater_state_increment_counts);
   RUN_TEST_CASE(headwater_state, test_headwater_state_cycle);
   RUN_TEST_CASE(headwater_state, test_headwater_state_stop);

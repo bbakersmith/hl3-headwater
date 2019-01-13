@@ -21,7 +21,7 @@
 #define BPM_PIN PORTC0
 #define MULTIPLIED_PIN PORTC1
 
-API headwater_api;
+API volatile headwater_api;
 
 void atmega_headwater_output_fn(uint8_t enabled) {
   if(enabled == 0) {
@@ -87,8 +87,6 @@ void main(void) {
   headwater_state_start(&headwater_api.state);
 
   while(1) {
-    SPDR = headwater_api.state.change_flags;
-    // TODO move into headwater_state?
     if(headwater_api.state.change_flags == 0) {
       // TODO cv
     } else {
@@ -107,18 +105,18 @@ ISR(SPI_STC_vect) {
   SPDR = api_handle_interrupt(&headwater_api, SPDR);
 }
 
-// TODO make work, debounce
+// TODO debounce
 ISR(PCINT2_vect) {
   if(!(PIND & (1 << PLAY_PIN))) {
-    headwater_api.state.change_flags |= HEADWATER_STATE_CHANGE_PLAY;
+    headwater_api.state.change_flags |= (1 << HEADWATER_STATE_CHANGE_PLAY);
   }
 
   if(!(PIND & (1 << RESET_PIN))) {
-    headwater_api.state.change_flags |= HEADWATER_STATE_CHANGE_RESET;
+    headwater_api.state.change_flags |= (1 << HEADWATER_STATE_CHANGE_RESET);
     /* uint16_t spi_reset_cache = headwater_api.state.samples_since_reset_count; */
   }
 
   if(!(PIND & (1 << STOP_PIN))) {
-    headwater_api.state.change_flags |= HEADWATER_STATE_CHANGE_STOP;
+    headwater_api.state.change_flags |= (1 << HEADWATER_STATE_CHANGE_STOP);
   }
 }
