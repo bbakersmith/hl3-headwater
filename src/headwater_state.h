@@ -3,21 +3,23 @@
 
 #include "stdint.h"
 
-typedef struct HeadwaterStateChannel {
+typedef volatile struct HeadwaterStateChannel {
   uint16_t samples_per_beat; // samples_per_multiplier_a
   uint16_t samples; // sample_count_multiplier_a
   uint16_t limit; // max beats
   uint16_t beats; // count_multiplier_a
   uint8_t modifier; // cv_multiplier_a
+  uint8_t multiplier; // multiplier_a
   uint8_t output; // output_multiplier_a
+  uint8_t output_enabled; // output_enabled
 } HeadwaterStateChannel;
 
-typedef struct HeadwaterState {
+typedef volatile struct HeadwaterState {
   uint8_t mode;
   uint8_t output_enabled;
   uint16_t bpm;
-  uint8_t multiplier_a;
-  uint8_t multiplier_b;
+  // TODO pull this out, samples per beat in channel is modified
+  uint16_t samples_per_beat;
   HeadwaterStateChannel bpm_channel;
   HeadwaterStateChannel multiplier_a_channel;
   HeadwaterStateChannel multiplier_b_channel; // TODO test!
@@ -48,16 +50,14 @@ void headwater_state_update(
   int8_t multiplier
 );
 
-void headwater_state_update_bpm(HeadwaterStateChannel *channel, uint16_t bpm);
-void headwater_state_update_multiplier(
-  HeadwaterStateChannel *bpm_channel,
-  HeadwaterStateChannel *multiplier_channel,
-  uint8_t multiplier
+uint16_t headwater_state_apply_modifier(uint16_t value, uint8_t modifier);
+void headwater_state_update_samples_per_beat(
+  HeadwaterStateChannel *channel,
+  uint16_t samples_per_beat
 );
-
 void headwater_state_stop(HeadwaterState *state);
 void headwater_state_reset(HeadwaterState *state);
-void headwater_state_start(HeadwaterState *state);
+void headwater_state_play(HeadwaterState *state);
 void headwater_state_cycle(HeadwaterState *state);
 void headwater_state_change(HeadwaterState *state);
 

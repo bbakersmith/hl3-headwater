@@ -29,7 +29,7 @@ TEST_TEAR_DOWN(headwater_api) {};
 void assert_headwater_api_get_8bit(
   API *api,
   HEADWATER_API_CMD command,
-  uint8_t *target,
+  volatile uint8_t *target,
   uint8_t value
 ) {
   uint8_t result;
@@ -44,7 +44,7 @@ void assert_headwater_api_get_8bit(
 void assert_headwater_api_get_16bit(
   API *api,
   HEADWATER_API_CMD command,
-  uint16_t *target,
+  volatile uint16_t *target,
   uint16_t value
 ) {
   uint8_t header = (1 << API_HEADER_SIZE1) | command;
@@ -87,7 +87,7 @@ TEST(headwater_api, test_api_cmd_get_multiplier_a) {
   assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_MULTIPLIER_A,
-    &dummy_api.state.multiplier_a,
+    &dummy_api.state.multiplier_a_channel.multiplier,
     5
   );
 }
@@ -96,7 +96,7 @@ TEST(headwater_api, test_api_cmd_get_multiplier_b) {
   assert_headwater_api_get_8bit(
     &dummy_api,
     HEADWATER_API_GET_MULTIPLIER_B,
-    &dummy_api.state.multiplier_b,
+    &dummy_api.state.multiplier_b_channel.multiplier,
     97
   );
 }
@@ -214,7 +214,7 @@ TEST(headwater_api, test_api_cmd_get_cv_multiplier_b) {
 void assert_headwater_api_update_8bit(
   API *api,
   HEADWATER_API_CMD command,
-  uint8_t *target,
+  volatile uint8_t *target,
   uint8_t value,
   uint8_t change_flags
 ) {
@@ -230,7 +230,7 @@ void assert_headwater_api_update_8bit(
 void assert_headwater_api_update_16bit(
   API *api,
   HEADWATER_API_CMD command,
-  uint16_t *target,
+  volatile uint16_t *target,
   uint16_t value,
   uint8_t change_flags
 ) {
@@ -260,7 +260,7 @@ TEST(headwater_api, test_api_cmd_update_multiplier_a) {
   assert_headwater_api_update_8bit(
     &dummy_api,
     HEADWATER_API_UPDATE_MULTIPLIER_A,
-    &dummy_api.state.multiplier_a,
+    &dummy_api.state.multiplier_a_channel.multiplier,
     123,
     (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A)
   );
@@ -270,7 +270,7 @@ TEST(headwater_api, test_api_cmd_update_multiplier_b) {
   assert_headwater_api_update_8bit(
     &dummy_api,
     HEADWATER_API_UPDATE_MULTIPLIER_B,
-    &dummy_api.state.multiplier_b,
+    &dummy_api.state.multiplier_b_channel.multiplier,
     255,
     (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B)
   );

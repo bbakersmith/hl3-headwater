@@ -4,7 +4,11 @@
 
 APIRequest dummy_request;
 
-void assert_payload_equal(uint8_t expected[8], uint8_t actual[8], uint8_t size) {
+void assert_payload_equal(
+  uint8_t expected[8],
+  volatile uint8_t actual[8],
+  uint8_t size
+) {
   for(uint8_t i = 0; i < 8; i++) {
     TEST_ASSERT_EQUAL(expected[i], actual[i]);
   }

@@ -1,7 +1,7 @@
 #include "bytes.h"
 #include "headwater_api.h"
 
-void headwater_api_16bit_payload(uint8_t payload[8], uint16_t value) {
+void headwater_api_16bit_payload(volatile uint8_t payload[8], uint16_t value) {
   payload[0] = bytes_16bit_to_high(value);
   payload[1] = bytes_16bit_to_low(value);
 }
@@ -22,10 +22,10 @@ void headwater_api_payload_preprocessor(API *api) {
       );
       break;
     case HEADWATER_API_GET_MULTIPLIER_A:
-      api->request.payload[0] = api->state.multiplier_a;
+      api->request.payload[0] = api->state.multiplier_a_channel.multiplier;
       break;
     case HEADWATER_API_GET_MULTIPLIER_B:
-      api->request.payload[0] = api->state.multiplier_b;
+      api->request.payload[0] = api->state.multiplier_b_channel.multiplier;
       break;
     case HEADWATER_API_GET_SAMPLES_PER_BPM:
       headwater_api_16bit_payload(
@@ -117,11 +117,11 @@ void headwater_api_payload_postprocessor(API *api) {
       api->state.change_flags |= (1 << HEADWATER_STATE_CHANGE_BPM);
       break;
     case HEADWATER_API_UPDATE_MULTIPLIER_A:
-      api->state.multiplier_a = api->request.payload[0];
+      api->state.multiplier_a_channel.multiplier = api->request.payload[0];
       api->state.change_flags |= (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A);
       break;
     case HEADWATER_API_UPDATE_MULTIPLIER_B:
-      api->state.multiplier_b = api->request.payload[0];
+      api->state.multiplier_b_channel.multiplier = api->request.payload[0];
       api->state.change_flags |= (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
       break;
   }

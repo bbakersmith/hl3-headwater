@@ -20,17 +20,17 @@ typedef enum {
   API_HEADER_SIZE2
 } API_HEADER;
 
-typedef struct APIRequest {
+typedef volatile struct APIRequest {
   uint8_t command;
   uint8_t index;
   uint8_t payload[8];
   uint8_t size;
 } APIRequest;
 
-typedef struct API {
+typedef volatile struct API {
   APIRequest request;
-  void (*payload_preprocessor)(struct API *api);
-  void (*payload_postprocessor)(struct API *api);
+  void (*payload_preprocessor)(volatile struct API *api);
+  void (*payload_postprocessor)(volatile struct API *api);
 #ifdef API_STATE
   APIState state;
 #endif

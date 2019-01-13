@@ -15,15 +15,21 @@
 #define RESET_PIN PORTD1
 #define PLAY_PIN PORTD2
 
+#define CV_PORT PORTC
+
+#define BPM_CV_PIN PORTC3
+#define MULTIPLIER_A_CV_PIN PORTC4
+#define MULTIPLIER_B_CV_PIN PORTC5
+
 #define OUTPUT_PORT PORTC
 #define OUTPUT_DDR DDRC
 
 #define BPM_PIN PORTC0
-#define MULTIPLIED_PIN PORTC1
+#define MULTIPLIER_A_PIN PORTC1
 
 API volatile headwater_api;
 
-void atmega_headwater_output_fn(uint8_t enabled) {
+void atmega_headwater_bpm_output(uint8_t enabled) {
   if(enabled == 0) {
     OUTPUT_PORT |= (1 << BPM_PIN);
   } else {
@@ -31,20 +37,24 @@ void atmega_headwater_output_fn(uint8_t enabled) {
   }
 }
 
-void atmega_headwater_multiplied_fn(uint8_t enabled) {
+void atmega_headwater_multiplier_a_output(uint8_t enabled) {
   if(enabled == 0) {
-    OUTPUT_PORT |= (1 << MULTIPLIED_PIN);
+    OUTPUT_PORT |= (1 << MULTIPLIER_A_PIN);
   } else {
-    OUTPUT_PORT &= ~(1 << MULTIPLIED_PIN);
+    OUTPUT_PORT &= ~(1 << MULTIPLIER_A_PIN);
   }
 }
 
 void main(void) {
   // enable output pins
-  OUTPUT_DDR |= (1 << BPM_PIN) | (1 << MULTIPLIED_PIN);
+  OUTPUT_DDR |= (1 << BPM_PIN) | (1 << MULTIPLIER_A_PIN);
 
   // enable play, stop, reset input
   INPUT_PORT |= (1 << PLAY_PIN) | (1 << RESET_PIN) | (1 << STOP_PIN);
+  CV_PORT |=
+    (1 << BPM_CV_PIN)
+    | (1 << MULTIPLIER_A_CV_PIN)
+    | (1 << MULTIPLIER_B_CV_PIN);
 
   // pin change interrupt control register
   PCICR = (1 << PCIE2);
@@ -69,8 +79,8 @@ void main(void) {
   atmega_spi_slave_init();
   sei();
 
-  atmega_headwater_output_fn(0);
-  atmega_headwater_multiplied_fn(0);
+  atmega_headwater_bpm_output(0);
+  atmega_headwater_multiplier_a_output(0);
 
   HeadwaterState headwater_state = headwater_state_new();
   APIRequest headwater_api_request = api_new_request();
@@ -84,7 +94,7 @@ void main(void) {
   headwater_api = headwater_api_;
 
   // TODO don't start automatically
-  headwater_state_start(&headwater_api.state);
+  headwater_state_play(&headwater_api.state);
 
   while(1) {
     if(headwater_api.state.change_flags == 0) {
@@ -97,8 +107,10 @@ void main(void) {
 
 ISR(TIMER1_COMPA_vect) {
   headwater_state_cycle(&headwater_api.state);
-  atmega_headwater_output_fn(headwater_api.state.bpm_channel.output);
-  atmega_headwater_multiplied_fn(headwater_api.state.multiplier_a_channel.output);
+  atmega_headwater_bpm_output(headwater_api.state.bpm_channel.output);
+  atmega_headwater_multiplier_a_output(
+    headwater_api.state.multiplier_a_channel.output
+  );
 }
 
 ISR(SPI_STC_vect) {
