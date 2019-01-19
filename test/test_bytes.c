@@ -28,7 +28,33 @@ TEST(bytes, test_bytes_high_low_to_16bit) {
   TEST_ASSERT_EQUAL(43605, bytes_high_low_to_16bit(0xAA, 0x55));
 }
 
+TEST(bytes, test_bytes_set_bit) {
+  uint8_t volatile value;
+
+  value = 0;
+  bytes_set_bit(&value, 3);
+  TEST_ASSERT_EQUAL(8, value);
+
+  value = 4;
+  bytes_set_bit(&value, 5);
+  TEST_ASSERT_EQUAL(36, value);
+}
+
+TEST(bytes, test_bytes_unset_bit) {
+  uint8_t volatile value;
+
+  value = 54;
+  bytes_unset_bit(&value, 4);
+  TEST_ASSERT_EQUAL(38, value);
+
+  value = 3;
+  bytes_unset_bit(&value, 4);
+  TEST_ASSERT_EQUAL(3, value);
+}
+
 TEST_GROUP_RUNNER(bytes) {
   RUN_TEST_CASE(bytes, test_bytes_16bit_to_high_low);
   RUN_TEST_CASE(bytes, test_bytes_high_low_to_16bit);
+  RUN_TEST_CASE(bytes, test_bytes_set_bit);
+  RUN_TEST_CASE(bytes, test_bytes_unset_bit);
 }

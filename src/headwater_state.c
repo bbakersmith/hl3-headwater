@@ -15,10 +15,8 @@ HeadwaterStateChannel headwater_state_new_channel(void) {
     .samples_per_beat = 1000,
     .samples = 0,
     .beats = 0,
-    .modifier = 255,
     .multiplier = 1,
-    .output = 0,
-    .output_enabled = 1
+    .output = 0
   };
   return channel;
 }
@@ -30,11 +28,11 @@ HeadwaterState headwater_state_new(void) {
 
   HeadwaterState state = {
     .bpm = 600,
-    .samples_per_beat = 1000,
     .samples_since_reset_count = 0,
     .bpm_channel = bpm_channel,
     .multiplier_a_channel = multiplier_a_channel,
-    .multiplier_b_channel = multiplier_b_channel
+    .multiplier_b_channel = multiplier_b_channel,
+    .output_enabled = 0
   };
   return state;
 }
@@ -43,28 +41,11 @@ uint16_t headwater_state_samples_per_bpm(int16_t bpm) {
   return (SAMPLES_PER_SECOND * SECONDS_IN_MINUTE * 10) / bpm;
 }
 
-uint16_t headwater_state_apply_modifier(uint16_t value, uint8_t modifier) {
-  return (value * (25500 / modifier)) / 100;
-}
-
 void headwater_state_update_samples_per_beat(
   HeadwaterStateChannel *channel,
   uint16_t samples_per_beat
 ) {
-  if(channel->modifier == 0) {
-    // TODO this should really be "running" or something like that
-    // - how should counts be handled when modifier is 0???
-    // - when it resumes???
-    channel->output_enabled = 0; // TODO enum
-  } else {
-    uint16_t modified = headwater_state_apply_modifier(
-      samples_per_beat,
-      channel->modifier
-    );
-    uint16_t multiplied = modified / channel->multiplier;
-    channel->samples_per_beat = multiplied;
-    channel->output_enabled = 1; // TODO enum
-  }
+  channel->samples_per_beat = samples_per_beat / channel->multiplier;
 }
 
 void headwater_state_stop(HeadwaterState *state) {
@@ -157,12 +138,9 @@ void headwater_state_change(HeadwaterState *state) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A);
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
 
-    // TODO this should be its own type of change, apart from bpm channel
-    state->samples_per_beat = headwater_state_samples_per_bpm(state->bpm);
-
     headwater_state_update_samples_per_beat(
       &state->bpm_channel,
-      state->samples_per_beat
+      headwater_state_samples_per_bpm(state->bpm)
     );
 
     headwater_state_update_samples_per_beat(

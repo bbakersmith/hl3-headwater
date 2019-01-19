@@ -8,18 +8,14 @@ typedef volatile struct HeadwaterStateChannel {
   uint16_t samples; // sample_count_multiplier_a
   uint16_t limit; // max beats
   uint16_t beats; // count_multiplier_a
-  uint8_t modifier; // cv_multiplier_a
   uint8_t multiplier; // multiplier_a
   uint8_t output; // output_multiplier_a
-  uint8_t output_enabled; // output_enabled
 } HeadwaterStateChannel;
 
 typedef volatile struct HeadwaterState {
   uint8_t mode;
   uint8_t output_enabled;
   uint16_t bpm;
-  // TODO pull this out, samples per beat in channel is modified
-  uint16_t samples_per_beat;
   HeadwaterStateChannel bpm_channel;
   HeadwaterStateChannel multiplier_a_channel;
   HeadwaterStateChannel multiplier_b_channel; // TODO test!

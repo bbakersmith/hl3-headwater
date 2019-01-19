@@ -75,15 +75,6 @@ void headwater_api_payload_preprocessor(API *api) {
         api->state.multiplier_b_channel.samples
       );
       break;
-    case HEADWATER_API_GET_CV_BPM:
-      api->request.payload[0] = api->state.bpm_channel.modifier;
-      break;
-    case HEADWATER_API_GET_CV_MULTIPLIER_A:
-      api->request.payload[0] = api->state.multiplier_a_channel.modifier;
-      break;
-    case HEADWATER_API_GET_CV_MULTIPLIER_B:
-      api->request.payload[0] = api->state.multiplier_b_channel.modifier;
-      break;
 
     // TODO test
     case HEADWATER_API_GET_CHANGE_FLAGS:

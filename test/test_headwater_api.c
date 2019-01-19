@@ -173,42 +173,6 @@ TEST(headwater_api, test_api_cmd_get_sample_count_multiplier_b) {
   );
 }
 
-TEST(headwater_api, test_api_cmd_get_cv_bpm) {
-  assert_headwater_api_get_8bit(
-    &dummy_api,
-    HEADWATER_API_GET_CV_BPM,
-    &dummy_api.state.bpm_channel.modifier,
-    1
-  );
-}
-
-TEST(headwater_api, test_api_cmd_get_cv_bpm0) {
-  assert_headwater_api_get_8bit(
-    &dummy_api,
-    HEADWATER_API_GET_CV_BPM,
-    &dummy_api.state.bpm_channel.modifier,
-    0
-  );
-}
-
-TEST(headwater_api, test_api_cmd_get_cv_multiplier_a) {
-  assert_headwater_api_get_8bit(
-    &dummy_api,
-    HEADWATER_API_GET_CV_MULTIPLIER_A,
-    &dummy_api.state.multiplier_a_channel.modifier,
-    10
-  );
-}
-
-TEST(headwater_api, test_api_cmd_get_cv_multiplier_b) {
-  assert_headwater_api_get_8bit(
-    &dummy_api,
-    HEADWATER_API_GET_CV_MULTIPLIER_B,
-    &dummy_api.state.multiplier_b_channel.modifier,
-    255
-  );
-}
-
 // UPDATE Tests
 
 void assert_headwater_api_update_8bit(
@@ -328,10 +292,6 @@ TEST_GROUP_RUNNER(headwater_api) {
   RUN_TEST_CASE(headwater_api, test_api_cmd_get_sample_count_bpm);
   RUN_TEST_CASE(headwater_api, test_api_cmd_get_sample_count_multiplier_a);
   RUN_TEST_CASE(headwater_api, test_api_cmd_get_sample_count_multiplier_b);
-  RUN_TEST_CASE(headwater_api, test_api_cmd_get_cv_bpm);
-  RUN_TEST_CASE(headwater_api, test_api_cmd_get_cv_bpm);
-  RUN_TEST_CASE(headwater_api, test_api_cmd_get_cv_multiplier_a);
-  RUN_TEST_CASE(headwater_api, test_api_cmd_get_cv_multiplier_b);
 
   // UPDATE
   RUN_TEST_CASE(headwater_api, test_api_cmd_update_bpm);
