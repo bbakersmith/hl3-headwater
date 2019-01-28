@@ -41,134 +41,131 @@ TEST_SETUP(lcd) {
 
 TEST_TEAR_DOWN(lcd) {};
 
-TEST(lcd, test_lcd_message_screen_new) {
-  LCD_CHAR message[16] = {
-    LCD__B,
-    LCD__A,
-    LCD__D,
-    LCD__D
+TEST(lcd, test_lcd_next_changed_field) {
+  LCDField dummy_fields[5] = {
+    lcd_field_new(1, 0),
+    lcd_field_new(2, 2),
+    lcd_field_new(3, 4),
+    lcd_field_new(4, 8),
+    lcd_field_new(5, 16)
   };
 
-  LCDScreen screen = lcd_screen_message_top_new(message, sizeof(*message));
+  LCDScreen dummy_screen = lcd_screen_new(dummy_fields, 5);
 
-  TEST_ASSERT_EQUAL(1, screen.length);
-  TEST_ASSERT_EQUAL(0, screen.index);
-  TEST_ASSERT_EQUAL(LCD_ROW_1_COL_1, screen.fields[0].position);
-  TEST_ASSERT_EQUAL(4, screen.fields[0].length);
-  TEST_ASSERT_EQUAL(-1, screen.fields[0].index);
-  TEST_ASSERT_EQUAL(LCD__B, screen.fields[0].value[0]);
-  TEST_ASSERT_EQUAL(LCD__A, screen.fields[0].value[1]);
-  TEST_ASSERT_EQUAL(LCD__D, screen.fields[0].value[2]);
-  TEST_ASSERT_EQUAL(LCD__D, screen.fields[0].value[3]);
+  dummy_screen.change_flags = (1 << 1) | (1 << 3); // set initial change flags
+
+  LCDField changed1 = lcd_next_changed_field(&dummy_screen);
+
+  dummy_screen.change_flags |= (1 << 0); // ignores earlier change flags
+
+  LCDField changed2 = lcd_next_changed_field(&dummy_screen);
+  LCDField changed3 = lcd_next_changed_field(&dummy_screen);
+  LCDField changed4 = lcd_next_changed_field(&dummy_screen);
+
+  TEST_ASSERT_EQUAL(2, changed1.id);
+  TEST_ASSERT_EQUAL(4, changed2.id);
+  TEST_ASSERT_EQUAL(0, changed3.id);
+  TEST_ASSERT_EQUAL(1, changed4.id);
+}
+
+TEST(lcd, test_lcd_refresh_skip_in_write_mode) {
+  TEST_ASSERT_EQUAL(0, 1);
 }
 
 TEST(lcd, test_lcd_handle_interrupt) {
-  // TODO
+  LCDCommand result;
+  uint16_t dummy_wait = 100;
 
-  LCD_CHAR message_a[16] = {
-    LCD__S,
-    LCD__T,
-    LCD__A,
-    LCD__R
-  };
-
-  LCD_CHAR message_b1[16] = {
-    LCD__B,
-    LCD__Y
-  };
-
-  LCD_CHAR message_b2[16] = {
+  uint8_t expected[32] = {
     LCD__H,
     LCD__E,
     LCD__L,
     LCD__L,
     LCD__O,
+    LCD__,
+    LCD__S,
+    LCD__A,
+    LCD__Y,
+    LCD__,
+    LCD__I,
+    LCD__,
+    LCD__,
+    LCD__,
+    LCD__,
+    LCD__,
+
     LCD__W,
+    LCD__H,
+    LCD__A,
+    LCD__T,
+    LCD__,
+    LCD__S,
+    LCD__A,
+    LCD__Y,
+    LCD__,
+    LCD__Y,
     LCD__O,
-    LCD__R,
-    LCD__L,
-    LCD__D
+    LCD__U,
+    LCD__,
+    LCD__,
+    LCD__,
+    LCD__
   };
 
-  LCDScreenField field_a = lcd_screen_field_new(message_a, 4, LCD_ROW_1_COL_7);
-  LCDScreenField field_b1 = lcd_screen_field_new(message_b1, 2, LCD_ROW_1_COL_15);
-  LCDScreenField field_b2 = lcd_screen_field_new(message_b2, 10, LCD_ROW_2_COL_7);
+  LCD dummy_lcd = lcd_new();
+  dummy_lcd.wait = dummy_wait;
+  dummy_lcd.mode = LCD_MODE_READ;
 
-  LCDScreenField fields_a[8] = {field_a};
-  LCDScreenField fields_b[8] = {field_b1, field_b2};
+  for(uint8_t n = 0; n < 32; n++) {
+    dummy_lcd.characters[n] = expected[n];
+  }
 
-  LCDScreen screen_a = lcd_screen_new(fields_a, 1);
-  LCDScreen screen_b = lcd_screen_new(fields_b, 2);
+  for(uint8_t n = 0; n < 3; n++) {
+    // row 1
+    result = lcd_handle_interrupt(&dummy_lcd);
+    TEST_ASSERT_EQUAL(0, result.rs);
+    TEST_ASSERT_EQUAL(0x80, result.data);
 
-  LCDState state = {
-    .index = 0,
-    .write_cmd_fn = &dummy_write_cmd_fn,
-    .write_data_fn = &dummy_write_data_fn
-  };
+    for(uint8_t i = 0; i < 16; i++) {
+      TEST_ASSERT_EQUAL(LCD_MODE_READ, dummy_lcd.mode);
+      result = lcd_handle_interrupt(&dummy_lcd);
+      TEST_ASSERT_EQUAL(1, result.rs);
+      TEST_ASSERT_EQUAL(expected[i], result.data);
+    }
 
-  state.screens[0] = screen_a;
-  state.screens[1] = screen_b;
+    // row 2
+    result = lcd_handle_interrupt(&dummy_lcd);
+    TEST_ASSERT_EQUAL(0, result.rs);
+    TEST_ASSERT_EQUAL(0xC0, result.data);
 
-  /* for(uint8_t i = 0; i < 10; i++) { */
-    lcd_handle_interrupt(&state);
-    assert_dummy_cmd(LCD_ROW_1_COL_7);
+    for(uint8_t i = 16; i < 32; i++) {
+      TEST_ASSERT_EQUAL(LCD_MODE_READ, dummy_lcd.mode);
+      result = lcd_handle_interrupt(&dummy_lcd);
+      TEST_ASSERT_EQUAL(1, result.rs);
+      TEST_ASSERT_EQUAL(expected[i], result.data);
+    }
 
-    lcd_handle_interrupt(&state);
-    assert_dummy_data(LCD__S);
-    lcd_handle_interrupt(&state);
-    assert_dummy_data(LCD__T);
-    lcd_handle_interrupt(&state);
-    assert_dummy_data(LCD__A);
-    lcd_handle_interrupt(&state);
-    assert_dummy_data(LCD__R);
-  /* } */
+    // wait
+    for(uint8_t i = 0; i < dummy_wait; i++) {
+      TEST_ASSERT_EQUAL(LCD_MODE_WAIT, dummy_lcd.mode);
+      result = lcd_handle_interrupt(&dummy_lcd);
+      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_RS, result.rs);
+      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_DATA, result.data);
+    }
 
-  state.index = 1;
+    // write
+    for(uint16_t i = 0; i < 500; i++) {
+      TEST_ASSERT_EQUAL(LCD_MODE_WRITE, dummy_lcd.mode);
+      result = lcd_handle_interrupt(&dummy_lcd);
+      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_RS, result.rs);
+      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_DATA, result.data);
+    }
 
-  /* for(uint8_t i = 0; i < 10; i++) { */
-    lcd_handle_interrupt(&state);
-    /* TEST_ASSERT_EQUAL(0x15, dummy_cmd); */
-
-    lcd_handle_interrupt(&state);
-    assert_dummy_data(LCD__B);
-    lcd_handle_interrupt(&state);
-    assert_dummy_data(LCD__Y);
-
-    lcd_handle_interrupt(&state);
-    /* TEST_ASSERT_EQUAL(0xC6, dummy_cmd); */
-
-    lcd_handle_interrupt(&state);
-    assert_dummy_data(LCD__H);
-    /* lcd_handle_interrupt(&state); */
-    /* assert_dummy_data(LCD__E); */
-    /* lcd_handle_interrupt(&state); */
-    /* assert_dummy_data(LCD__L); */
-    /* lcd_handle_interrupt(&state); */
-    /* assert_dummy_data(LCD__L); */
-    /* lcd_handle_interrupt(&state); */
-    /* assert_dummy_data(LCD__O); */
-    /* lcd_handle_interrupt(&state); */
-    /* assert_dummy_data(LCD__W); */
-    /* lcd_handle_interrupt(&state); */
-    /* assert_dummy_data(LCD__O); */
-    /* lcd_handle_interrupt(&state); */
-    /* assert_dummy_data(LCD__R); */
-    /* lcd_handle_interrupt(&state); */
-    /* assert_dummy_data(LCD__L); */
-    /* lcd_handle_interrupt(&state); */
-    /* assert_dummy_data(LCD__D); */
-  /* } */
-
-  // create dummy state
-  // - multiple screens
-  // - dummy data and clk write fns
-
-  // handle interrupt
-  // verify values
-  // repeat
+    dummy_lcd.mode = LCD_MODE_READ;
+  }
 }
 
 TEST_GROUP_RUNNER(lcd) {
-  RUN_TEST_CASE(lcd, test_lcd_message_screen_new);
+  RUN_TEST_CASE(lcd, test_lcd_next_changed_field);
   RUN_TEST_CASE(lcd, test_lcd_handle_interrupt);
 }

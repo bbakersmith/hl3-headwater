@@ -17,5 +17,6 @@
 #define LCD_SR_DATA_PIN PORTB1
 
 void atmega_lcd_init(void);
-void atmega_lcd_write_cmd(uint8_t value);
-void atmega_lcd_write_data(uint8_t value);
+void atmega_lcd_send(uint8_t rs, uint8_t data);
+void atmega_lcd_send_cmd(uint8_t data);
+void atmega_lcd_send_data(uint8_t data);
