@@ -62,10 +62,12 @@ void main(void) {
 
   // timer prescale
   TCCR0B |= (1 << CS02) | (1 << CS00); // 1/1024
+  /* TCCR0B |= (1 << CS02); // 1/256 */
   TCCR1B |= (1 << CS11);
 
   // timer reset value
-  OCR0A = 100;
+  OCR0A = 156;
+  /* OCR0A = 2; */
   OCR1A = 2000;
 
   // enable interrupts
@@ -132,11 +134,15 @@ void main(void) {
   // enable interrupts
   sei();
 
+  // FIXME DEBUG
+  /* _delay_ms(2000); */
+
   while(1) {
     if(headwater_api.state.change_flags != 0) {
       // state change
       headwater_state_change(&headwater_api.state);
     } else if(lcd_state.mode == LCD_MODE_WRITE) {
+
       lcd_state.characters[4] = LCD__G;
       lcd_state.characters[5] = LCD__O;
       lcd_state.characters[6] = LCD__O;
@@ -145,10 +151,21 @@ void main(void) {
       lcd_state.characters[9] = LCD__Y;
       lcd_state.characters[10] = LCD__E;
 
-      _delay_ms(2000);
+      if(headwater_api.state.output_enabled == 1) {
+        lcd_state.characters[12] = LCD__P;
+        lcd_state.characters[13] = LCD__L;
+        lcd_state.characters[14] = LCD__A;
+        lcd_state.characters[15] = LCD__Y;
+      } else {
+        lcd_state.characters[12] = LCD__S;
+        lcd_state.characters[13] = LCD__T;
+        lcd_state.characters[14] = LCD__O;
+        lcd_state.characters[15] = LCD__P;
+      }
 
       // DEBUG
       lcd_state.mode = LCD_MODE_READ;
+
       /* // lcd change */
       /* LCDField changed_field = lcd_next_changed_field(&lcd_screen_main); */
       /* if(lcd_is_field_null(changed_field)) { */
@@ -174,16 +191,21 @@ ISR(TIMER1_COMPA_vect) {
   );
 }
 
-void atmega_headwater_lcd_read(LCD *lcd) {
-  LCDCommand command = lcd_next_command(lcd);
-  atmega_lcd_send(command.rs, command.data);
-}
-
 ISR(TIMER0_COMPA_vect) {
   if(lcd_state.mode == LCD_MODE_READ) {
-    atmega_headwater_lcd_read(&lcd_state);
+    LCDCommand command = lcd_next_command(&lcd_state);
+    atmega_lcd_send(command.rs, command.data);
   } else if(lcd_state.mode == LCD_MODE_WAIT) {
     lcd_wait(&lcd_state);
+  }
+
+  if(lcd_state.mode == LCD_MODE_READ) {
+    TCCR0B &= ~(1 << CS00);
+    TCCR0B |= (1 << CS02);
+    OCR0A = 2;
+  } else {
+    TCCR0B |= (1 << CS02) | (1 << CS00);
+    OCR0A = 156;
   }
 
   /* atmega_lcd_set_prescaler(lcd_state.mode); */

@@ -20,12 +20,10 @@ void atmega_lcd_74164_send(uint8_t data) {
   }
 }
 
+// does this need any delay?
 void atmega_lcd_execute(void) {
-  // TODO disabling E should be part of interrupt
   LCD_PORT |= (1 << LCD_E_PIN);
-  _delay_ms(2);
   LCD_PORT &= ~(1 << LCD_E_PIN);
-  _delay_ms(2);
 }
 
 void atmega_lcd_send(uint8_t rs, uint8_t data) {

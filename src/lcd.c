@@ -35,7 +35,7 @@ LCDScreen lcd_screen_new(LCDField fields[8], uint8_t fields_length) {
 LCD lcd_new(void) {
   LCD lcd = {
     .characters_index = 0,
-    .wait = 250,
+    .wait = 25, // TODO best default?
     .wait_count = 0,
     .mode = LCD_MODE_WRITE,
     .rows_index = -1
