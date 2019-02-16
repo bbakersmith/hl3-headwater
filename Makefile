@@ -13,6 +13,7 @@ HEADWATER_SOURCE_FILES=\
 	src/api.c \
 	src/bytes.c \
 	src/headwater_api.c \
+	src/headwater_lcd.c \
 	src/headwater_state.c \
 	src/lcd.c
 
@@ -40,11 +41,13 @@ TEST_SOURCE_FILES=\
 	src/bytes.c \
 	src/lcd.c \
   src/headwater_api.c \
+  src/headwater_lcd.c \
   src/headwater_state.c \
   test/test_api.c \
   test/test_bytes.c \
   test/test_lcd.c \
   test/test_headwater_api.c \
+  test/test_headwater_lcd.c \
   test/test_headwater_state.c \
 	test/run_tests.c
 

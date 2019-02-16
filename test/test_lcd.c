@@ -165,7 +165,27 @@ TEST(lcd, test_lcd_handle_interrupt) {
   }
 }
 
+TEST(lcd, test_lcd_digit_to_char) {
+  LCD_CHAR expected[10] = {
+    LCD__0,
+    LCD__1,
+    LCD__2,
+    LCD__3,
+    LCD__4,
+    LCD__5,
+    LCD__6,
+    LCD__7,
+    LCD__8,
+    LCD__9
+  };
+
+  for(uint8_t i = 0; i < 10; i++) {
+    TEST_ASSERT_EQUAL(expected[i], lcd_digit_to_char(i));
+  }
+}
+
 TEST_GROUP_RUNNER(lcd) {
   RUN_TEST_CASE(lcd, test_lcd_next_changed_field);
   RUN_TEST_CASE(lcd, test_lcd_handle_interrupt);
+  RUN_TEST_CASE(lcd, test_lcd_digit_to_char);
 }

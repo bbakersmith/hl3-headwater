@@ -19,6 +19,47 @@ uint8_t lcd_is_field_null(LCDField field) {
   }
 }
 
+LCD_CHAR lcd_digit_to_char(uint8_t digit) {
+  LCD_CHAR character;
+
+  switch(digit) {
+    case 0:
+      character = LCD__0;
+      break;
+    case 1:
+      character = LCD__1;
+      break;
+    case 2:
+      character = LCD__2;
+      break;
+    case 3:
+      character = LCD__3;
+      break;
+    case 4:
+      character = LCD__4;
+      break;
+    case 5:
+      character = LCD__5;
+      break;
+    case 6:
+      character = LCD__6;
+      break;
+    case 7:
+      character = LCD__7;
+      break;
+    case 8:
+      character = LCD__8;
+      break;
+    case 9:
+      character = LCD__9;
+      break;
+    default:
+      character = LCD__;
+  }
+
+  return character;
+}
+
 LCDScreen lcd_screen_new(LCDField fields[8], uint8_t fields_length) {
   LCDScreen screen = {
     .change_flags = 0,

@@ -81,7 +81,6 @@ void headwater_api_payload_preprocessor(API *api) {
       api->request.payload[0] = api->state.change_flags;
       break;
   }
-
 }
 
 void headwater_api_payload_postprocessor(API *api) {

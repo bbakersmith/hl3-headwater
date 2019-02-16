@@ -9,6 +9,7 @@
 #include "atmega_spi.h"
 #include "bytes.h"
 #include "headwater_api.h"
+#include "headwater_lcd.h"
 #include "headwater_state.h"
 #include "lcd.h"
 
@@ -62,7 +63,6 @@ void main(void) {
 
   // timer prescale
   TCCR0B |= (1 << CS02) | (1 << CS00); // 1/1024
-  /* TCCR0B |= (1 << CS02); // 1/256 */
   TCCR1B |= (1 << CS11);
 
   // timer reset value
@@ -70,14 +70,12 @@ void main(void) {
   /* OCR0A = 2; */
   OCR1A = 2000;
 
-  // enable interrupts
+  // configure interrupts
   TIMSK0 |= (1 << OCIE0A);
   TIMSK1 |= (1 << OCIE1A);
   PCMSK1 |= (1 << PCINT8) | (1 << PCINT9);
 
-  atmega_lcd_init();
-  atmega_spi_slave_init();
-
+  // TODO do this automatically elsewhere
   atmega_headwater_bpm_output(0);
   atmega_headwater_multiplier_a_output(0);
 
@@ -92,6 +90,9 @@ void main(void) {
   };
   headwater_api = headwater_api_;
 
+  atmega_lcd_init();
+  atmega_spi_slave_init();
+
   // wait for LCD
   _delay_ms(500);
 
@@ -99,17 +100,17 @@ void main(void) {
   LCD lcd_state_ = lcd_new();
   lcd_state = lcd_state_;
 
-  lcd_state.characters[4] = LCD__H;
-  lcd_state.characters[5] = LCD__E;
-  lcd_state.characters[6] = LCD__L;
-  lcd_state.characters[7] = LCD__L;
-  lcd_state.characters[8] = LCD__O;
-
-  lcd_state.characters[20] = LCD__W;
-  lcd_state.characters[21] = LCD__O;
-  lcd_state.characters[22] = LCD__R;
-  lcd_state.characters[23] = LCD__L;
-  lcd_state.characters[24] = LCD__D;
+  /* lcd_state.characters[4] = LCD__H; */
+  /* lcd_state.characters[5] = LCD__E; */
+  /* lcd_state.characters[6] = LCD__L; */
+  /* lcd_state.characters[7] = LCD__L; */
+  /* lcd_state.characters[8] = LCD__O; */
+  /*  */
+  /* lcd_state.characters[20] = LCD__W; */
+  /* lcd_state.characters[21] = LCD__O; */
+  /* lcd_state.characters[22] = LCD__R; */
+  /* lcd_state.characters[23] = LCD__L; */
+  /* lcd_state.characters[24] = LCD__D; */
 
   // TODO don't start automatically
   headwater_state_play(&headwater_api.state);
@@ -123,19 +124,18 @@ void main(void) {
   atmega_lcd_send_cmd(0x80);
   _delay_ms(5);
 
-  // FIXME DEBUG
-  lcd_state.mode = LCD_MODE_READ;
-
-  /* atmega_lcd_send(0, 0x84); */
   /* atmega_lcd_send(1, LCD__A); */
+  /* _delay_ms(1); */
   /* atmega_lcd_send(1, LCD__B); */
+  /* _delay_ms(1); */
   /* atmega_lcd_send(1, LCD__C); */
+
+  /* _delay_ms(2000); */
 
   // enable interrupts
   sei();
 
   // FIXME DEBUG
-  /* _delay_ms(2000); */
 
   while(1) {
     if(headwater_api.state.change_flags != 0) {
@@ -143,42 +143,18 @@ void main(void) {
       headwater_state_change(&headwater_api.state);
     } else if(lcd_state.mode == LCD_MODE_WRITE) {
 
-      lcd_state.characters[4] = LCD__G;
-      lcd_state.characters[5] = LCD__O;
-      lcd_state.characters[6] = LCD__O;
-      lcd_state.characters[7] = LCD__D;
-      lcd_state.characters[8] = LCD__B;
-      lcd_state.characters[9] = LCD__Y;
-      lcd_state.characters[10] = LCD__E;
+      /* lcd_state.characters[4] = LCD__G; */
+      /* lcd_state.characters[5] = LCD__O; */
+      /* lcd_state.characters[6] = LCD__O; */
+      /* lcd_state.characters[7] = LCD__D; */
+      /* lcd_state.characters[8] = LCD__B; */
+      /* lcd_state.characters[9] = LCD__Y; */
+      /* lcd_state.characters[10] = LCD__E; */
 
-      if(headwater_api.state.output_enabled == 1) {
-        lcd_state.characters[12] = LCD__P;
-        lcd_state.characters[13] = LCD__L;
-        lcd_state.characters[14] = LCD__A;
-        lcd_state.characters[15] = LCD__Y;
-      } else {
-        lcd_state.characters[12] = LCD__S;
-        lcd_state.characters[13] = LCD__T;
-        lcd_state.characters[14] = LCD__O;
-        lcd_state.characters[15] = LCD__P;
-      }
+      headwater_lcd_update_main(&lcd_state, &headwater_api.state);
 
       // DEBUG
       lcd_state.mode = LCD_MODE_READ;
-
-      /* // lcd change */
-      /* LCDField changed_field = lcd_next_changed_field(&lcd_screen_main); */
-      /* if(lcd_is_field_null(changed_field)) { */
-      /*   // no more changes, switch lcd modes */
-      /*   lcd_state.mode = LCD_MODE_READ; */
-      /* } else { */
-      /*   // TODO write character changes for field */
-      /*   headwater_lcd_write_main_field( */
-      /*     changed_field, */
-      /*     &headwater_api->state, */
-      /*     &lcd_state.characters */
-      /*   ); */
-      /* } */
     }
   }
 }
@@ -199,16 +175,12 @@ ISR(TIMER0_COMPA_vect) {
     lcd_wait(&lcd_state);
   }
 
+  // Reduce interrupt rate when not reading
   if(lcd_state.mode == LCD_MODE_READ) {
-    TCCR0B &= ~(1 << CS00);
-    TCCR0B |= (1 << CS02);
-    OCR0A = 2;
+    OCR0A = 1;
   } else {
-    TCCR0B |= (1 << CS02) | (1 << CS00);
     OCR0A = 156;
   }
-
-  /* atmega_lcd_set_prescaler(lcd_state.mode); */
 }
 
 ISR(SPI_STC_vect) {
@@ -223,7 +195,6 @@ ISR(PCINT2_vect) {
 
   if(!(PIND & (1 << RESET_PIN))) {
     headwater_api.state.change_flags |= (1 << HEADWATER_STATE_CHANGE_RESET);
-    /* uint16_t spi_reset_cache = headwater_api.state.samples_since_reset_count; */
   }
 
   if(!(PIND & (1 << STOP_PIN))) {

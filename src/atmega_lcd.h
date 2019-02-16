@@ -1,7 +1,4 @@
-#define F_CPU 16000000UL  // 16 MHz
-
 #include <avr/io.h>
-#include <util/delay.h>
 #include "stdint.h"
 
 #define LCD_PORT PORTD

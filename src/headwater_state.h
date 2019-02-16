@@ -3,6 +3,20 @@
 
 #include "stdint.h"
 
+typedef enum {
+  HEADWATER_STATE_CHANGE_STOP,
+  HEADWATER_STATE_CHANGE_RESET,
+  HEADWATER_STATE_CHANGE_PLAY,
+  HEADWATER_STATE_CHANGE_MODE,
+  HEADWATER_STATE_CHANGE_BPM,
+  HEADWATER_STATE_CHANGE_MULTIPLIER_A,
+  HEADWATER_STATE_CHANGE_MULTIPLIER_B
+} HEADWATER_STATE_CHANGE;
+
+typedef enum {
+  HEADWATER_STATE_MODE_INT
+} HEADWATER_STATE_MODE;
+
 typedef volatile struct HeadwaterStateChannel {
   uint16_t samples_per_beat; // samples_per_multiplier_a
   uint16_t samples; // sample_count_multiplier_a
@@ -22,16 +36,6 @@ typedef volatile struct HeadwaterState {
   uint8_t change_flags;
   uint16_t samples_since_reset_count; // TODO used? rename?
 } HeadwaterState;
-
-typedef enum {
-  HEADWATER_STATE_CHANGE_STOP,
-  HEADWATER_STATE_CHANGE_RESET,
-  HEADWATER_STATE_CHANGE_PLAY,
-  HEADWATER_STATE_CHANGE_MODE,
-  HEADWATER_STATE_CHANGE_BPM,
-  HEADWATER_STATE_CHANGE_MULTIPLIER_A,
-  HEADWATER_STATE_CHANGE_MULTIPLIER_B
-} HEADWATER_STATE_CHANGE;
 
 // TODO should be able to avoid dealing with this in state module
 typedef void (HeadwaterOutputFn)(uint8_t enabled);

@@ -44,7 +44,39 @@
 
 typedef enum {
   LCD__ = 0x20,
-  LCD__A = 0x41,
+  LCD__BANG,
+  LCD__DQUOTE,
+  LCD__NUM,
+  LCD__USD,
+  LCD__PCT,
+  LCD__AND,
+  LCD__QUOTE,
+  LCD__LPAREN,
+  LCD__RPAREN,
+  LCD__STAR,
+  LCD__PLUS,
+  LCD__COMMA,
+  LCD__DASH,
+  LCD__DOT,
+  LCD__FSLASH,
+  LCD__0,
+  LCD__1,
+  LCD__2,
+  LCD__3,
+  LCD__4,
+  LCD__5,
+  LCD__6,
+  LCD__7,
+  LCD__8,
+  LCD__9,
+  LCD__COLON,
+  LCD__SEMI,
+  LCD__LT,
+  LCD__EQ,
+  LCD__GT,
+  LCD__QUES,
+  LCD__AT,
+  LCD__A,
   LCD__B,
   LCD__C,
   LCD__D,
@@ -121,6 +153,7 @@ LCD lcd_new(void);
 LCDField lcd_next_changed_field(LCDScreen *screen);
 LCDCommand lcd_next_command(LCD *lcd);
 LCDCommand lcd_handle_interrupt(LCD *lcd);
+LCD_CHAR lcd_digit_to_char(uint8_t digit);
 uint8_t lcd_is_field_null(LCDField field);
 uint8_t lcd_is_command_null(LCDCommand command);
 void lcd_wait(LCD *lcd);
