@@ -13,11 +13,13 @@
 #include "headwater_state.h"
 #include "lcd.h"
 
-#define INPUT_PORT PORTD
+#define UI_PIN PIND
+#define UI_PORT PORTD
+#define UI_DDR DDRD
 
-#define STOP_PIN PORTD0
-#define RESET_PIN PORTD1
-#define PLAY_PIN PORTD2
+#define UI_INPUT_PIN PORTD0
+#define UI_CLK_PIN PORTD1
+#define UI_SHIFT_PIN PORTD2
 
 #define OUTPUT_PORT PORTC
 #define OUTPUT_DDR DDRC
@@ -48,14 +50,11 @@ void main(void) {
   // enable output pins
   OUTPUT_DDR |= (1 << BPM_PIN) | (1 << MULTIPLIER_A_PIN);
 
-  // enable play, stop, reset input
-  INPUT_PORT |= (1 << PLAY_PIN) | (1 << RESET_PIN) | (1 << STOP_PIN);
+  // enable ui input
+  UI_PORT |= (1 << UI_INPUT_PIN);
 
-  // pin change interrupt control register
-  PCICR = (1 << PCIE2);
-
-  // configure pin change masks
-  PCMSK2 = (1 << PLAY_PIN) | (1 << RESET_PIN) | (1 << STOP_PIN);
+  // enable ui output
+  UI_DDR |= (1<< UI_SHIFT_PIN) | (1 << UI_CLK_PIN);
 
   // timer clear timer on compare (ctc) mode
   TCCR0A |= (1 << WGM01);
@@ -67,13 +66,11 @@ void main(void) {
 
   // timer reset value
   OCR0A = 156;
-  /* OCR0A = 2; */
   OCR1A = 2000;
 
   // configure interrupts
   TIMSK0 |= (1 << OCIE0A);
   TIMSK1 |= (1 << OCIE1A);
-  PCMSK1 |= (1 << PCINT8) | (1 << PCINT9);
 
   // TODO do this automatically elsewhere
   atmega_headwater_bpm_output(0);
@@ -100,21 +97,10 @@ void main(void) {
   LCD lcd_state_ = lcd_new();
   lcd_state = lcd_state_;
 
-  /* lcd_state.characters[4] = LCD__H; */
-  /* lcd_state.characters[5] = LCD__E; */
-  /* lcd_state.characters[6] = LCD__L; */
-  /* lcd_state.characters[7] = LCD__L; */
-  /* lcd_state.characters[8] = LCD__O; */
-  /*  */
-  /* lcd_state.characters[20] = LCD__W; */
-  /* lcd_state.characters[21] = LCD__O; */
-  /* lcd_state.characters[22] = LCD__R; */
-  /* lcd_state.characters[23] = LCD__L; */
-  /* lcd_state.characters[24] = LCD__D; */
-
   // TODO don't start automatically
   headwater_state_play(&headwater_api.state);
 
+  // TODO do this in setup function
   atmega_lcd_send_cmd(0x0C); // turn on display
   _delay_ms(5);
   atmega_lcd_send_cmd(0x01); // clear display
@@ -124,37 +110,66 @@ void main(void) {
   atmega_lcd_send_cmd(0x80);
   _delay_ms(5);
 
-  /* atmega_lcd_send(1, LCD__A); */
-  /* _delay_ms(1); */
-  /* atmega_lcd_send(1, LCD__B); */
-  /* _delay_ms(1); */
-  /* atmega_lcd_send(1, LCD__C); */
-
-  /* _delay_ms(2000); */
-
   // enable interrupts
   sei();
 
-  // FIXME DEBUG
-
   while(1) {
     if(headwater_api.state.change_flags != 0) {
-      // state change
       headwater_state_change(&headwater_api.state);
+
     } else if(lcd_state.mode == LCD_MODE_WRITE) {
-
-      /* lcd_state.characters[4] = LCD__G; */
-      /* lcd_state.characters[5] = LCD__O; */
-      /* lcd_state.characters[6] = LCD__O; */
-      /* lcd_state.characters[7] = LCD__D; */
-      /* lcd_state.characters[8] = LCD__B; */
-      /* lcd_state.characters[9] = LCD__Y; */
-      /* lcd_state.characters[10] = LCD__E; */
-
       headwater_lcd_update_main(&lcd_state, &headwater_api.state);
 
-      // DEBUG
+      // TODO do this in headwater_lcd_update_main?
       lcd_state.mode = LCD_MODE_READ;
+    } else {
+      // snapshot inputs on falling edge of shift
+      // UI_INPUT_PIN (Q) immediately set to H input
+      UI_PORT &= ~(1 << UI_SHIFT_PIN);
+      UI_PORT |= (1 << UI_SHIFT_PIN);
+
+      uint8_t stop_value = (UI_PIN & (1 << UI_INPUT_PIN));
+      UI_PORT |= (1 << UI_CLK_PIN);
+      UI_PORT &= ~(1 << UI_CLK_PIN);
+      uint8_t play_value = (UI_PIN & (1 << UI_INPUT_PIN));
+      UI_PORT |= (1 << UI_CLK_PIN);
+      UI_PORT &= ~(1 << UI_CLK_PIN);
+      uint8_t re_a_value = (UI_PIN & (1 << UI_INPUT_PIN));
+      UI_PORT |= (1 << UI_CLK_PIN);
+      UI_PORT &= ~(1 << UI_CLK_PIN);
+      uint8_t re_b_value = (UI_PIN & (1 << UI_INPUT_PIN));
+      UI_PORT |= (1 << UI_CLK_PIN);
+      UI_PORT &= ~(1 << UI_CLK_PIN);
+      uint8_t re_sw_value = (UI_PIN & (1 << UI_INPUT_PIN));
+      UI_PORT |= (1 << UI_CLK_PIN);
+      UI_PORT &= ~(1 << UI_CLK_PIN);
+      uint8_t left_value = (UI_PIN & (1 << UI_INPUT_PIN));
+      UI_PORT |= (1 << UI_CLK_PIN);
+      UI_PORT &= ~(1 << UI_CLK_PIN);
+      uint8_t right_value = (UI_PIN & (1 << UI_INPUT_PIN));
+
+      if(!stop_value) {
+        headwater_api.state.change_flags |=
+          (1 << HEADWATER_STATE_CHANGE_STOP);
+      }
+
+      if(!play_value) {
+        headwater_api.state.change_flags |=
+          (1 << HEADWATER_STATE_CHANGE_PLAY);
+      }
+
+      if(!re_a_value && re_b_value) {
+        headwater_api.state.bpm += 1;
+      }
+
+      if(re_a_value && !re_b_value) {
+        headwater_api.state.bpm -= 1;
+      }
+
+      if(!re_a_value || !re_b_value) {
+        headwater_api.state.change_flags |=
+          (1 << HEADWATER_STATE_CHANGE_BPM);
+      }
     }
   }
 }
@@ -185,19 +200,4 @@ ISR(TIMER0_COMPA_vect) {
 
 ISR(SPI_STC_vect) {
   SPDR = api_handle_interrupt(&headwater_api, SPDR);
-}
-
-// TODO debounce
-ISR(PCINT2_vect) {
-  if(!(PIND & (1 << PLAY_PIN))) {
-    headwater_api.state.change_flags |= (1 << HEADWATER_STATE_CHANGE_PLAY);
-  }
-
-  if(!(PIND & (1 << RESET_PIN))) {
-    headwater_api.state.change_flags |= (1 << HEADWATER_STATE_CHANGE_RESET);
-  }
-
-  if(!(PIND & (1 << STOP_PIN))) {
-    headwater_api.state.change_flags |= (1 << HEADWATER_STATE_CHANGE_STOP);
-  }
 }

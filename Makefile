@@ -97,4 +97,4 @@ analyzer:
 	pulseview
 
 size:
-	avr-size -C -x build/headwater.elf
+	avr-size -Cx --mcu atmega328p build/headwater.elf
