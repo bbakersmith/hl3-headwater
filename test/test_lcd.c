@@ -41,37 +41,6 @@ TEST_SETUP(lcd) {
 
 TEST_TEAR_DOWN(lcd) {};
 
-TEST(lcd, test_lcd_next_changed_field) {
-  LCDField dummy_fields[5] = {
-    lcd_field_new(1, 0),
-    lcd_field_new(2, 2),
-    lcd_field_new(3, 4),
-    lcd_field_new(4, 8),
-    lcd_field_new(5, 16)
-  };
-
-  LCDScreen dummy_screen = lcd_screen_new(dummy_fields, 5);
-
-  dummy_screen.change_flags = (1 << 1) | (1 << 3); // set initial change flags
-
-  LCDField changed1 = lcd_next_changed_field(&dummy_screen);
-
-  dummy_screen.change_flags |= (1 << 0); // ignores earlier change flags
-
-  LCDField changed2 = lcd_next_changed_field(&dummy_screen);
-  LCDField changed3 = lcd_next_changed_field(&dummy_screen);
-  LCDField changed4 = lcd_next_changed_field(&dummy_screen);
-
-  TEST_ASSERT_EQUAL(2, changed1.id);
-  TEST_ASSERT_EQUAL(4, changed2.id);
-  TEST_ASSERT_EQUAL(0, changed3.id);
-  TEST_ASSERT_EQUAL(1, changed4.id);
-}
-
-TEST(lcd, test_lcd_refresh_skip_in_write_mode) {
-  TEST_ASSERT_EQUAL(0, 1);
-}
-
 TEST(lcd, test_lcd_handle_interrupt) {
   LCDCommand result;
   uint16_t dummy_wait = 100;
@@ -145,6 +114,9 @@ TEST(lcd, test_lcd_handle_interrupt) {
       TEST_ASSERT_EQUAL(expected[i], result.data);
     }
 
+    // TODO test cursor movement to selected field or off screen
+    result = lcd_handle_interrupt(&dummy_lcd);
+
     // wait
     for(uint8_t i = 0; i < dummy_wait; i++) {
       TEST_ASSERT_EQUAL(LCD_MODE_WAIT, dummy_lcd.mode);
@@ -185,7 +157,6 @@ TEST(lcd, test_lcd_digit_to_char) {
 }
 
 TEST_GROUP_RUNNER(lcd) {
-  RUN_TEST_CASE(lcd, test_lcd_next_changed_field);
   RUN_TEST_CASE(lcd, test_lcd_handle_interrupt);
   RUN_TEST_CASE(lcd, test_lcd_digit_to_char);
 }

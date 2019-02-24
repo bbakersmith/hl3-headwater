@@ -1,11 +1,13 @@
 #ifndef _API_H_
 #define _API_H_
 
+#include "stdint.h"
+
 #ifdef API_STATE
 #define APIState API_STATE
+#else
+typedef struct APIState {} APIState;
 #endif
-
-#include "stdint.h"
 
 #define API_CMD_NEW_REQUEST 31
 
@@ -31,9 +33,7 @@ typedef volatile struct API {
   APIRequest request;
   void (*payload_preprocessor)(volatile struct API *api);
   void (*payload_postprocessor)(volatile struct API *api);
-#ifdef API_STATE
   APIState state;
-#endif
 } API;
 
 void api_parse_header(APIRequest *request, uint8_t header);

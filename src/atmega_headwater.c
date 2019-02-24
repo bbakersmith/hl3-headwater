@@ -101,14 +101,18 @@ void main(void) {
   headwater_state_play(&headwater_api.state);
 
   // TODO do this in setup function
-  atmega_lcd_send_cmd(0x0C); // turn on display
+  atmega_lcd_send_cmd(0x0D); // turn on display and cursor
   _delay_ms(5);
   atmega_lcd_send_cmd(0x01); // clear display
   _delay_ms(5);
   atmega_lcd_send_cmd(0x3C); // function set
   _delay_ms(5);
-  atmega_lcd_send_cmd(0x80);
+  atmega_lcd_send_cmd(0x80); // move to start
   _delay_ms(5);
+
+  // FIXME DEBUG
+  /* lcd_load_inverted_charset(&atmega_lcd_send); */
+  /* _delay_ms(2000); */
 
   // enable interrupts
   sei();
@@ -123,6 +127,12 @@ void main(void) {
       // TODO do this in headwater_lcd_update_main?
       lcd_state.mode = LCD_MODE_READ;
     } else {
+      // TODO move input scanning to an interrupt (after sample interrupt?)
+      // use this to implement
+      // - button hold time
+      // - asynchronous (get_change to get and clear latest change)
+      // - proper timing for debounce and hold
+
       // snapshot inputs on falling edge of shift
       // UI_INPUT_PIN (Q) immediately set to H input
       UI_PORT &= ~(1 << UI_SHIFT_PIN);
@@ -170,6 +180,14 @@ void main(void) {
         headwater_api.state.change_flags |=
           (1 << HEADWATER_STATE_CHANGE_BPM);
       }
+
+      if(!left_value) {
+        // TODO shift editing field to left
+      }
+
+      if(!right_value) {
+        // TODO shift editing field to right
+      }
     }
   }
 }
@@ -183,6 +201,7 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 ISR(TIMER0_COMPA_vect) {
+  // TODO move this into lcd module as lcd_handle_interrupt
   if(lcd_state.mode == LCD_MODE_READ) {
     LCDCommand command = lcd_next_command(&lcd_state);
     atmega_lcd_send(command.rs, command.data);
