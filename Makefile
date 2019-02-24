@@ -6,6 +6,8 @@ UNITY_DIR=./Unity
 HEADWATER_ELF=$(BUILD_DIR)/headwater.elf
 HEADWATER_HEX=$(HEADWATER_ELF:%.elf=%.hex)
 
+HEADWATER_FLAGS=-g -Wall -fno-strict-aliasing -fno-strict-overflow
+
 HEADWATER_SOURCE_FILES=\
 	src/atmega_headwater.c \
 	src/atmega_lcd.c \
@@ -25,7 +27,7 @@ HEADWATER_AVR_FUSES=-U lfuse:w:0xD7:m
 
 TEST_TARGET=$(BUILD_DIR)/run_tests.o
 
-FLAGS=-g
+TEST_FLAGS=-g -fno-strict-aliasing -fno-strict-overflow
 
 TEST_SOURCE_FILES=\
   $(UNITY_DIR)/src/unity.c \
@@ -63,12 +65,12 @@ $(HEADWATER_HEX): $(HEADWATER_ELF)
 	avr-objcopy -j .text -j .data -O ihex $< $@
 
 $(HEADWATER_ELF):
-	avr-gcc -g -O1 -mmcu=atmega328p -std=c99 -o $@ $(HEADWATER_SOURCE_FILES)
+	avr-gcc $(HEADWATER_FLAGS) -O1 -mmcu=atmega328p -std=c99 -o $@ $(HEADWATER_SOURCE_FILES)
 
 test: $(TEST_TARGET)
 
 $(TEST_TARGET): clean
-	$(TEST_COMPILER) $(FLAGS) $(TEST_INC_DIRS) $(TEST_SOURCE_FILES) -o $(TEST_TARGET)
+	$(TEST_COMPILER) $(TEST_FLAGS) $(TEST_INC_DIRS) $(TEST_SOURCE_FILES) -o $(TEST_TARGET)
 	$(TEST_TARGET) -v
 
 clean:

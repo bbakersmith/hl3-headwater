@@ -78,11 +78,6 @@ typedef struct LCDCommand {
 #define LCD_COMMAND_NULL_RS 0x00
 #define LCD_COMMAND_NULL_DATA 0x00
 
-static LCDCommand LCDCommandNull = {
-  .rs = LCD_COMMAND_NULL_RS,
-  .data = LCD_COMMAND_NULL_DATA
-};
-
 typedef enum {
   LCD_MODE_WRITE,
   LCD_MODE_READ,
@@ -102,7 +97,6 @@ LCD lcd_new(void);
 LCDCommand lcd_next_command(LCD *lcd);
 LCDCommand lcd_handle_interrupt(LCD *lcd);
 LCD_CHAR lcd_digit_to_char(uint8_t digit);
-uint8_t lcd_is_command_null(LCDCommand command);
 void lcd_wait(LCD *lcd);
 void lcd_load_inverted_charset(void (*send_fn)(uint8_t rs, uint8_t data));
 

@@ -3,6 +3,12 @@
 
 #include "stdint.h"
 
+#ifdef UI_DISPLAY
+#define UIDisplay UI_DISPLAY
+#else
+typedef struct UIDisplay {} UIDisplay;
+#endif
+
 #ifdef UI_STATE
 #define UIState UI_STATE
 #else
@@ -10,14 +16,26 @@ typedef struct UIState {} UIState;
 #endif
 
 typedef enum {
-  UI_SCREEN_DIRECTION_LEFT,
-  UI_SCREEN_DIRECTION_RIGHT
+  UI_FIELD_MODIFIER_DEC,
+  UI_FIELD_MODIFIER_INC
+} UI_FIELD_MODIFIER;
+
+typedef enum {
+  UI_SCREEN_DIRECTION_DEC,
+  UI_SCREEN_DIRECTION_INC
 } UI_SCREEN_DIRECTION;
 
 typedef struct UIField {
   uint8_t selected_position;
-  void (*update_state)(UIState *state, int8_t modifier);
-  void (*update_lcd)(uint8_t *characters[32], UIState *state);
+  volatile int16_t uncommitted_modifier;
+  // TODO react to change, future only when re sw is activated
+  void (*update_state)(struct UIField *field, UIState *state);
+  // TODO highlight the selected field, future display not-yet-committed value
+  void (*update_display)(
+    struct UIField *field,
+    UIDisplay *display,
+    UIState *state
+  );
 } UIField;
 
 typedef volatile struct UIScreen {

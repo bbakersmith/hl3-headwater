@@ -13,6 +13,7 @@
 #include "headwater_lcd.h"
 #include "headwater_state.h"
 #include "lcd.h"
+#include "ui.h"
 
 #define UI_PIN PIND
 #define UI_PORT PORTD
@@ -47,7 +48,7 @@ void atmega_headwater_multiplier_a_output(uint8_t enabled) {
   }
 }
 
-void main(void) {
+int main(void) {
   // enable output pins
   OUTPUT_DDR |= (1 << BPM_PIN) | (1 << MULTIPLIER_A_PIN);
 
@@ -115,6 +116,7 @@ void main(void) {
   /* lcd_load_inverted_charset(&atmega_lcd_send); */
   /* _delay_ms(2000); */
 
+  // TODO move debounce setup?
   uint8_t debounce_threshold = 5;
 
   DebounceButton stop_button = debounce_button_new(
@@ -129,7 +131,7 @@ void main(void) {
 
   DebounceEncoder rotary_encoder = debounce_encoder_new(
     DEBOUNCE_BUTTON_STATE_HIGH,
-    1
+    debounce_threshold
   );
 
   DebounceButton rotary_encoder_button = debounce_button_new(
@@ -146,6 +148,28 @@ void main(void) {
     DEBOUNCE_BUTTON_STATE_HIGH,
     debounce_threshold
   );
+
+  // TODO move ui setup?
+
+  UIField main_field_1 = {
+    .selected_position = 0x82
+  };
+
+  UIField main_field_2 = {
+    .selected_position = 0x84
+  };
+
+  UIField main_field_3 = {
+    .selected_position = 0x86
+  };
+
+  UIField main_fields[3] = {
+    main_field_1,
+    main_field_2,
+    main_field_3
+  };
+
+  UIScreen main_screen = ui_screen_new(main_fields, 3);
 
   // enable interrupts
   sei();
@@ -224,10 +248,12 @@ void main(void) {
 
       if(left_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         // TODO shift editing field to left
+        ui_move_selected(&main_screen, UI_SCREEN_DIRECTION_DEC);
       }
 
       if(right_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         // TODO shift editing field to right
+        ui_move_selected(&main_screen, UI_SCREEN_DIRECTION_INC);
       }
     }
   }

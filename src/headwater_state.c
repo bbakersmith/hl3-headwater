@@ -6,10 +6,6 @@
 static uint8_t SECONDS_IN_MINUTE = 60;
 static uint32_t SAMPLES_PER_SECOND = 1000;
 
-// TODO enum
-static int8_t CLOCK_RUNNING_STOP = 0;
-static int8_t CLOCK_RUNNING_PLAY = 1;
-
 HeadwaterStateChannel headwater_state_new_channel(void) {
   HeadwaterStateChannel channel = {
     .samples_per_beat = 1000,

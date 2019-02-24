@@ -9,7 +9,7 @@ void atmega_lcd_init(void) {
 }
 
 void atmega_lcd_74164_send(uint8_t data) {
-  for(uint8_t i; i < 8; i++) {
+  for(uint8_t i = 0; i < 8; i++) {
     if(((data >> i) & 1) == 0) {
       LCD_SR_PORT &= ~(1 << LCD_SR_DATA_PIN);
     } else {

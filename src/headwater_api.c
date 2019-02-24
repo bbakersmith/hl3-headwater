@@ -80,6 +80,9 @@ void headwater_api_payload_preprocessor(API *api) {
     case HEADWATER_API_GET_CHANGE_FLAGS:
       api->request.payload[0] = api->state.change_flags;
       break;
+
+    default:
+      break;
   }
 }
 
@@ -113,6 +116,8 @@ void headwater_api_payload_postprocessor(API *api) {
     case HEADWATER_API_UPDATE_MULTIPLIER_B:
       api->state.multiplier_b_channel.multiplier = api->request.payload[0];
       api->state.change_flags |= (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
+      break;
+    default:
       break;
   }
 }

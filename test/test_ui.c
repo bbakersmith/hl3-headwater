@@ -44,33 +44,40 @@ TEST(ui, test_ui_move_selected) {
   TEST_ASSERT_EQUAL(0, dummy_screen.select_index);
   TEST_ASSERT_EQUAL(0x82, ui_selected_position(&dummy_screen));
 
-  ui_move_selected(&dummy_screen, UI_SCREEN_DIRECTION_RIGHT);
-  TEST_ASSERT_EQUAL(1, dummy_screen.select_index);
-  TEST_ASSERT_EQUAL(0x84, ui_selected_position(&dummy_screen));
+  uint8_t ui_move_selected_tests[7][3] = {
+    {UI_SCREEN_DIRECTION_INC, 1, 0x84},
+    {UI_SCREEN_DIRECTION_INC, 2, 0x86},
+    {UI_SCREEN_DIRECTION_INC, 0, 0x82},
+    {UI_SCREEN_DIRECTION_INC, 1, 0x84},
+    {UI_SCREEN_DIRECTION_DEC, 0, 0x82},
+    {UI_SCREEN_DIRECTION_DEC, 2, 0x86},
+    {UI_SCREEN_DIRECTION_DEC, 1, 0x84}
+  };
 
-  ui_move_selected(&dummy_screen, UI_SCREEN_DIRECTION_RIGHT);
-  TEST_ASSERT_EQUAL(2, dummy_screen.select_index);
-  TEST_ASSERT_EQUAL(0x86, ui_selected_position(&dummy_screen));
+  uint8_t message[50];
+  for(uint8_t i = 0; i < 7; i++) {
+    uint8_t dummy_direction = ui_move_selected_tests[i][0];
+    uint8_t expected_select_index = ui_move_selected_tests[i][1];
+    uint8_t expected_position = ui_move_selected_tests[i][2];
 
-  ui_move_selected(&dummy_screen, UI_SCREEN_DIRECTION_RIGHT);
-  TEST_ASSERT_EQUAL(0, dummy_screen.select_index);
-  TEST_ASSERT_EQUAL(0x82, ui_selected_position(&dummy_screen));
+    ui_move_selected(&dummy_screen, dummy_direction);
 
-  ui_move_selected(&dummy_screen, UI_SCREEN_DIRECTION_RIGHT);
-  TEST_ASSERT_EQUAL(1, dummy_screen.select_index);
-  TEST_ASSERT_EQUAL(0x84, ui_selected_position(&dummy_screen));
+    sprintf(message, "Wrong select_index for iteration %i", i);
 
-  ui_move_selected(&dummy_screen, UI_SCREEN_DIRECTION_LEFT);
-  TEST_ASSERT_EQUAL(0, dummy_screen.select_index);
-  TEST_ASSERT_EQUAL(0x82, ui_selected_position(&dummy_screen));
+    TEST_ASSERT_EQUAL_MESSAGE(
+      expected_select_index,
+      dummy_screen.select_index,
+      message
+    );
 
-  ui_move_selected(&dummy_screen, UI_SCREEN_DIRECTION_LEFT);
-  TEST_ASSERT_EQUAL(2, dummy_screen.select_index);
-  TEST_ASSERT_EQUAL(0x86, ui_selected_position(&dummy_screen));
+    sprintf(message, "Wrong position for iteration %i", i);
 
-  ui_move_selected(&dummy_screen, UI_SCREEN_DIRECTION_LEFT);
-  TEST_ASSERT_EQUAL(1, dummy_screen.select_index);
-  TEST_ASSERT_EQUAL(0x84, ui_selected_position(&dummy_screen));
+    TEST_ASSERT_EQUAL_MESSAGE(
+      expected_position,
+      ui_selected_position(&dummy_screen),
+      message
+    );
+  }
 }
 
 TEST_GROUP_RUNNER(ui) {

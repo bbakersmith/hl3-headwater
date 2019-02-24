@@ -20,13 +20,13 @@ void ui_move_selected(
   UIScreen *screen,
   UI_SCREEN_DIRECTION direction
 ) {
-  if(direction == UI_SCREEN_DIRECTION_LEFT) {
+  if(direction == UI_SCREEN_DIRECTION_DEC) {
     if(0 < screen->select_index) {
       screen->select_index -= 1;
     } else {
       screen->select_index = screen->last_index;
     }
-  } else if(direction == UI_SCREEN_DIRECTION_RIGHT) {
+  } else if(direction == UI_SCREEN_DIRECTION_INC) {
     if(screen->select_index < screen->last_index) {
       screen->select_index += 1;
     } else {
