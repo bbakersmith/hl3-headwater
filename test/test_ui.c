@@ -80,6 +80,10 @@ TEST(ui, test_ui_move_selected) {
   }
 }
 
+TEST(ui, test_ui_commit_modifier) {
+  // TODO test??????
+}
+
 TEST_GROUP_RUNNER(ui) {
   RUN_TEST_CASE(ui, test_ui_screen_new);
   RUN_TEST_CASE(ui, test_ui_selected_position);

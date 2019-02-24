@@ -44,10 +44,11 @@ LCD_CHAR lcd_digit_to_char(uint8_t digit) {
 LCD lcd_new(void) {
   LCD lcd = {
     .characters_index = 0,
-    .wait = 25, // TODO best default?
-    .wait_count = 0,
     .mode = LCD_MODE_WRITE,
-    .rows_index = -1
+    .rows_index = -1,
+    .selected_position = 0x79, // FIXME magic number
+    .wait = 25,
+    .wait_count = 0
   };
   for(uint8_t i = 0; i < 32; i++) {
     lcd.characters[i] = LCD__;
@@ -79,7 +80,7 @@ LCDCommand lcd_next_command(LCD *lcd) {
   } else {
     // TODO this is a WIP for moving the cursor after writing the screen
     rs = 0;
-    data = 0x82; // TODO should be whatever field is selected
+    data = lcd->selected_position;
     lcd->characters_index = 0;
     lcd->mode = LCD_MODE_WAIT;
   }
@@ -116,10 +117,4 @@ LCDCommand lcd_handle_interrupt(LCD *lcd) {
   }
 
   return command;
-}
-
-void lcd_load_inverted_charset(void (*send_fn)(uint8_t rs, uint8_t data)) {
-  send_fn(1, LCD__A);
-  send_fn(1, LCD__B);
-  send_fn(1, LCD__C);
 }

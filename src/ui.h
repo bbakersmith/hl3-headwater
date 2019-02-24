@@ -33,8 +33,8 @@ typedef struct UIField {
   // TODO highlight the selected field, future display not-yet-committed value
   void (*update_display)(
     struct UIField *field,
-    UIDisplay *display,
-    UIState *state
+    UIState *state,
+    UIDisplay *display
   );
 } UIField;
 

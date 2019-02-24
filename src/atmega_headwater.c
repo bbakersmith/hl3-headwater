@@ -12,6 +12,7 @@
 #include "headwater_api.h"
 #include "headwater_lcd.h"
 #include "headwater_state.h"
+#include "headwater_ui.h"
 #include "lcd.h"
 #include "ui.h"
 
@@ -31,6 +32,7 @@
 
 volatile API headwater_api;
 volatile LCD lcd_state;
+volatile UIScreen main_screen;
 
 void atmega_headwater_bpm_output(uint8_t enabled) {
   if(enabled == 0) {
@@ -103,7 +105,7 @@ int main(void) {
   headwater_state_play(&headwater_api.state);
 
   // TODO do this in setup function
-  atmega_lcd_send_cmd(0x0D); // turn on display and cursor
+  atmega_lcd_send_cmd(0x0E); // turn on display and cursor
   _delay_ms(5);
   atmega_lcd_send_cmd(0x01); // clear display
   _delay_ms(5);
@@ -111,10 +113,6 @@ int main(void) {
   _delay_ms(5);
   atmega_lcd_send_cmd(0x80); // move to start
   _delay_ms(5);
-
-  // FIXME DEBUG
-  /* lcd_load_inverted_charset(&atmega_lcd_send); */
-  /* _delay_ms(2000); */
 
   // TODO move debounce setup?
   uint8_t debounce_threshold = 5;
@@ -151,11 +149,11 @@ int main(void) {
 
   // TODO move ui setup?
 
-  UIField main_field_1 = {
+  UIField main_bpm_field = {
     .selected_position = 0x82
   };
 
-  UIField main_field_2 = {
+  UIField main_tbpm_field = {
     .selected_position = 0x84
   };
 
@@ -164,12 +162,12 @@ int main(void) {
   };
 
   UIField main_fields[3] = {
-    main_field_1,
-    main_field_2,
+    main_bpm_field,
+    main_tbpm_field,
     main_field_3
   };
 
-  UIScreen main_screen = ui_screen_new(main_fields, 3);
+  main_screen = ui_screen_new(main_fields, 3);
 
   // enable interrupts
   sei();
@@ -249,11 +247,13 @@ int main(void) {
       if(left_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         // TODO shift editing field to left
         ui_move_selected(&main_screen, UI_SCREEN_DIRECTION_DEC);
+        lcd_state.selected_position = ui_selected_position(&main_screen);
       }
 
       if(right_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         // TODO shift editing field to right
         ui_move_selected(&main_screen, UI_SCREEN_DIRECTION_INC);
+        lcd_state.selected_position = ui_selected_position(&main_screen);
       }
     }
   }

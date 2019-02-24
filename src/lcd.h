@@ -1,10 +1,6 @@
 #ifndef _LCD_H_
 #define _LCD_H_
 
-#ifdef LCD_STATE
-#define LCDState LCD_STATE
-#endif
-
 #include "stdint.h"
 #include <stdio.h>
 
@@ -87,10 +83,11 @@ typedef enum {
 typedef volatile struct LCD {
   LCD_CHAR characters[32];
   int8_t characters_index;
-  uint16_t wait;
-  uint16_t wait_count;
   LCD_MODE mode;
   int8_t rows_index;
+  uint8_t selected_position;
+  uint16_t wait;
+  uint16_t wait_count;
 } LCD;
 
 LCD lcd_new(void);
@@ -98,6 +95,5 @@ LCDCommand lcd_next_command(LCD *lcd);
 LCDCommand lcd_handle_interrupt(LCD *lcd);
 LCD_CHAR lcd_digit_to_char(uint8_t digit);
 void lcd_wait(LCD *lcd);
-void lcd_load_inverted_charset(void (*send_fn)(uint8_t rs, uint8_t data));
 
 #endif
