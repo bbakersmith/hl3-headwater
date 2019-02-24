@@ -8,6 +8,7 @@
 #include "atmega_lcd.h"
 #include "atmega_spi.h"
 #include "bytes.h"
+#include "debounce.h"
 #include "headwater_api.h"
 #include "headwater_lcd.h"
 #include "headwater_state.h"
@@ -114,6 +115,38 @@ void main(void) {
   /* lcd_load_inverted_charset(&atmega_lcd_send); */
   /* _delay_ms(2000); */
 
+  uint8_t debounce_threshold = 5;
+
+  DebounceButton stop_button = debounce_button_new(
+    DEBOUNCE_BUTTON_STATE_HIGH,
+    debounce_threshold
+  );
+
+  DebounceButton play_button = debounce_button_new(
+    DEBOUNCE_BUTTON_STATE_HIGH,
+    debounce_threshold
+  );
+
+  DebounceEncoder rotary_encoder = debounce_encoder_new(
+    DEBOUNCE_BUTTON_STATE_HIGH,
+    1
+  );
+
+  DebounceButton rotary_encoder_button = debounce_button_new(
+    DEBOUNCE_BUTTON_STATE_HIGH,
+    debounce_threshold
+  );
+
+  DebounceButton left_button = debounce_button_new(
+    DEBOUNCE_BUTTON_STATE_HIGH,
+    debounce_threshold
+  );
+
+  DebounceButton right_button = debounce_button_new(
+    DEBOUNCE_BUTTON_STATE_HIGH,
+    debounce_threshold
+  );
+
   // enable interrupts
   sei();
 
@@ -158,34 +191,42 @@ void main(void) {
       UI_PORT &= ~(1 << UI_CLK_PIN);
       uint8_t right_value = (UI_PIN & (1 << UI_INPUT_PIN));
 
-      if(!stop_value) {
+      debounce_button_update(&stop_button, stop_value);
+      debounce_button_update(&play_button, play_value);
+      debounce_encoder_update(&rotary_encoder, re_a_value, re_b_value);
+      debounce_button_update(&rotary_encoder_button, re_sw_value);
+      debounce_button_update(&left_button, left_value);
+      debounce_button_update(&right_button, right_value);
+
+      if(stop_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         headwater_api.state.change_flags |=
           (1 << HEADWATER_STATE_CHANGE_STOP);
       }
 
-      if(!play_value) {
+      if(play_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         headwater_api.state.change_flags |=
           (1 << HEADWATER_STATE_CHANGE_PLAY);
       }
 
-      if(!re_a_value && re_b_value) {
-        headwater_api.state.bpm += 1;
-      }
-
-      if(re_a_value && !re_b_value) {
+      if(rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_LEFT) {
         headwater_api.state.bpm -= 1;
-      }
-
-      if(!re_a_value || !re_b_value) {
         headwater_api.state.change_flags |=
           (1 << HEADWATER_STATE_CHANGE_BPM);
       }
 
-      if(!left_value) {
+      if(rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_RIGHT) {
+        headwater_api.state.bpm += 1;
+        headwater_api.state.change_flags |=
+          (1 << HEADWATER_STATE_CHANGE_BPM);
+      }
+
+      // if(rotary_encoder_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {}
+
+      if(left_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         // TODO shift editing field to left
       }
 
-      if(!right_value) {
+      if(right_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         // TODO shift editing field to right
       }
     }
