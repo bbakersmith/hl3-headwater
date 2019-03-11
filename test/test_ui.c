@@ -14,6 +14,8 @@ UIField dummy_field_3 = {
   .selected_position = 0x86
 };
 
+UIDisplay dummy_display;
+UIState dummy_state;
 UIScreen dummy_screen;
 
 TEST_GROUP(ui);
@@ -25,7 +27,12 @@ TEST_SETUP(ui) {
     dummy_field_3
   };
   uint8_t dummy_fields_count = 3;
-  dummy_screen = ui_screen_new(dummy_fields, dummy_fields_count);
+  dummy_screen = ui_screen_new(
+    &dummy_state,
+    &dummy_display,
+    dummy_fields,
+    dummy_fields_count
+  );
 };
 
 TEST_TEAR_DOWN(ui) {};

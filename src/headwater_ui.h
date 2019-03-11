@@ -10,6 +10,6 @@
 
 #include "ui.h"
 
-UIScreen headwater_ui_main_screen(void);
+UIScreen headwater_ui_main_screen(HeadwaterState *state, LCD *display);
 
 #endif

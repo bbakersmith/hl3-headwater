@@ -101,6 +101,8 @@ int main(void) {
   LCD lcd_state_ = lcd_new();
   lcd_state = lcd_state_;
 
+  /* headwater_lcd_update_main(&lcd_state, &headwater_api.state); */
+
   // TODO don't start automatically
   headwater_state_play(&headwater_api.state);
 
@@ -148,26 +150,8 @@ int main(void) {
   );
 
   // TODO move ui setup?
-
-  UIField main_bpm_field = {
-    .selected_position = 0x82
-  };
-
-  UIField main_tbpm_field = {
-    .selected_position = 0x84
-  };
-
-  UIField main_field_3 = {
-    .selected_position = 0x86
-  };
-
-  UIField main_fields[3] = {
-    main_bpm_field,
-    main_tbpm_field,
-    main_field_3
-  };
-
-  main_screen = ui_screen_new(main_fields, 3);
+  main_screen = headwater_ui_main_screen(&headwater_api.state, &lcd_state);
+  lcd_state.selected_position = ui_selected_position(&main_screen);
 
   // enable interrupts
   sei();
@@ -177,7 +161,20 @@ int main(void) {
       headwater_state_change(&headwater_api.state);
 
     } else if(lcd_state.mode == LCD_MODE_WRITE) {
-      headwater_lcd_update_main(&lcd_state, &headwater_api.state);
+      // also... need to only update on change to avoid cursor flicker
+      /* ui_update_selected_display(&main_screen); */
+
+      // TODO
+      if(main_screen.change_flags != 0) {
+        ui_update_changed_display(&main_screen);
+      }
+      //
+
+      if(ui_selected_modifier(&main_screen) == 0) {
+        atmega_lcd_send_cmd(0x0E); // cursor only
+      } else {
+        atmega_lcd_send_cmd(0x0F); // cursor blinking
+      }
 
       // TODO do this in headwater_lcd_update_main?
       lcd_state.mode = LCD_MODE_READ;
@@ -231,18 +228,24 @@ int main(void) {
       }
 
       if(rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_LEFT) {
-        headwater_api.state.bpm -= 1;
-        headwater_api.state.change_flags |=
-          (1 << HEADWATER_STATE_CHANGE_BPM);
+        ui_update_selected_modifier(&main_screen, -1);
+
+        /* headwater_api.state.bpm -= 1; */
+        /* headwater_api.state.change_flags |= */
+        /*   (1 << HEADWATER_STATE_CHANGE_BPM); */
       }
 
       if(rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_RIGHT) {
-        headwater_api.state.bpm += 1;
-        headwater_api.state.change_flags |=
-          (1 << HEADWATER_STATE_CHANGE_BPM);
+        ui_update_selected_modifier(&main_screen, 1);
+
+        /* headwater_api.state.bpm += 1; */
+        /* headwater_api.state.change_flags |= */
+        /*   (1 << HEADWATER_STATE_CHANGE_BPM); */
       }
 
-      // if(rotary_encoder_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {}
+      if(rotary_encoder_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+        ui_update_selected_state(&main_screen);
+      }
 
       if(left_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         // TODO shift editing field to left

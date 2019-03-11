@@ -46,7 +46,7 @@ LCD lcd_new(void) {
     .characters_index = 0,
     .mode = LCD_MODE_WRITE,
     .rows_index = -1,
-    .selected_position = 0x79, // FIXME magic number
+    .selected_position = 0x79, // FIXME offscreen position, magic number
     .wait = 25,
     .wait_count = 0
   };

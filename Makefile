@@ -18,6 +18,7 @@ HEADWATER_SOURCE_FILES=\
 	src/headwater_api.c \
 	src/headwater_lcd.c \
 	src/headwater_state.c \
+	src/headwater_ui.c \
 	src/lcd.c \
 	src/ui.c
 
