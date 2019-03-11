@@ -33,12 +33,12 @@ void headwater_lcd_update_main_multiplier_a(LCD *lcd, uint16_t value) {
   uint8_t digit;
 
   digit = value % 10;
-  lcd->characters[12] = lcd_digit_to_char(digit);
+  lcd->characters[17] = lcd_digit_to_char(digit);
   value /= 10;
 
   if(0 < value) {
     digit = value % 10;
-    lcd->characters[11] = lcd_digit_to_char(digit);
+    lcd->characters[16] = lcd_digit_to_char(digit);
     value /= 10;
   } else {
     lcd->characters[0] = LCD__;

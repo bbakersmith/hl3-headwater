@@ -8,7 +8,8 @@ UIScreen ui_screen_new(
 ) {
   UIScreen screen = {
     .change_flags = 0xFF,
-    .last_index = fields_count - 1,
+    .fields_count = fields_count,
+    .last_index = fields_count - 1, // TODO remove
     .select_index = 0,
     .update_index = 0
   };
@@ -76,8 +77,7 @@ void ui_update_selected_state(UIScreen *screen) {
 }
 
 void ui_update_changed_display(UIScreen *screen) {
-  // FIXME 2 is field count
-  for(uint8_t i = 0; i < 2; i++) {
+  for(uint8_t i = 0; i < screen->fields_count; i++) {
     if(screen->change_flags & (1 << i)) {
       screen->change_flags &= ~(1 << i);
 

@@ -42,7 +42,8 @@ typedef volatile struct UIScreen {
   uint8_t change_flags;
   UIDisplay *display;
   UIField fields[8];
-  uint8_t last_index;
+  uint8_t fields_count;
+  uint8_t last_index; // TODO remove
   uint8_t select_index;
   UIState *state;
   uint8_t update_index;
