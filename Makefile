@@ -66,7 +66,7 @@ $(HEADWATER_HEX): $(HEADWATER_ELF)
 	avr-objcopy -j .text -j .data -O ihex $< $@
 
 $(HEADWATER_ELF):
-	avr-gcc $(HEADWATER_FLAGS) -O1 -mmcu=atmega328p -std=c99 -o $@ $(HEADWATER_SOURCE_FILES)
+	avr-gcc $(HEADWATER_FLAGS) -Os -mmcu=atmega328p -std=c11 -o $@ $(HEADWATER_SOURCE_FILES)
 
 test: $(TEST_TARGET)
 
@@ -85,4 +85,4 @@ analyzer:
 	pulseview
 
 size:
-	avr-size -Cx --mcu atmega328p build/headwater.elf
+	avr-size -Cx --mcu atmega328p $(HEADWATER_ELF)
