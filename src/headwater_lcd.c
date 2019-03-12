@@ -41,7 +41,7 @@ void headwater_lcd_update_main_multiplier_a(LCD *lcd, uint16_t value) {
     lcd->characters[16] = lcd_digit_to_char(digit);
     value /= 10;
   } else {
-    lcd->characters[0] = LCD__;
+    lcd->characters[16] = LCD__;
   }
 }
 
@@ -49,15 +49,15 @@ void headwater_lcd_update_main_multiplier_b(LCD *lcd, uint16_t value) {
   uint8_t digit;
 
   digit = value % 10;
-  lcd->characters[15] = lcd_digit_to_char(digit);
+  lcd->characters[20] = lcd_digit_to_char(digit);
   value /= 10;
 
   if(0 < value) {
     digit = value % 10;
-    lcd->characters[14] = lcd_digit_to_char(digit);
+    lcd->characters[19] = lcd_digit_to_char(digit);
     value /= 10;
   } else {
-    lcd->characters[0] = LCD__;
+    lcd->characters[19] = LCD__;
   }
 }
 

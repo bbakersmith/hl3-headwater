@@ -45,8 +45,6 @@ void main_tbpm_update_display(
   /* } */
 }
 
-
-
 void main_multiplier_a_update_state(
   UIField *field,
   HeadwaterState *state
@@ -66,8 +64,24 @@ void main_multiplier_a_update_display(
   headwater_lcd_update_main_multiplier_a(lcd, value);
 }
 
+void main_multiplier_b_update_state(
+  UIField *field,
+  HeadwaterState *state
+) {
+  state->multiplier_b_channel.multiplier += (field->uncommitted_modifier);
+  state->change_flags |= (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A);
+}
 
+void main_multiplier_b_update_display(
+  UIField *field,
+  HeadwaterState *state,
+  LCD *lcd
+) {
+  uint16_t value =
+    state->multiplier_b_channel.multiplier + (field->uncommitted_modifier);
 
+  headwater_lcd_update_main_multiplier_b(lcd, value);
+}
 
 UIScreen headwater_ui_main_screen(
   HeadwaterState *state,
@@ -92,13 +106,20 @@ UIScreen headwater_ui_main_screen(
     .update_display = &main_multiplier_a_update_display
   };
 
-  UIField main_fields[3] = {
-    main_bpm_field,
-    main_tbpm_field,
-    main_multiplier_a_field
+  UIField main_multiplier_b_field = {
+    .selected_position = 0xC4,
+    .update_state = &main_multiplier_b_update_state,
+    .update_display = &main_multiplier_b_update_display
   };
 
-  UIScreen main_screen = ui_screen_new(state, lcd, main_fields, 3);
+  UIField main_fields[4] = {
+    main_bpm_field,
+    main_tbpm_field,
+    main_multiplier_a_field,
+    main_multiplier_b_field
+  };
+
+  UIScreen main_screen = ui_screen_new(state, lcd, main_fields, 4);
 
   return main_screen;
 }
