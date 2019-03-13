@@ -26,10 +26,11 @@ HeadwaterState headwater_state_new(void) {
     .bpm = 600,
     .samples_since_reset_count = 0,
     .bpm_channel = bpm_channel,
-    .mode = HEADWATER_STATE_MODE_INT,
+    .mode = HEADWATER_STATE_MODE_INTERNAL,
     .multiplier_a_channel = multiplier_a_channel,
     .multiplier_b_channel = multiplier_b_channel,
-    .output_enabled = 0
+    .output_enabled = 0,
+    .preset = 0
   };
   return state;
 }

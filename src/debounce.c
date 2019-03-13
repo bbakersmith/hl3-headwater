@@ -64,6 +64,7 @@ DebounceButton debounce_button_new(
   DebounceButton button = {
     .debounce_count = 0,
     .debounce_threshold = debounce_threshold,
+    .hold_count = 0,
     .initial_state = initial_state,
     .state = initial_state
   };
@@ -87,10 +88,16 @@ void debounce_button_update(
   DebounceButton *button,
   DEBOUNCE_BUTTON_STATE new_state
 ) {
+  if(button->hold_count != 65535) {
+    button->hold_count += 1;
+  }
   if(button->state != new_state) {
     if(button->debounce_count < button->debounce_threshold) {
       button->debounce_count += 1;
-      button->change = DEBOUNCE_BUTTON_CHANGE_NONE;
+      if(button->change != DEBOUNCE_BUTTON_CHANGE_NONE) {
+        button->hold_count = 0;
+        button->change = DEBOUNCE_BUTTON_CHANGE_NONE;
+      }
     } else {
       button->debounce_count = 0;
       button->state = new_state;
@@ -98,7 +105,10 @@ void debounce_button_update(
     }
   } else {
     button->debounce_count = 0;
-    button->change = DEBOUNCE_BUTTON_CHANGE_NONE;
+    if(button->change != DEBOUNCE_BUTTON_CHANGE_NONE) {
+      button->hold_count = 0;
+      button->change = DEBOUNCE_BUTTON_CHANGE_NONE;
+    }
   }
 }
 

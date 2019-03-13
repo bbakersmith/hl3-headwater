@@ -22,20 +22,20 @@ TEST_SETUP(debounce) {
 TEST_TEAR_DOWN(debounce) {};
 
 TEST(debounce, test_debounce_button_update) {
-  uint8_t debounce_button_update_tests[13][3] = {
-    {0, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE},
-    {0, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE},
-    {1, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE},
-    {1, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE},
-    {0, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE},
-    {1, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE},
-    {1, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE},
-    {1, DEBOUNCE_BUTTON_STATE_HIGH, DEBOUNCE_BUTTON_CHANGE_HIGH},
-    {1, DEBOUNCE_BUTTON_STATE_HIGH, DEBOUNCE_BUTTON_CHANGE_NONE},
-    {0, DEBOUNCE_BUTTON_STATE_HIGH, DEBOUNCE_BUTTON_CHANGE_NONE},
-    {0, DEBOUNCE_BUTTON_STATE_HIGH, DEBOUNCE_BUTTON_CHANGE_NONE},
-    {0, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_LOW},
-    {1, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE}
+  uint8_t debounce_button_update_tests[13][4] = {
+    {0, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE, 0},
+    {0, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE, 1},
+    {1, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE, 2},
+    {1, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE, 3},
+    {0, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE, 4},
+    {1, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE, 5},
+    {1, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE, 6},
+    {1, DEBOUNCE_BUTTON_STATE_HIGH, DEBOUNCE_BUTTON_CHANGE_HIGH, 7},
+    {1, DEBOUNCE_BUTTON_STATE_HIGH, DEBOUNCE_BUTTON_CHANGE_NONE, 0},
+    {0, DEBOUNCE_BUTTON_STATE_HIGH, DEBOUNCE_BUTTON_CHANGE_NONE, 1},
+    {0, DEBOUNCE_BUTTON_STATE_HIGH, DEBOUNCE_BUTTON_CHANGE_NONE, 2},
+    {0, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_LOW, 3},
+    {1, DEBOUNCE_BUTTON_STATE_LOW, DEBOUNCE_BUTTON_CHANGE_NONE, 0}
   };
 
   uint8_t message[50];
@@ -43,16 +43,18 @@ TEST(debounce, test_debounce_button_update) {
     uint8_t dummy_input = debounce_button_update_tests[i][0];
     uint8_t expected_state = debounce_button_update_tests[i][1];
     uint8_t expected_change = debounce_button_update_tests[i][2];
+    uint16_t expected_count = debounce_button_update_tests[i][3];
 
     debounce_button_update(&dummy_button, dummy_input);
 
     sprintf(message, "Wrong state for iteration %i", i);
-
     TEST_ASSERT_EQUAL_MESSAGE(expected_state, dummy_button.state, message);
 
     sprintf(message, "Wrong change for iteration %i", i);
-
     TEST_ASSERT_EQUAL_MESSAGE(expected_change, dummy_button.change, message);
+
+    sprintf(message, "Wrong hold_count for iteration %i", i);
+    TEST_ASSERT_EQUAL_MESSAGE(expected_count, dummy_button.hold_count, message);
   }
 }
 

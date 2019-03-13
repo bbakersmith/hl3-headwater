@@ -61,6 +61,23 @@ void headwater_lcd_update_main_multiplier_b(LCD *lcd, uint16_t value) {
   }
 }
 
+// TODO this should be in headwater_ui?
+void headwater_lcd_update_main_preset(LCD *lcd, uint8_t value) {
+  uint8_t digit;
+
+  digit = value % 10;
+  lcd->characters[7] = lcd_digit_to_char(digit);
+  value /= 10;
+
+  if(0 < value) {
+    digit = value % 10;
+    lcd->characters[6] = lcd_digit_to_char(digit);
+    value /= 10;
+  } else {
+    lcd->characters[6] = LCD__;
+  }
+}
+
 void headwater_lcd_update_main(LCD *lcd, HeadwaterState *state) {
   headwater_lcd_update_main_bpm(lcd, state->bpm);
 
@@ -78,7 +95,7 @@ void headwater_lcd_update_main(LCD *lcd, HeadwaterState *state) {
   lcd->characters[31] = LCD__9;
 
   // TODO other modes, use enum
-  if(state->mode == HEADWATER_STATE_MODE_INT) {
+  if(state->mode == HEADWATER_STATE_MODE_INTERNAL) {
     lcd->characters[22] = LCD__I;
     lcd->characters[23] = LCD__N;
     lcd->characters[24] = LCD__T;

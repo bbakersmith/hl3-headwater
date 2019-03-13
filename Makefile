@@ -41,6 +41,7 @@ TEST_SOURCE_FILES=\
   src/headwater_api.c \
   src/headwater_lcd.c \
   src/headwater_state.c \
+  src/headwater_ui.c \
   test/test_api.c \
   test/test_bytes.c \
   test/test_debounce.c \
@@ -49,6 +50,7 @@ TEST_SOURCE_FILES=\
   test/test_headwater_api.c \
   test/test_headwater_lcd.c \
   test/test_headwater_state.c \
+  test/test_headwater_ui.c \
 	test/run_tests.c
 
 TEST_INC_DIRS=-Isrc -I$(UNITY_DIR)/src -I$(UNITY_DIR)/extras/fixture/src

@@ -41,10 +41,9 @@ typedef enum {
 
 typedef struct DebounceButton {
   uint8_t change;
-  // TODO this is run in main loop so timing is irregular
   uint8_t debounce_count;
   uint8_t debounce_threshold;
-  // TODO hold_count?
+  uint16_t hold_count;
   DEBOUNCE_BUTTON_STATE initial_state;
   DEBOUNCE_BUTTON_STATE state;
 } DebounceButton;

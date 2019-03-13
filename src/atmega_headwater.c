@@ -80,16 +80,12 @@ int main(void) {
   atmega_headwater_bpm_output(0);
   atmega_headwater_multiplier_a_output(0);
 
-  HeadwaterState headwater_state = headwater_state_new();
-  APIRequest headwater_api_request = api_new_request();
+  headwater_api.payload_preprocessor = &headwater_api_payload_preprocessor;
+  headwater_api.payload_postprocessor = &headwater_api_payload_postprocessor;
+  headwater_api.request = api_new_request();
 
-  API headwater_api_ = {
-    .state = headwater_state,
-    .request = headwater_api_request,
-    .payload_preprocessor = &headwater_api_payload_preprocessor,
-    .payload_postprocessor = &headwater_api_payload_postprocessor
-  };
-  headwater_api = headwater_api_;
+  // TODO pull state out of api
+  headwater_api.state = headwater_state_new();
 
   atmega_lcd_init();
   atmega_spi_slave_init();
@@ -243,8 +239,14 @@ int main(void) {
         /*   (1 << HEADWATER_STATE_CHANGE_BPM); */
       }
 
-      if(rotary_encoder_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
-        ui_update_selected_state(&main_screen);
+      // TODO handle long and short pushes
+      if(rotary_encoder_button.change == DEBOUNCE_BUTTON_CHANGE_HIGH) {
+        if(rotary_encoder_button.hold_count < 30000) {
+          ui_update_selected_modifier(&main_screen, 1);
+        } else {
+          ui_update_selected_modifier(&main_screen, -1);
+        }
+        /* ui_update_selected_state(&main_screen); */
       }
 
       if(left_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {

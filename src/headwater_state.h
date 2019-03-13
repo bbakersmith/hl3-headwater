@@ -14,26 +14,30 @@ typedef enum {
 } HEADWATER_STATE_CHANGE;
 
 typedef enum {
-  HEADWATER_STATE_MODE_INT
+  HEADWATER_STATE_MODE_INTERNAL,
+  HEADWATER_STATE_MODE_TAP,
+  HEADWATER_STATE_MODE_EXTERNAL,
+  HEADWATER_STATE_MODE_MIDI
 } HEADWATER_STATE_MODE;
 
 typedef volatile struct HeadwaterStateChannel {
-  uint16_t samples_per_beat; // samples_per_multiplier_a
-  uint16_t samples; // sample_count_multiplier_a
-  uint16_t limit; // max beats
   uint16_t beats; // count_multiplier_a
+  uint16_t limit; // max beats
   uint8_t multiplier; // multiplier_a
   uint8_t output; // output_multiplier_a
+  uint16_t samples_per_beat; // samples_per_multiplier_a
+  uint16_t samples; // sample_count_multiplier_a
 } HeadwaterStateChannel;
 
 typedef volatile struct HeadwaterState {
-  uint8_t mode;
-  uint8_t output_enabled;
   uint16_t bpm;
   HeadwaterStateChannel bpm_channel;
+  uint8_t change_flags;
   HeadwaterStateChannel multiplier_a_channel;
   HeadwaterStateChannel multiplier_b_channel; // TODO test!
-  uint8_t change_flags;
+  uint8_t mode;
+  uint8_t output_enabled;
+  uint8_t preset;
   uint16_t samples_since_reset_count; // TODO used? rename?
 } HeadwaterState;
 
