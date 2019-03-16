@@ -5,6 +5,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+#include "atmega_eeprom.h"
 #include "atmega_lcd.h"
 #include "atmega_spi.h"
 #include "bytes.h"
@@ -145,6 +146,11 @@ int main(void) {
     debounce_threshold
   );
 
+  DebounceButton save_button = debounce_button_new(
+    DEBOUNCE_BUTTON_STATE_HIGH,
+    debounce_threshold
+  );
+
   // TODO move ui setup?
   main_screen = headwater_ui_main_screen(&headwater_api.state, &lcd_state);
   lcd_state.selected_position = ui_selected_position(&main_screen);
@@ -205,6 +211,9 @@ int main(void) {
       UI_PORT |= (1 << UI_CLK_PIN);
       UI_PORT &= ~(1 << UI_CLK_PIN);
       uint8_t right_value = (UI_PIN & (1 << UI_INPUT_PIN));
+      UI_PORT |= (1 << UI_CLK_PIN);
+      UI_PORT &= ~(1 << UI_CLK_PIN);
+      uint8_t save_value = (UI_PIN & (1 << UI_INPUT_PIN));
 
       debounce_button_update(&stop_button, stop_value);
       debounce_button_update(&play_button, play_value);
@@ -212,6 +221,7 @@ int main(void) {
       debounce_button_update(&rotary_encoder_button, re_sw_value);
       debounce_button_update(&left_button, left_value);
       debounce_button_update(&right_button, right_value);
+      debounce_button_update(&save_button, save_value);
 
       if(stop_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         headwater_api.state.change_flags |=
@@ -225,40 +235,92 @@ int main(void) {
 
       if(rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_LEFT) {
         ui_update_selected_modifier(&main_screen, -1);
-
-        /* headwater_api.state.bpm -= 1; */
-        /* headwater_api.state.change_flags |= */
-        /*   (1 << HEADWATER_STATE_CHANGE_BPM); */
       }
 
       if(rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_RIGHT) {
         ui_update_selected_modifier(&main_screen, 1);
-
-        /* headwater_api.state.bpm += 1; */
-        /* headwater_api.state.change_flags |= */
-        /*   (1 << HEADWATER_STATE_CHANGE_BPM); */
       }
 
-      // TODO handle long and short pushes
-      if(rotary_encoder_button.change == DEBOUNCE_BUTTON_CHANGE_HIGH) {
-        if(rotary_encoder_button.hold_count < 30000) {
-          ui_update_selected_modifier(&main_screen, 1);
-        } else {
-          ui_update_selected_modifier(&main_screen, -1);
+      if(rotary_encoder_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+        ui_update_selected_state(&main_screen);
+
+      } else if(rotary_encoder_button.state == DEBOUNCE_BUTTON_STATE_LOW) {
+        // TODO do this in headwater_ui, careful about special casing field
+        if(main_screen.select_index == 2) {
+
+          /* if(rotary_encoder_button.hold_count < 30000) { */
+          /*    rotary_encoder_button.hold_pending = 1; */
+          /*  */
+          /*   ui_update_selected_state(&main_screen); */
+          /*  */
+          /* if( */
+          /*   30000 < rotary_encoder_button.hold_count */
+          /*   && rotary_encoder_button.hold_pending == 1; */
+          /* ) { */
+          /*    rotary_encoder_button.hold_pending = 0; */
+          /*    save preset to eeprom */
+          /*    update field */
+
+          uint8_t preset = headwater_api.state.preset;
+
+          // read bpm, a, b, mode
+          uint8_t data[5];
+
+          // save preset data
+          for(uint16_t i = 0; i < 5; i++) {
+            uint16_t address = (preset * 5) + i;
+            data[i] = atmega_eeprom_read(address);
+          }
+
+          headwater_api.state.bpm = bytes_high_low_to_16bit(data[0], data[1]);
+          headwater_api.state.multiplier_a_channel.multiplier = data[2];
+          headwater_api.state.multiplier_b_channel.multiplier = data[3];
+          headwater_api.state.mode = data[4];
+
+          headwater_api.state.change_flags |=
+            (1 << HEADWATER_STATE_CHANGE_MODE)
+            | (1 << HEADWATER_STATE_CHANGE_BPM)
+            | (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A)
+            | (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
+
+          main_screen.change_flags = 0xFF;
         }
-        /* ui_update_selected_state(&main_screen); */
       }
 
       if(left_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
-        // TODO shift editing field to left
         ui_move_selected(&main_screen, UI_SCREEN_DIRECTION_DEC);
         lcd_state.selected_position = ui_selected_position(&main_screen);
       }
 
       if(right_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
-        // TODO shift editing field to right
         ui_move_selected(&main_screen, UI_SCREEN_DIRECTION_INC);
         lcd_state.selected_position = ui_selected_position(&main_screen);
+      }
+
+      if(save_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+        // FIXME magic selection
+        if(main_screen.select_index == 2) {
+          ui_update_selected_state(&main_screen);
+        }
+
+        uint8_t preset = headwater_api.state.preset;
+        uint16_t bpm = headwater_api.state.bpm;
+
+        // write bpm, a, b, mode
+        uint8_t data[5] = {
+          bytes_16bit_to_high(bpm),
+          bytes_16bit_to_low(bpm),
+          headwater_api.state.multiplier_a_channel.multiplier,
+          headwater_api.state.multiplier_b_channel.multiplier,
+          headwater_api.state.mode
+        };
+
+        // save preset data
+        // TODO need to commit uncommitted_modifier
+        for(uint8_t i = 0; i < 5; i++) {
+          uint16_t address = (preset * 5) + i;
+          atmega_eeprom_write(address, data[i]);
+        }
       }
     }
   }

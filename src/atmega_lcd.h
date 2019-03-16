@@ -1,3 +1,6 @@
+#ifndef _ATMEGA_LCD_H_
+#define _ATMEGA_LCD_H_
+
 #include <avr/io.h>
 #include "stdint.h"
 
@@ -17,3 +20,5 @@ void atmega_lcd_init(void);
 void atmega_lcd_send(uint8_t rs, uint8_t data);
 void atmega_lcd_send_cmd(uint8_t data);
 void atmega_lcd_write_data(uint8_t data);
+
+#endif

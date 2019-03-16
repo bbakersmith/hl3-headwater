@@ -9,6 +9,7 @@ HEADWATER_HEX=$(HEADWATER_ELF:%.elf=%.hex)
 HEADWATER_FLAGS=-g -Wall -fno-strict-aliasing -fno-strict-overflow
 
 HEADWATER_SOURCE_FILES=\
+	src/atmega_eeprom.c \
 	src/atmega_headwater.c \
 	src/atmega_lcd.c \
 	src/atmega_spi.c \

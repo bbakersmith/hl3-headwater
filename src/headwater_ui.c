@@ -134,7 +134,6 @@ void main_preset_update_state(
   UIField *field,
   HeadwaterState *state
 ) {
-  // TODO load / save state
   state->preset = headwater_ui_modify_2digit(
     state->preset,
     field->uncommitted_modifier
