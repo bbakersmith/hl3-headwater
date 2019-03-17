@@ -29,6 +29,7 @@
 
 #define BPM_PIN PORTC0
 #define MULTIPLIER_A_PIN PORTC1
+#define MULTIPLIER_B_PIN PORTC2
 
 volatile API headwater_api;
 volatile LCD lcd_state;
@@ -50,9 +51,20 @@ void atmega_headwater_multiplier_a_output(uint8_t enabled) {
   }
 }
 
+void atmega_headwater_multiplier_b_output(uint8_t enabled) {
+  if(enabled == 0) {
+    OUTPUT_PORT |= (1 << MULTIPLIER_B_PIN);
+  } else {
+    OUTPUT_PORT &= ~(1 << MULTIPLIER_B_PIN);
+  }
+}
+
 int main(void) {
   // enable output pins
-  OUTPUT_DDR |= (1 << BPM_PIN) | (1 << MULTIPLIER_A_PIN);
+  OUTPUT_DDR |=
+    (1 << BPM_PIN)
+    | (1 << MULTIPLIER_A_PIN)
+    | (1 << MULTIPLIER_B_PIN);
 
   // enable ui input
   UI_PORT |= (1 << UI_INPUT_PIN);
@@ -79,6 +91,7 @@ int main(void) {
   // TODO do this automatically elsewhere
   atmega_headwater_bpm_output(0);
   atmega_headwater_multiplier_a_output(0);
+  atmega_headwater_multiplier_b_output(0);
 
   headwater_api.payload_preprocessor = &headwater_api_payload_preprocessor;
   headwater_api.payload_postprocessor = &headwater_api_payload_postprocessor;
@@ -328,6 +341,9 @@ ISR(TIMER1_COMPA_vect) {
   atmega_headwater_bpm_output(headwater_api.state.bpm_channel.output);
   atmega_headwater_multiplier_a_output(
     headwater_api.state.multiplier_a_channel.output
+  );
+  atmega_headwater_multiplier_b_output(
+    headwater_api.state.multiplier_b_channel.output
   );
 }
 
