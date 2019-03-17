@@ -2,7 +2,6 @@
 #define _HEADWATER_UI_H_
 
 #include "lcd.h"
-#include "headwater_lcd.h"
 #include "headwater_state.h"
 
 #define UI_DISPLAY LCD
@@ -21,6 +20,11 @@ uint16_t headwater_ui_modify_with_restrictions_16(
   int16_t modifier,
   uint16_t min,
   uint16_t max
+);
+void headwater_ui_generic_bpm_update_display(
+  LCD *lcd,
+  uint8_t position,
+  uint16_t value
 );
 UIScreen headwater_ui_main_screen(HeadwaterState *state, LCD *display);
 

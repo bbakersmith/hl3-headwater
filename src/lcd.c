@@ -46,7 +46,7 @@ LCD lcd_new(void) {
     .characters_index = 0,
     .mode = LCD_MODE_WRITE,
     .rows_index = -1,
-    .selected_position = 0x79, // FIXME offscreen position, magic number
+    .selected_position = 0, // TODO how to disable? negative position?
     .wait = 25,
     .wait_count = 0
   };
@@ -78,9 +78,17 @@ LCDCommand lcd_next_command(LCD *lcd) {
       lcd->characters_index++;
     }
   } else {
-    // TODO this is a WIP for moving the cursor after writing the screen
+    // assumes 1602 lcd
+    uint8_t position;
     rs = 0;
-    data = lcd->selected_position;
+
+    if(lcd->selected_position < 16) {
+      position = lcd->selected_position + 0x80;
+    } else {
+      position = lcd->selected_position + 0xC0 - 16;
+    }
+
+    data = position;
     lcd->characters_index = 0;
     lcd->mode = LCD_MODE_WAIT;
   }

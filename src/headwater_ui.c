@@ -34,7 +34,40 @@ uint16_t headwater_ui_modify_bpm(uint16_t value, int16_t modifier) {
   return headwater_ui_modify_with_restrictions_16(value, modifier, 10, 9999);
 }
 
-void main_bpm_update_state(
+void headwater_ui_generic_bpm_update_display(
+  LCD *lcd,
+  uint8_t position,
+  uint16_t value
+) {
+  uint8_t digit;
+
+  digit = value % 10;
+  lcd->characters[position] = lcd_digit_to_char(digit);
+  value /= 10;
+
+  lcd->characters[position - 1] = LCD__DOT;
+
+  digit = value % 10;
+  lcd->characters[position - 2] = lcd_digit_to_char(digit);
+  value /= 10;
+
+  if(0 < value) {
+    digit = value % 10;
+    lcd->characters[position - 3] = lcd_digit_to_char(digit);
+    value /= 10;
+  } else {
+    lcd->characters[position - 3] = LCD__;
+  }
+
+  if(0 < value) {
+    digit = value % 10;
+    lcd->characters[position - 4] = lcd_digit_to_char(digit);
+  } else {
+    lcd->characters[position - 4] = LCD__;
+  }
+}
+
+void headwater_ui_bpm_update_state(
   UIField *field,
   HeadwaterState *state
 ) {
@@ -45,7 +78,7 @@ void main_bpm_update_state(
   state->change_flags |= (1 << HEADWATER_STATE_CHANGE_BPM);
 }
 
-void main_bpm_update_display(
+void headwater_ui_bpm_update_display(
   UIField *field,
   HeadwaterState *state,
   LCD *lcd
@@ -54,10 +87,14 @@ void main_bpm_update_display(
     state->bpm,
     (field->uncommitted_modifier * 10)
   );
-  headwater_lcd_update_main_bpm(lcd, value);
+  headwater_ui_generic_bpm_update_display(
+    lcd,
+    field->selected_position + 2,
+    value
+  );
 }
 
-void main_tbpm_update_state(
+void headwater_ui_tbpm_update_state(
   UIField *field,
   HeadwaterState *state
 ) {
@@ -68,7 +105,7 @@ void main_tbpm_update_state(
   state->change_flags |= (1 << HEADWATER_STATE_CHANGE_BPM);
 }
 
-void main_tbpm_update_display(
+void headwater_ui_tbpm_update_display(
   UIField *field,
   HeadwaterState *state,
   LCD *lcd
@@ -77,14 +114,38 @@ void main_tbpm_update_display(
     state->bpm,
     field->uncommitted_modifier
   );
-  headwater_lcd_update_main_bpm(lcd, value);
+  headwater_ui_generic_bpm_update_display(
+    lcd,
+    field->selected_position,
+    value
+  );
 }
 
 uint16_t headwater_ui_modify_2digit(uint8_t value, int16_t modifier) {
   return headwater_ui_modify_with_restrictions(value, modifier, 0, 99);
 }
 
-void main_multiplier_a_update_state(
+void headwater_ui_update_display_2digit(
+  LCD *lcd,
+  uint8_t position,
+  uint8_t value
+) {
+  uint8_t digit;
+
+  digit = value % 10;
+  lcd->characters[position] = lcd_digit_to_char(digit);
+  value /= 10;
+
+  if(0 < value) {
+    digit = value % 10;
+    lcd->characters[position - 1] = lcd_digit_to_char(digit);
+    value /= 10;
+  } else {
+    lcd->characters[position - 1] = LCD__;
+  }
+}
+
+void headwater_ui_multiplier_a_update_state(
   UIField *field,
   HeadwaterState *state
 ) {
@@ -95,7 +156,7 @@ void main_multiplier_a_update_state(
   state->change_flags |= (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A);
 }
 
-void main_multiplier_a_update_display(
+void headwater_ui_multiplier_a_update_display(
   UIField *field,
   HeadwaterState *state,
   LCD *lcd
@@ -104,10 +165,14 @@ void main_multiplier_a_update_display(
     state->multiplier_a_channel.multiplier,
     field->uncommitted_modifier
   );
-  headwater_lcd_update_main_multiplier_a(lcd, value);
+  headwater_ui_update_display_2digit(
+    lcd,
+    field->selected_position,
+    value
+  );
 }
 
-void main_multiplier_b_update_state(
+void headwater_ui_multiplier_b_update_state(
   UIField *field,
   HeadwaterState *state
 ) {
@@ -118,7 +183,7 @@ void main_multiplier_b_update_state(
   state->change_flags |= (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
 }
 
-void main_multiplier_b_update_display(
+void headwater_ui_multiplier_b_update_display(
   UIField *field,
   HeadwaterState *state,
   LCD *lcd
@@ -127,12 +192,14 @@ void main_multiplier_b_update_display(
     state->multiplier_b_channel.multiplier,
     field->uncommitted_modifier
   );
-  headwater_lcd_update_main_multiplier_b(lcd, value);
+  headwater_ui_update_display_2digit(
+    lcd,
+    field->selected_position,
+    value
+  );
 }
 
-
-
-void main_mode_update_state(
+void headwater_ui_mode_update_state(
   UIField *field,
   HeadwaterState *state
 ) {
@@ -140,7 +207,7 @@ void main_mode_update_state(
   state->change_flags |= (1 << HEADWATER_STATE_CHANGE_MODE);
 }
 
-void main_mode_update_display(
+void headwater_ui_mode_update_display(
   UIField *field,
   HeadwaterState *state,
   LCD *lcd
@@ -151,10 +218,38 @@ void main_mode_update_display(
       HEADWATER_STATE_MODE_INTERNAL,
       HEADWATER_STATE_MODE_MIDI
   );
-  headwater_lcd_update_main_mode(lcd, value);
+
+  uint8_t position = field->selected_position;
+  uint8_t char1;
+  uint8_t char2;
+
+  switch(value) {
+    case HEADWATER_STATE_MODE_INTERNAL:
+      char1 = LCD__I;
+      char2 = LCD__N;
+      break;
+    case HEADWATER_STATE_MODE_TAP:
+      char1 = LCD__T;
+      char2 = LCD__P;
+      break;
+    case HEADWATER_STATE_MODE_EXTERNAL:
+      char1 = LCD__E;
+      char2 = LCD__X;
+      break;
+    case HEADWATER_STATE_MODE_MIDI:
+      char1 = LCD__M;
+      char2 = LCD__I;
+      break;
+    default:
+      char1 = LCD__QUES;
+      char2 = LCD__QUES;
+  }
+
+  lcd->characters[position] = char1;
+  lcd->characters[position + 1] = char2;
 }
 
-void main_preset_update_state(
+void headwater_ui_preset_update_state(
   UIField *field,
   HeadwaterState *state
 ) {
@@ -164,7 +259,7 @@ void main_preset_update_state(
   );
 }
 
-void main_preset_update_display(
+void headwater_ui_preset_update_display(
   UIField *field,
   HeadwaterState *state,
   LCD *lcd
@@ -173,7 +268,11 @@ void main_preset_update_display(
     state->preset,
     field->uncommitted_modifier
   );
-  headwater_lcd_update_main_preset(lcd, value);
+  headwater_ui_update_display_2digit(
+    lcd,
+    field->selected_position,
+    value
+  );
 }
 
 UIScreen headwater_ui_main_screen(
@@ -182,39 +281,39 @@ UIScreen headwater_ui_main_screen(
 ) {
 
   UIField main_bpm_field = {
-    .selected_position = 0x82,
-    .update_state = &main_bpm_update_state,
-    .update_display = &main_bpm_update_display
+    .selected_position = 2,
+    .update_state = &headwater_ui_bpm_update_state,
+    .update_display = &headwater_ui_bpm_update_display
   };
 
   UIField main_tbpm_field = {
-    .selected_position = 0x84,
-    .update_state = &main_tbpm_update_state,
-    .update_display = &main_tbpm_update_display
+    .selected_position = 4,
+    .update_state = &headwater_ui_tbpm_update_state,
+    .update_display = &headwater_ui_tbpm_update_display
   };
 
   UIField main_mode_field = {
-    .selected_position = 0x87,
-    .update_state = &main_mode_update_state,
-    .update_display = &main_mode_update_display
+    .selected_position = 7,
+    .update_state = &headwater_ui_mode_update_state,
+    .update_display = &headwater_ui_mode_update_display
   };
 
   UIField main_multiplier_a_field = {
-    .selected_position = 0xC1,
-    .update_state = &main_multiplier_a_update_state,
-    .update_display = &main_multiplier_a_update_display
+    .selected_position = 17,
+    .update_state = &headwater_ui_multiplier_a_update_state,
+    .update_display = &headwater_ui_multiplier_a_update_display
   };
 
   UIField main_multiplier_b_field = {
-    .selected_position = 0xC4,
-    .update_state = &main_multiplier_b_update_state,
-    .update_display = &main_multiplier_b_update_display
+    .selected_position = 20,
+    .update_state = &headwater_ui_multiplier_b_update_state,
+    .update_display = &headwater_ui_multiplier_b_update_display
   };
 
   UIField main_preset_field = {
-    .selected_position = 0xC7,
-    .update_state = &main_preset_update_state,
-    .update_display = &main_preset_update_display
+    .selected_position = 23,
+    .update_state = &headwater_ui_preset_update_state,
+    .update_display = &headwater_ui_preset_update_display
   };
 
   UIField main_fields[6] = {

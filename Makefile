@@ -17,7 +17,6 @@ HEADWATER_SOURCE_FILES=\
 	src/bytes.c \
 	src/debounce.c \
 	src/headwater_api.c \
-	src/headwater_lcd.c \
 	src/headwater_state.c \
 	src/headwater_ui.c \
 	src/lcd.c \
@@ -40,7 +39,6 @@ TEST_SOURCE_FILES=\
 	src/lcd.c \
 	src/ui.c \
   src/headwater_api.c \
-  src/headwater_lcd.c \
   src/headwater_state.c \
   src/headwater_ui.c \
   test/test_api.c \
@@ -49,7 +47,6 @@ TEST_SOURCE_FILES=\
   test/test_lcd.c \
   test/test_ui.c \
   test/test_headwater_api.c \
-  test/test_headwater_lcd.c \
   test/test_headwater_state.c \
   test/test_headwater_ui.c \
 	test/run_tests.c

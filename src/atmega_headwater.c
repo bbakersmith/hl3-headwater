@@ -11,7 +11,6 @@
 #include "bytes.h"
 #include "debounce.h"
 #include "headwater_api.h"
-#include "headwater_lcd.h"
 #include "headwater_state.h"
 #include "headwater_ui.h"
 #include "lcd.h"
@@ -98,8 +97,6 @@ int main(void) {
   LCD lcd_state_ = lcd_new();
   lcd_state = lcd_state_;
 
-  /* headwater_lcd_update_main(&lcd_state, &headwater_api.state); */
-
   // TODO don't start automatically
   headwater_state_play(&headwater_api.state);
 
@@ -178,7 +175,7 @@ int main(void) {
         atmega_lcd_send_cmd(0x0F); // cursor blinking
       }
 
-      // TODO do this in headwater_lcd_update_main?
+      // TODO should this be here?
       lcd_state.mode = LCD_MODE_READ;
     } else {
       // TODO move input scanning to an interrupt (after sample interrupt?)
