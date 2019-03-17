@@ -246,7 +246,7 @@ int main(void) {
 
       } else if(rotary_encoder_button.state == DEBOUNCE_BUTTON_STATE_LOW) {
         // TODO do this in headwater_ui, careful about special casing field
-        if(main_screen.select_index == 2) {
+        if(main_screen.select_index == 5) {
 
           /* if(rotary_encoder_button.hold_count < 30000) { */
           /*    rotary_encoder_button.hold_pending = 1; */
@@ -299,7 +299,7 @@ int main(void) {
 
       if(save_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         // FIXME magic selection
-        if(main_screen.select_index == 2) {
+        if(main_screen.select_index == 5) {
           ui_update_selected_state(&main_screen);
         }
 
@@ -316,7 +316,7 @@ int main(void) {
         };
 
         // save preset data
-        // TODO need to commit uncommitted_modifier
+        // TODO pad save data for future parameters
         for(uint8_t i = 0; i < 5; i++) {
           uint16_t address = (preset * 5) + i;
           atmega_eeprom_write(address, data[i]);

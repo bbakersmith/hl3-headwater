@@ -115,7 +115,7 @@ void main_multiplier_b_update_state(
     state->multiplier_b_channel.multiplier,
     field->uncommitted_modifier
   );
-  state->change_flags |= (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A);
+  state->change_flags |= (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
 }
 
 void main_multiplier_b_update_display(
@@ -128,6 +128,30 @@ void main_multiplier_b_update_display(
     field->uncommitted_modifier
   );
   headwater_lcd_update_main_multiplier_b(lcd, value);
+}
+
+
+
+void main_mode_update_state(
+  UIField *field,
+  HeadwaterState *state
+) {
+  // TODO actually update mode state
+  state->change_flags |= (1 << HEADWATER_STATE_CHANGE_MODE);
+}
+
+void main_mode_update_display(
+  UIField *field,
+  HeadwaterState *state,
+  LCD *lcd
+) {
+  uint8_t value = headwater_ui_modify_with_restrictions(
+      state->mode,
+      field->uncommitted_modifier,
+      HEADWATER_STATE_MODE_INTERNAL,
+      HEADWATER_STATE_MODE_MIDI
+  );
+  headwater_lcd_update_main_mode(lcd, value);
 }
 
 void main_preset_update_state(
@@ -169,10 +193,10 @@ UIScreen headwater_ui_main_screen(
     .update_display = &main_tbpm_update_display
   };
 
-  UIField main_preset_field = {
+  UIField main_mode_field = {
     .selected_position = 0x87,
-    .update_state = &main_preset_update_state,
-    .update_display = &main_preset_update_display
+    .update_state = &main_mode_update_state,
+    .update_display = &main_mode_update_display
   };
 
   UIField main_multiplier_a_field = {
@@ -187,17 +211,22 @@ UIScreen headwater_ui_main_screen(
     .update_display = &main_multiplier_b_update_display
   };
 
-  // TODO mode field
-
-  UIField main_fields[5] = {
-    main_bpm_field,
-    main_tbpm_field,
-    main_preset_field,
-    main_multiplier_a_field,
-    main_multiplier_b_field
+  UIField main_preset_field = {
+    .selected_position = 0xC7,
+    .update_state = &main_preset_update_state,
+    .update_display = &main_preset_update_display
   };
 
-  UIScreen main_screen = ui_screen_new(state, lcd, main_fields, 5);
+  UIField main_fields[6] = {
+    main_bpm_field,
+    main_tbpm_field,
+    main_mode_field,
+    main_multiplier_a_field,
+    main_multiplier_b_field,
+    main_preset_field
+  };
+
+  UIScreen main_screen = ui_screen_new(state, lcd, main_fields, 6);
 
   return main_screen;
 }

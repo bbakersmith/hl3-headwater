@@ -1,5 +1,8 @@
 #include "headwater_lcd.h"
 
+// TODO this should be in headwater_ui?
+// TODO character positions should be relative to select position
+
 void headwater_lcd_update_main_bpm(LCD *lcd, uint16_t value) {
   uint8_t digit;
 
@@ -26,6 +29,22 @@ void headwater_lcd_update_main_bpm(LCD *lcd, uint16_t value) {
     lcd->characters[0] = lcd_digit_to_char(digit);
   } else {
     lcd->characters[0] = LCD__;
+  }
+}
+
+void headwater_lcd_update_main_preset(LCD *lcd, uint8_t value) {
+  uint8_t digit;
+
+  digit = value % 10;
+  lcd->characters[23] = lcd_digit_to_char(digit);
+  value /= 10;
+
+  if(0 < value) {
+    digit = value % 10;
+    lcd->characters[22] = lcd_digit_to_char(digit);
+    value /= 10;
+  } else {
+    lcd->characters[22] = LCD__;
   }
 }
 
@@ -61,66 +80,32 @@ void headwater_lcd_update_main_multiplier_b(LCD *lcd, uint16_t value) {
   }
 }
 
-// TODO this should be in headwater_ui?
-void headwater_lcd_update_main_preset(LCD *lcd, uint8_t value) {
-  uint8_t digit;
+void headwater_lcd_update_main_mode(LCD *lcd, uint8_t value) {
+  uint8_t char1;
+  uint8_t char2;
 
-  digit = value % 10;
-  lcd->characters[7] = lcd_digit_to_char(digit);
-  value /= 10;
-
-  if(0 < value) {
-    digit = value % 10;
-    lcd->characters[6] = lcd_digit_to_char(digit);
-    value /= 10;
-  } else {
-    lcd->characters[6] = LCD__;
-  }
-}
-
-void headwater_lcd_update_main(LCD *lcd, HeadwaterState *state) {
-  headwater_lcd_update_main_bpm(lcd, state->bpm);
-
-  // TODO should be able to change units to ms, hz
-  lcd->characters[6] = LCD__B;
-  lcd->characters[7] = LCD__P;
-  lcd->characters[8] = LCD__M;
-
-  // TODO preset
-  lcd->characters[27] = LCD__9;
-  lcd->characters[28] = LCD__9;
-
-  // TODO next preset
-  lcd->characters[30] = LCD__9;
-  lcd->characters[31] = LCD__9;
-
-  // TODO other modes, use enum
-  if(state->mode == HEADWATER_STATE_MODE_INTERNAL) {
-    lcd->characters[22] = LCD__I;
-    lcd->characters[23] = LCD__N;
-    lcd->characters[24] = LCD__T;
-    lcd->characters[25] = LCD__;
+  switch(value) {
+    case HEADWATER_STATE_MODE_INTERNAL:
+      char1 = LCD__I;
+      char2 = LCD__N;
+      break;
+    case HEADWATER_STATE_MODE_TAP:
+      char1 = LCD__T;
+      char2 = LCD__P;
+      break;
+    case HEADWATER_STATE_MODE_EXTERNAL:
+      char1 = LCD__E;
+      char2 = LCD__X;
+      break;
+    case HEADWATER_STATE_MODE_MIDI:
+      char1 = LCD__M;
+      char2 = LCD__I;
+      break;
+    default:
+      char1 = LCD__QUES;
+      char2 = LCD__QUES;
   }
 
-  headwater_lcd_update_main_multiplier_a(
-    lcd,
-    state->multiplier_a_channel.multiplier
-  );
-
-  headwater_lcd_update_main_multiplier_b(
-    lcd,
-    state->multiplier_b_channel.multiplier
-  );
-
-  if(state->output_enabled == 1) {
-    lcd->characters[16] = LCD__P;
-    lcd->characters[17] = LCD__L;
-    lcd->characters[18] = LCD__A;
-    lcd->characters[19] = LCD__Y;
-  } else {
-    lcd->characters[16] = LCD__S;
-    lcd->characters[17] = LCD__T;
-    lcd->characters[18] = LCD__O;
-    lcd->characters[19] = LCD__P;
-  }
+  lcd->characters[6] = char1;
+  lcd->characters[7] = char2;
 }
