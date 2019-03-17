@@ -66,7 +66,7 @@ void atmega_headwater_multiplier_b_output(uint8_t enabled) {
   }
 }
 
-void atmega_headwater_register_setup(void) {
+void atmega_headwater_global_register_setup(void) {
   // disable outputs
   atmega_headwater_bpm_output(0);
   atmega_headwater_multiplier_a_output(0);
@@ -175,7 +175,7 @@ void atmega_headwater_global_inputs_setup(void) {
 }
 
 int main(void) {
-  atmega_headwater_register_setup();
+  atmega_headwater_global_register_setup();
   atmega_headwater_global_state_setup();
   atmega_headwater_global_inputs_setup();
 
@@ -262,22 +262,8 @@ int main(void) {
         ui_update_selected_state(&main_screen);
 
       } else if(rotary_encoder_button.state == DEBOUNCE_BUTTON_STATE_LOW) {
-        // TODO do this in headwater_ui, careful about special casing field
+        // TODO do this in headwater_ui?, careful about special casing field
         if(main_screen.select_index == 5) {
-
-          /* if(rotary_encoder_button.hold_count < 30000) { */
-          /*    rotary_encoder_button.hold_pending = 1; */
-          /*  */
-          /*   ui_update_selected_state(&main_screen); */
-          /*  */
-          /* if( */
-          /*   30000 < rotary_encoder_button.hold_count */
-          /*   && rotary_encoder_button.hold_pending == 1; */
-          /* ) { */
-          /*    rotary_encoder_button.hold_pending = 0; */
-          /*    save preset to eeprom */
-          /*    update field */
-
           uint8_t preset = headwater_api.state.preset;
 
           // read bpm, a, b, mode
