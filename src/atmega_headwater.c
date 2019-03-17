@@ -34,6 +34,13 @@
 volatile API headwater_api;
 volatile LCD lcd_state;
 volatile UIScreen main_screen;
+volatile DebounceButton stop_button;
+volatile DebounceButton play_button;
+volatile DebounceEncoder rotary_encoder;
+volatile DebounceButton rotary_encoder_button;
+volatile DebounceButton left_button;
+volatile DebounceButton right_button;
+volatile DebounceButton save_button;
 
 void atmega_headwater_bpm_output(uint8_t enabled) {
   if(enabled == 0) {
@@ -59,7 +66,12 @@ void atmega_headwater_multiplier_b_output(uint8_t enabled) {
   }
 }
 
-int main(void) {
+void atmega_headwater_register_setup(void) {
+  // disable outputs
+  atmega_headwater_bpm_output(0);
+  atmega_headwater_multiplier_a_output(0);
+  atmega_headwater_multiplier_b_output(0);
+
   // enable output pins
   OUTPUT_DDR |=
     (1 << BPM_PIN)
@@ -88,32 +100,11 @@ int main(void) {
   TIMSK0 |= (1 << OCIE0A);
   TIMSK1 |= (1 << OCIE1A);
 
-  // TODO do this automatically elsewhere
-  atmega_headwater_bpm_output(0);
-  atmega_headwater_multiplier_a_output(0);
-  atmega_headwater_multiplier_b_output(0);
-
-  headwater_api.payload_preprocessor = &headwater_api_payload_preprocessor;
-  headwater_api.payload_postprocessor = &headwater_api_payload_postprocessor;
-  headwater_api.request = api_new_request();
-
-  // TODO pull state out of api
-  headwater_api.state = headwater_state_new();
-
   atmega_lcd_init();
   atmega_spi_slave_init();
 
-  // wait for LCD
-  _delay_ms(500);
-
-  // TODO create lcd state, screens
-  LCD lcd_state_ = lcd_new();
-  lcd_state = lcd_state_;
-
-  // TODO don't start automatically
-  headwater_state_play(&headwater_api.state);
-
-  // TODO do this in setup function
+  // TODO do this in lcd setup function
+  _delay_ms(500); // wait for LCD
   atmega_lcd_send_cmd(0x0E); // turn on display and cursor
   _delay_ms(5);
   atmega_lcd_send_cmd(0x01); // clear display
@@ -122,65 +113,82 @@ int main(void) {
   _delay_ms(5);
   atmega_lcd_send_cmd(0x80); // move to start
   _delay_ms(5);
+}
 
-  // TODO move debounce setup?
-  uint8_t debounce_threshold = 5;
+void atmega_headwater_global_state_setup(void) {
+  headwater_api.payload_preprocessor = &headwater_api_payload_preprocessor;
+  headwater_api.payload_postprocessor = &headwater_api_payload_postprocessor;
+  headwater_api.request = api_new_request();
 
-  DebounceButton stop_button = debounce_button_new(
-    DEBOUNCE_BUTTON_STATE_HIGH,
-    debounce_threshold
-  );
+  // TODO pull state out of api
+  headwater_api.state = headwater_state_new();
 
-  DebounceButton play_button = debounce_button_new(
-    DEBOUNCE_BUTTON_STATE_HIGH,
-    debounce_threshold
-  );
+  // TODO create lcd state, screens
+  LCD lcd_state_ = lcd_new();
+  lcd_state = lcd_state_;
 
-  DebounceEncoder rotary_encoder = debounce_encoder_new(
-    DEBOUNCE_BUTTON_STATE_HIGH,
-    debounce_threshold
-  );
-
-  DebounceButton rotary_encoder_button = debounce_button_new(
-    DEBOUNCE_BUTTON_STATE_HIGH,
-    debounce_threshold
-  );
-
-  DebounceButton left_button = debounce_button_new(
-    DEBOUNCE_BUTTON_STATE_HIGH,
-    debounce_threshold
-  );
-
-  DebounceButton right_button = debounce_button_new(
-    DEBOUNCE_BUTTON_STATE_HIGH,
-    debounce_threshold
-  );
-
-  DebounceButton save_button = debounce_button_new(
-    DEBOUNCE_BUTTON_STATE_HIGH,
-    debounce_threshold
-  );
+  // TODO don't start automatically
+  headwater_state_play(&headwater_api.state);
 
   // TODO move ui setup?
   main_screen = headwater_ui_main_screen(&headwater_api.state, &lcd_state);
   lcd_state.selected_position = ui_selected_position(&main_screen);
+}
 
-  // enable interrupts
-  sei();
+void atmega_headwater_global_inputs_setup(void) {
+  uint8_t debounce_threshold = 5;
+
+  stop_button = debounce_button_new(
+    DEBOUNCE_BUTTON_STATE_HIGH,
+    debounce_threshold
+  );
+
+  play_button = debounce_button_new(
+    DEBOUNCE_BUTTON_STATE_HIGH,
+    debounce_threshold
+  );
+
+  rotary_encoder = debounce_encoder_new(
+    DEBOUNCE_BUTTON_STATE_HIGH,
+    debounce_threshold
+  );
+
+  rotary_encoder_button = debounce_button_new(
+    DEBOUNCE_BUTTON_STATE_HIGH,
+    debounce_threshold
+  );
+
+  left_button = debounce_button_new(
+    DEBOUNCE_BUTTON_STATE_HIGH,
+    debounce_threshold
+  );
+
+  right_button = debounce_button_new(
+    DEBOUNCE_BUTTON_STATE_HIGH,
+    debounce_threshold
+  );
+
+  save_button = debounce_button_new(
+    DEBOUNCE_BUTTON_STATE_HIGH,
+    debounce_threshold
+  );
+}
+
+int main(void) {
+  atmega_headwater_register_setup();
+  atmega_headwater_global_state_setup();
+  atmega_headwater_global_inputs_setup();
+
+  sei(); // enable interrupts
 
   while(1) {
     if(headwater_api.state.change_flags != 0) {
       headwater_state_change(&headwater_api.state);
 
     } else if(lcd_state.mode == LCD_MODE_WRITE) {
-      // also... need to only update on change to avoid cursor flicker
-      /* ui_update_selected_display(&main_screen); */
-
-      // TODO
       if(main_screen.change_flags != 0) {
         ui_update_changed_display(&main_screen);
       }
-      //
 
       if(ui_selected_modifier(&main_screen) == 0) {
         atmega_lcd_send_cmd(0x0E); // cursor only
@@ -188,7 +196,6 @@ int main(void) {
         atmega_lcd_send_cmd(0x0F); // cursor blinking
       }
 
-      // TODO should this be here?
       lcd_state.mode = LCD_MODE_READ;
     } else {
       // TODO move input scanning to an interrupt (after sample interrupt?)

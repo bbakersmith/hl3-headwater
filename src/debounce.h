@@ -39,7 +39,7 @@ typedef enum {
   DEBOUNCE_ENCODER_STATE_RIGHT_OUTPUT
 } DEBOUNCE_ENCODER_STATE;
 
-typedef struct DebounceButton {
+typedef volatile struct DebounceButton {
   uint8_t change;
   uint8_t debounce_count;
   uint8_t debounce_threshold;
@@ -48,7 +48,7 @@ typedef struct DebounceButton {
   DEBOUNCE_BUTTON_STATE state;
 } DebounceButton;
 
-typedef struct DebounceEncoder {
+typedef volatile struct DebounceEncoder {
   DebounceButton a;
   DebounceButton b;
   DEBOUNCE_ENCODER_OUTPUT output;
