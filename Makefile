@@ -23,7 +23,7 @@ HEADWATER_SOURCE_FILES=\
 	src/ui.c
 
 # HEADWATER_AVR_FUSES=-U lfuse:w:0xc2:m -U hfuse:w:0xd9:m -U efuse:w:0xff:m
-HEADWATER_AVR_FUSES=-U lfuse:w:0xD7:m
+HEADWATER_AVR_FUSES=-U lfuse:w:0xD7:m -U hfuse:w:0xD1:m
 # -U lfuse:w:0xff:m -U hfuse:w:0xd9:m -U efuse:w:0xff:m
 
 TEST_TARGET=$(BUILD_DIR)/run_tests.o
