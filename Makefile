@@ -22,9 +22,7 @@ HEADWATER_SOURCE_FILES=\
 	src/lcd.c \
 	src/ui.c
 
-# HEADWATER_AVR_FUSES=-U lfuse:w:0xc2:m -U hfuse:w:0xd9:m -U efuse:w:0xff:m
 HEADWATER_AVR_FUSES=-U lfuse:w:0xD7:m -U hfuse:w:0xD1:m
-# -U lfuse:w:0xff:m -U hfuse:w:0xd9:m -U efuse:w:0xff:m
 
 TEST_TARGET=$(BUILD_DIR)/run_tests.o
 
@@ -56,8 +54,6 @@ TEST_INC_DIRS=-Isrc -I$(UNITY_DIR)/src -I$(UNITY_DIR)/extras/fixture/src
 all:
 	make clean
 	make $(HEADWATER_HEX)
-
-# HEADWATER
 
 flash: $(HEADWATER_HEX)
 	sudo avrdude -v -c usbtiny -p atmega328p $(HEADWATER_AVR_FUSES) -U flash:w:$(HEADWATER_HEX)

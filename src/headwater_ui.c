@@ -329,3 +329,73 @@ UIScreen headwater_ui_main_screen(
 
   return main_screen;
 }
+
+void headwater_ui_load_preset(
+  HeadwaterState *state,
+  HeadwaterUIEEPROMRead eeprom_read
+) {
+  uint8_t preset = state->preset;
+
+  // read bpm, a, b, mode
+  uint8_t data[5];
+
+  // save preset data
+  for(uint16_t i = 0; i < 5; i++) {
+    uint16_t address = (preset * 5) + i;
+    data[i] = eeprom_read(address);
+  }
+
+  state->bpm = bytes_high_low_to_16bit(data[0], data[1]);
+  state->multiplier_a_channel.multiplier = data[2];
+  state->multiplier_b_channel.multiplier = data[3];
+  state->mode = data[4];
+
+  state->change_flags |=
+    (1 << HEADWATER_STATE_CHANGE_MODE)
+    | (1 << HEADWATER_STATE_CHANGE_BPM)
+    | (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A)
+    | (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
+}
+
+void headwater_ui_save_preset(
+  UIScreen *screen,
+  HeadwaterState *state,
+  HeadwaterUIEEPROMWrite eeprom_write
+) {
+  if(screen->select_index == 5) {
+    ui_update_selected_state(screen);
+  }
+
+  uint8_t preset = state->preset;
+  uint16_t bpm = state->bpm;
+
+  // write bpm, a, b, mode
+  uint8_t data[5] = {
+    bytes_16bit_to_high(bpm),
+    bytes_16bit_to_low(bpm),
+    state->multiplier_a_channel.multiplier,
+    state->multiplier_b_channel.multiplier,
+    state->mode
+  };
+
+  // save preset data
+  // TODO pad save data for future parameters
+  for(uint8_t i = 0; i < 5; i++) {
+    uint16_t address = (preset * 5) + i;
+    eeprom_write(address, data[i]);
+  }
+}
+
+void headwater_ui_update_selected_state(
+  UIScreen *screen,
+  HeadwaterState *state,
+  HeadwaterUIEEPROMRead eeprom_read
+) {
+  ui_update_selected_state(screen);
+
+  // FIXME preset field magic index
+  if(screen->select_index == 5) {
+    headwater_ui_load_preset(state, eeprom_read);
+    screen->change_flags = 0xFF;
+  }
+}
