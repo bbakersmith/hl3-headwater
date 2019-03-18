@@ -92,7 +92,10 @@ typedef volatile struct LCD {
 
 LCD lcd_new(void);
 LCDCommand lcd_next_command(LCD *lcd);
-LCDCommand lcd_handle_interrupt(LCD *lcd);
+void lcd_handle_interrupt(
+  LCD *lcd,
+  void (*lcd_send)(uint8_t rs, uint8_t data)
+);
 LCD_CHAR lcd_digit_to_char(uint8_t digit);
 void lcd_wait(LCD *lcd);
 

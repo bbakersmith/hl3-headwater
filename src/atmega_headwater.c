@@ -331,7 +331,10 @@ int main(void) {
 
 ISR(TIMER1_COMPA_vect) {
   headwater_state_cycle(&headwater_api.state);
-  atmega_headwater_bpm_output(headwater_api.state.bpm_channel.output);
+
+  atmega_headwater_bpm_output(
+    headwater_api.state.bpm_channel.output
+  );
   atmega_headwater_multiplier_a_output(
     headwater_api.state.multiplier_a_channel.output
   );
@@ -341,13 +344,7 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 ISR(TIMER0_COMPA_vect) {
-  // TODO move this into lcd module as lcd_handle_interrupt
-  if(lcd_state.mode == LCD_MODE_READ) {
-    LCDCommand command = lcd_next_command(&lcd_state);
-    atmega_lcd_send(command.rs, command.data);
-  } else if(lcd_state.mode == LCD_MODE_WAIT) {
-    lcd_wait(&lcd_state);
-  }
+  lcd_handle_interrupt(&lcd_state, &atmega_lcd_send);
 
   // Reduce interrupt rate when not reading
   if(lcd_state.mode == LCD_MODE_READ) {

@@ -110,19 +110,14 @@ void lcd_wait(LCD *lcd) {
   }
 }
 
-LCDCommand lcd_handle_interrupt(LCD *lcd) {
-  LCDCommand command;
-
+void lcd_handle_interrupt(
+  LCD *lcd,
+  void (*lcd_send)(uint8_t rs, uint8_t data)
+) {
   if(lcd->mode == LCD_MODE_READ) {
-    command = lcd_next_command(lcd);
-  } else {
-    command.rs = LCD_COMMAND_NULL_RS;
-    command.data = LCD_COMMAND_NULL_DATA;
-  }
-
-  if(lcd->mode == LCD_MODE_WAIT) {
+    LCDCommand command = lcd_next_command(lcd);
+    lcd_send(command.rs, command.data);
+  } else if(lcd->mode == LCD_MODE_WAIT) {
     lcd_wait(lcd);
   }
-
-  return command;
 }
