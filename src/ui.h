@@ -25,6 +25,11 @@ typedef enum {
   UI_SCREEN_DIRECTION_INC
 } UI_SCREEN_DIRECTION;
 
+typedef enum {
+  UI_DISPLAY_CHANGED_FALSE,
+  UI_DISPLAY_CHANGED_TRUE
+} UI_DISPLAY_CHANGED;
+
 typedef struct UIField {
   uint8_t selected_position;
   volatile int16_t uncommitted_modifier;
@@ -61,6 +66,7 @@ void ui_move_selected(UIScreen *screen, UI_SCREEN_DIRECTION direction);
 void ui_update_selected_modifier(UIScreen *screen, int8_t modifier);
 void ui_update_selected_display(UIScreen *screen);
 void ui_update_selected_state(UIScreen *screen);
+UI_DISPLAY_CHANGED ui_is_display_changed(UIScreen *screen);
 void ui_update_changed_display(UIScreen *screen);
 
 #endif

@@ -76,6 +76,19 @@ void ui_update_selected_state(UIScreen *screen) {
   screen->fields[screen->select_index].uncommitted_modifier = 0;
 }
 
+UI_DISPLAY_CHANGED ui_is_display_changed(UIScreen *screen) {
+  uint8_t mask = (1 << screen->fields_count) - 1;
+  uint8_t masked = screen->change_flags & mask;
+
+  UI_DISPLAY_CHANGED result;
+  if(masked == 0) {
+    result = UI_DISPLAY_CHANGED_FALSE;
+  } else {
+    result = UI_DISPLAY_CHANGED_TRUE;
+  }
+  return result;
+}
+
 void ui_update_changed_display(UIScreen *screen) {
   for(uint8_t i = 0; i < screen->fields_count; i++) {
     if(screen->change_flags & (1 << i)) {

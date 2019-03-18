@@ -174,19 +174,20 @@ int main(void) {
     if(headwater_api.state.change_flags != 0) {
       headwater_state_change(&headwater_api.state);
 
-    } else if(lcd_state.mode == LCD_MODE_WRITE) {
-      if(main_screen.change_flags != 0) {
-        ui_update_changed_display(&main_screen);
+    } else if(
+      lcd_state.mode == LCD_MODE_WRITE
+      && ui_is_display_changed(&main_screen)
+    ) {
+      ui_update_changed_display(&main_screen);
 
-        // TODO only send if changed?
-        if(ui_selected_modifier(&main_screen) == 0) {
-          atmega_lcd_send_cmd(0x0E); // cursor only
-        } else {
-          atmega_lcd_send_cmd(0x0F); // cursor blinking
-        }
-
-        lcd_state.mode = LCD_MODE_READ;
+      // TODO only send if changed?
+      if(ui_selected_modifier(&main_screen) == 0) {
+        atmega_lcd_send_cmd(0x0E); // cursor only
+      } else {
+        atmega_lcd_send_cmd(0x0F); // cursor blinking
       }
+
+      lcd_state.mode = LCD_MODE_READ;
     } else {
       // TODO move input scanning to an interrupt (after sample interrupt?)
       // use this to implement
