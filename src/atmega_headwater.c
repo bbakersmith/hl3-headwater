@@ -1,9 +1,6 @@
-#define F_CPU 16000000UL  // 16 MHz
-
 #include "stdint.h"
 #include <avr/interrupt.h>
 #include <avr/io.h>
-#include <util/delay.h>
 
 #include "atmega_eeprom.h"
 #include "atmega_lcd.h"
@@ -102,17 +99,6 @@ void atmega_headwater_global_register_setup(void) {
 
   atmega_lcd_init();
   atmega_spi_slave_init();
-
-  // TODO do this in lcd setup function
-  _delay_ms(500); // wait for LCD
-  atmega_lcd_send_cmd(0x0E); // turn on display and cursor
-  _delay_ms(5);
-  atmega_lcd_send_cmd(0x01); // clear display
-  _delay_ms(5);
-  atmega_lcd_send_cmd(0x3C); // function set
-  _delay_ms(5);
-  atmega_lcd_send_cmd(0x80); // move to start
-  _delay_ms(5);
 }
 
 void atmega_headwater_global_state_setup(void) {

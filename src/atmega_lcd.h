@@ -1,7 +1,10 @@
 #ifndef _ATMEGA_LCD_H_
 #define _ATMEGA_LCD_H_
 
+#define F_CPU 16000000UL  // 16 MHz
+
 #include <avr/io.h>
+#include <util/delay.h>
 #include "stdint.h"
 
 #define LCD_PORT PORTD

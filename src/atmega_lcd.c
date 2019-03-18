@@ -6,6 +6,25 @@ void atmega_lcd_init(void) {
 
   // enable lcd shift register pins
   LCD_SR_DDR |= (1 << LCD_SR_CLK_PIN) | (1 << LCD_SR_DATA_PIN);
+
+  // wait for LCD
+  _delay_ms(500);
+
+  // turn on display and cursor
+  atmega_lcd_send_cmd(0x0E);
+  _delay_ms(5);
+
+  // clear display
+  atmega_lcd_send_cmd(0x01);
+  _delay_ms(5);
+
+  // function set
+  atmega_lcd_send_cmd(0x3C);
+  _delay_ms(5);
+
+  // move to start
+  atmega_lcd_send_cmd(0x80);
+  _delay_ms(5);
 }
 
 void atmega_lcd_74164_send(uint8_t data) {
