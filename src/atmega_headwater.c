@@ -177,15 +177,16 @@ int main(void) {
     } else if(lcd_state.mode == LCD_MODE_WRITE) {
       if(main_screen.change_flags != 0) {
         ui_update_changed_display(&main_screen);
-      }
 
-      if(ui_selected_modifier(&main_screen) == 0) {
-        atmega_lcd_send_cmd(0x0E); // cursor only
-      } else {
-        atmega_lcd_send_cmd(0x0F); // cursor blinking
-      }
+        // TODO only send if changed?
+        if(ui_selected_modifier(&main_screen) == 0) {
+          atmega_lcd_send_cmd(0x0E); // cursor only
+        } else {
+          atmega_lcd_send_cmd(0x0F); // cursor blinking
+        }
 
-      lcd_state.mode = LCD_MODE_READ;
+        lcd_state.mode = LCD_MODE_READ;
+      }
     } else {
       // TODO move input scanning to an interrupt (after sample interrupt?)
       // use this to implement

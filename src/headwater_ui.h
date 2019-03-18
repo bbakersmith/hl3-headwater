@@ -30,7 +30,10 @@ void headwater_ui_generic_bpm_update_display(
   uint8_t position,
   uint16_t value
 );
-UIScreen headwater_ui_main_screen(HeadwaterState *state, LCD *display);
+UIScreen headwater_ui_main_screen(
+  HeadwaterState *state,
+  LCD *display
+);
 void headwater_ui_load_preset(
   HeadwaterState *state,
   HeadwaterUIEEPROMRead eeprom_read

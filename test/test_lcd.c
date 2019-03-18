@@ -9,6 +9,7 @@ uint8_t volatile dummy_cmd;
 uint8_t volatile dummy_cmd_change_flag;
 uint8_t volatile dummy_data;
 uint8_t volatile dummy_data_change_flag;
+uint8_t volatile dummy_rs;
 
 void dummy_write_cmd_fn(uint8_t value) {
   dummy_cmd = value;
@@ -18,6 +19,11 @@ void dummy_write_cmd_fn(uint8_t value) {
 void dummy_write_data_fn(uint8_t value) {
   dummy_data = value;
   dummy_data_change_flag = 1;
+}
+
+void dummy_lcd_send_fn(uint8_t rs, uint8_t data) {
+  dummy_data = data;
+  dummy_rs = rs;
 }
 
 void assert_dummy_cmd(uint8_t expected) {
@@ -37,6 +43,7 @@ TEST_SETUP(lcd) {
   dummy_cmd_change_flag = 0;
   dummy_data = 0;
   dummy_data_change_flag = 0;
+  dummy_rs = 99;
 };
 
 TEST_TEAR_DOWN(lcd) {};
@@ -91,46 +98,46 @@ TEST(lcd, test_lcd_handle_interrupt) {
 
   for(uint8_t n = 0; n < 3; n++) {
     // row 1
-    result = lcd_handle_interrupt(&dummy_lcd);
-    TEST_ASSERT_EQUAL(0, result.rs);
-    TEST_ASSERT_EQUAL(0x80, result.data);
+    lcd_handle_interrupt(&dummy_lcd, &dummy_lcd_send_fn);
+    TEST_ASSERT_EQUAL(0, dummy_rs);
+    TEST_ASSERT_EQUAL(0x80, dummy_data);
 
     for(uint8_t i = 0; i < 16; i++) {
       TEST_ASSERT_EQUAL(LCD_MODE_READ, dummy_lcd.mode);
-      result = lcd_handle_interrupt(&dummy_lcd);
-      TEST_ASSERT_EQUAL(1, result.rs);
-      TEST_ASSERT_EQUAL(expected[i], result.data);
+      lcd_handle_interrupt(&dummy_lcd, &dummy_lcd_send_fn);
+      TEST_ASSERT_EQUAL(1, dummy_rs);
+      TEST_ASSERT_EQUAL(expected[i], dummy_data);
     }
 
     // row 2
-    result = lcd_handle_interrupt(&dummy_lcd);
-    TEST_ASSERT_EQUAL(0, result.rs);
-    TEST_ASSERT_EQUAL(0xC0, result.data);
+    lcd_handle_interrupt(&dummy_lcd, &dummy_lcd_send_fn);
+    TEST_ASSERT_EQUAL(0, dummy_rs);
+    TEST_ASSERT_EQUAL(0xC0, dummy_data);
 
     for(uint8_t i = 16; i < 32; i++) {
       TEST_ASSERT_EQUAL(LCD_MODE_READ, dummy_lcd.mode);
-      result = lcd_handle_interrupt(&dummy_lcd);
-      TEST_ASSERT_EQUAL(1, result.rs);
-      TEST_ASSERT_EQUAL(expected[i], result.data);
+      lcd_handle_interrupt(&dummy_lcd, &dummy_lcd_send_fn);
+      TEST_ASSERT_EQUAL(1, dummy_rs);
+      TEST_ASSERT_EQUAL(expected[i], dummy_data);
     }
 
     // TODO test cursor movement to selected field or off screen
-    result = lcd_handle_interrupt(&dummy_lcd);
+    lcd_handle_interrupt(&dummy_lcd, &dummy_lcd_send_fn);
 
     // wait
     for(uint8_t i = 0; i < dummy_wait; i++) {
       TEST_ASSERT_EQUAL(LCD_MODE_WAIT, dummy_lcd.mode);
-      result = lcd_handle_interrupt(&dummy_lcd);
-      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_RS, result.rs);
-      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_DATA, result.data);
+      lcd_handle_interrupt(&dummy_lcd, &dummy_lcd_send_fn);
+      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_RS, dummy_rs);
+      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_DATA, dummy_data);
     }
 
     // write
     for(uint16_t i = 0; i < 500; i++) {
       TEST_ASSERT_EQUAL(LCD_MODE_WRITE, dummy_lcd.mode);
-      result = lcd_handle_interrupt(&dummy_lcd);
-      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_RS, result.rs);
-      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_DATA, result.data);
+      lcd_handle_interrupt(&dummy_lcd, &dummy_lcd_send_fn);
+      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_RS, dummy_rs);
+      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_DATA, dummy_data);
     }
 
     dummy_lcd.mode = LCD_MODE_READ;
