@@ -29,15 +29,9 @@
 #define MULTIPLIER_B_PIN PORTC2
 
 volatile API headwater_api;
+volatile HeadwaterUIInputs inputs;
 volatile LCD lcd_state;
 volatile UIScreen main_screen;
-volatile DebounceButton stop_button;
-volatile DebounceButton play_button;
-volatile DebounceEncoder rotary_encoder;
-volatile DebounceButton rotary_encoder_button;
-volatile DebounceButton left_button;
-volatile DebounceButton right_button;
-volatile DebounceButton save_button;
 
 void atmega_headwater_bpm_output(uint8_t enabled) {
   if(enabled == 0) {
@@ -131,37 +125,37 @@ void atmega_headwater_global_state_setup(void) {
 void atmega_headwater_global_inputs_setup(void) {
   uint8_t debounce_threshold = 5;
 
-  stop_button = debounce_button_new(
+  inputs.stop_button = debounce_button_new(
     DEBOUNCE_BUTTON_STATE_HIGH,
     debounce_threshold
   );
 
-  play_button = debounce_button_new(
+  inputs.play_button = debounce_button_new(
     DEBOUNCE_BUTTON_STATE_HIGH,
     debounce_threshold
   );
 
-  rotary_encoder = debounce_encoder_new(
+  inputs.rotary_encoder = debounce_encoder_new(
     DEBOUNCE_BUTTON_STATE_HIGH,
     debounce_threshold
   );
 
-  rotary_encoder_button = debounce_button_new(
+  inputs.rotary_encoder_button = debounce_button_new(
     DEBOUNCE_BUTTON_STATE_HIGH,
     debounce_threshold
   );
 
-  left_button = debounce_button_new(
+  inputs.left_button = debounce_button_new(
     DEBOUNCE_BUTTON_STATE_HIGH,
     debounce_threshold
   );
 
-  right_button = debounce_button_new(
+  inputs.right_button = debounce_button_new(
     DEBOUNCE_BUTTON_STATE_HIGH,
     debounce_threshold
   );
 
-  save_button = debounce_button_new(
+  inputs.save_button = debounce_button_new(
     DEBOUNCE_BUTTON_STATE_HIGH,
     debounce_threshold
   );
@@ -227,33 +221,65 @@ int main(void) {
       UI_PORT &= ~(1 << UI_CLK_PIN);
       uint8_t save_value = (UI_PIN & (1 << UI_INPUT_PIN));
 
-      debounce_button_update(&stop_button, stop_value);
-      debounce_button_update(&play_button, play_value);
-      debounce_encoder_update(&rotary_encoder, re_a_value, re_b_value);
-      debounce_button_update(&rotary_encoder_button, re_sw_value);
-      debounce_button_update(&left_button, left_value);
-      debounce_button_update(&right_button, right_value);
-      debounce_button_update(&save_button, save_value);
+      uint8_t input_flags =
+        stop_value
+        | (play_value << 1)
+        | (re_a_value << 2)
+        | (re_b_value << 3)
+        | (re_sw_value << 4)
+        | (left_value << 5)
+        | (right_value << 6)
+        | (save_value << 7);
 
-      if(stop_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+      debounce_button_update(
+        &inputs.stop_button,
+        bytes_check_bit(input_flags, 0)
+      );
+      debounce_button_update(
+        &inputs.play_button,
+        bytes_check_bit(input_flags, 1)
+      );
+      debounce_encoder_update(
+        &inputs.rotary_encoder,
+        bytes_check_bit(input_flags, 2),
+        bytes_check_bit(input_flags, 3)
+      );
+      debounce_button_update(
+        &inputs.rotary_encoder_button,
+        bytes_check_bit(input_flags, 4)
+      );
+      debounce_button_update(
+        &inputs.left_button,
+        bytes_check_bit(input_flags, 5)
+      );
+      debounce_button_update(
+        &inputs.right_button,
+        bytes_check_bit(input_flags, 6)
+      );
+      debounce_button_update(
+        &inputs.save_button,
+        bytes_check_bit(input_flags, 7)
+      );
+
+      if(inputs.stop_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         headwater_api.state.change_flags |=
           (1 << HEADWATER_STATE_CHANGE_STOP);
       }
 
-      if(play_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+      if(inputs.play_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         headwater_api.state.change_flags |=
           (1 << HEADWATER_STATE_CHANGE_PLAY);
       }
 
-      if(rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_LEFT) {
+      if(inputs.rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_LEFT) {
         ui_update_selected_modifier(&main_screen, -1);
       }
 
-      if(rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_RIGHT) {
+      if(inputs.rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_RIGHT) {
         ui_update_selected_modifier(&main_screen, 1);
       }
 
-      if(rotary_encoder_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+      if(inputs.rotary_encoder_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         headwater_ui_update_selected_state(
           &main_screen,
           &headwater_api.state,
@@ -261,17 +287,17 @@ int main(void) {
         );
       }
 
-      if(left_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+      if(inputs.left_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         ui_move_selected(&main_screen, UI_SCREEN_DIRECTION_DEC);
         lcd_state.selected_position = ui_selected_position(&main_screen);
       }
 
-      if(right_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+      if(inputs.right_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         ui_move_selected(&main_screen, UI_SCREEN_DIRECTION_INC);
         lcd_state.selected_position = ui_selected_position(&main_screen);
       }
 
-      if(save_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+      if(inputs.save_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         headwater_ui_save_preset(
           &main_screen,
           &headwater_api.state,

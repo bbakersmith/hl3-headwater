@@ -52,9 +52,21 @@ TEST(bytes, test_bytes_unset_bit) {
   TEST_ASSERT_EQUAL(3, value);
 }
 
+TEST(bytes, test_bytes_check_bit) {
+  TEST_ASSERT_EQUAL(1, bytes_check_bit(0x04, 2));
+  TEST_ASSERT_EQUAL(0, bytes_check_bit(0x08, 2));
+  TEST_ASSERT_EQUAL(0, bytes_check_bit(0x02, 2));
+  TEST_ASSERT_EQUAL(1, bytes_check_bit(0x26, 2));
+  TEST_ASSERT_EQUAL(1, bytes_check_bit(0x26, 5));
+  TEST_ASSERT_EQUAL(0, bytes_check_bit(0x06, 5));
+  TEST_ASSERT_EQUAL(1, bytes_check_bit(0x01, 0));
+  TEST_ASSERT_EQUAL(0, bytes_check_bit(0x02, 0));
+}
+
 TEST_GROUP_RUNNER(bytes) {
   RUN_TEST_CASE(bytes, test_bytes_16bit_to_high_low);
   RUN_TEST_CASE(bytes, test_bytes_high_low_to_16bit);
   RUN_TEST_CASE(bytes, test_bytes_set_bit);
   RUN_TEST_CASE(bytes, test_bytes_unset_bit);
+  RUN_TEST_CASE(bytes, test_bytes_check_bit);
 }

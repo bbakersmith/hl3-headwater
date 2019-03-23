@@ -2,6 +2,7 @@
 #define _HEADWATER_UI_H_
 
 #include "bytes.h"
+#include "debounce.h"
 #include "lcd.h"
 #include "headwater_state.h"
 
@@ -12,6 +13,16 @@
 
 #define HEADWATER_UI_PRESET_SIZE_MAX 10
 #define HEADWATER_UI_PRESET_SIZE 6
+
+typedef volatile struct HeadwaterUIInputs {
+  DebounceButton stop_button;
+  DebounceButton play_button;
+  DebounceEncoder rotary_encoder;
+  DebounceButton rotary_encoder_button;
+  DebounceButton left_button;
+  DebounceButton right_button;
+  DebounceButton save_button;
+} HeadwaterUIInputs;
 
 typedef uint8_t (*HeadwaterUIEEPROMRead)(uint16_t address);
 typedef void (*HeadwaterUIEEPROMWrite)(uint16_t address, uint8_t data);

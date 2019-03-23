@@ -6,7 +6,7 @@ UNITY_DIR=./Unity
 HEADWATER_ELF=$(BUILD_DIR)/headwater.elf
 HEADWATER_HEX=$(HEADWATER_ELF:%.elf=%.hex)
 
-HEADWATER_FLAGS=-std=c11 -g -Wall -Wdouble-promotion -Wshadow -Wlogical-op -fno-strict-aliasing -fno-strict-overflow -fno-strict-aliasing -fno-strict-overflow
+HEADWATER_FLAGS=-std=c11 -g -Os -mmcu=atmega328p -Wall -Wdouble-promotion -Wshadow -Wlogical-op -fno-strict-aliasing -fno-strict-overflow -fno-strict-aliasing -fno-strict-overflow
 
 HEADWATER_SOURCE_FILES=\
 	src/atmega_eeprom.c \
@@ -62,7 +62,7 @@ $(HEADWATER_HEX): $(HEADWATER_ELF)
 	avr-objcopy -j .text -j .data -O ihex $< $@
 
 $(HEADWATER_ELF):
-	avr-gcc $(HEADWATER_FLAGS) -Os -mmcu=atmega328p -o $@ $(HEADWATER_SOURCE_FILES)
+	avr-gcc $(HEADWATER_FLAGS) -o $@ $(HEADWATER_SOURCE_FILES)
 
 test: $(TEST_TARGET)
 

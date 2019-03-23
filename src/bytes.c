@@ -21,3 +21,11 @@ void bytes_set_bit(uint8_t volatile *value, uint8_t bit) {
 void bytes_unset_bit(uint8_t volatile *value, uint8_t bit) {
   *value &= ~(1 << bit);
 }
+
+uint8_t bytes_check_bit(uint8_t value, uint8_t bit) {
+  if((value & (1 << bit)) == 0) {
+    return 0;
+  } else {
+    return 1;
+  }
+}
