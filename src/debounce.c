@@ -88,7 +88,6 @@ void debounce_button_update(
   DebounceButton *button,
   DEBOUNCE_BUTTON_STATE new_state
 ) {
-  // TODO can remove hold count, not needed
   if(button->hold_count != 65535) {
     button->hold_count += 1;
   }

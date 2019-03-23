@@ -518,10 +518,24 @@ void headwater_ui_handle_inputs(
 
   if(inputs->rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_LEFT) {
     ui_update_selected_modifier(screen, -1);
+    if(inputs->rotary_encoder_button.state == DEBOUNCE_BUTTON_STATE_LOW) {
+      headwater_ui_update_selected_state(
+        screen,
+        state,
+        eeprom_read
+      );
+    }
   }
 
   if(inputs->rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_RIGHT) {
     ui_update_selected_modifier(screen, 1);
+    if(inputs->rotary_encoder_button.state == DEBOUNCE_BUTTON_STATE_LOW) {
+      headwater_ui_update_selected_state(
+        screen,
+        state,
+        eeprom_read
+      );
+    }
   }
 
   if(inputs->rotary_encoder_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
