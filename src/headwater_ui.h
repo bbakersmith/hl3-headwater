@@ -63,5 +63,6 @@ void headwater_ui_update_selected_state(
   HeadwaterState *state,
   HeadwaterUIEEPROMRead eeprom_read
 );
+HeadwaterUIInputs headwater_ui_inputs_new(void);
 
 #endif

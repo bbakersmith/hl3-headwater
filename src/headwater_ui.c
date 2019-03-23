@@ -413,3 +413,46 @@ void headwater_ui_update_selected_state(
     ui_update_selected_state(screen);
   }
 }
+
+HeadwaterUIInputs headwater_ui_inputs_new(void) {
+  uint8_t debounce_threshold = 5;
+
+  HeadwaterUIInputs inputs = {
+    .stop_button = debounce_button_new(
+      DEBOUNCE_BUTTON_STATE_HIGH,
+      debounce_threshold
+    ),
+
+    .play_button = debounce_button_new(
+      DEBOUNCE_BUTTON_STATE_HIGH,
+      debounce_threshold
+    ),
+
+    .rotary_encoder = debounce_encoder_new(
+      DEBOUNCE_BUTTON_STATE_HIGH,
+      debounce_threshold
+    ),
+
+    .rotary_encoder_button = debounce_button_new(
+      DEBOUNCE_BUTTON_STATE_HIGH,
+      debounce_threshold
+    ),
+
+    .left_button = debounce_button_new(
+      DEBOUNCE_BUTTON_STATE_HIGH,
+      debounce_threshold
+    ),
+
+    .right_button = debounce_button_new(
+      DEBOUNCE_BUTTON_STATE_HIGH,
+      debounce_threshold
+    ),
+
+    .save_button = debounce_button_new(
+      DEBOUNCE_BUTTON_STATE_HIGH,
+      debounce_threshold
+    )
+  };
+
+  return inputs;
+}

@@ -28,10 +28,10 @@
 #define MULTIPLIER_A_PIN PORTC1
 #define MULTIPLIER_B_PIN PORTC2
 
-volatile API headwater_api;
+volatile API api;
 volatile HeadwaterUIInputs inputs;
-volatile LCD lcd_state;
-volatile UIScreen main_screen;
+volatile LCD lcd;
+volatile UIScreen screen;
 
 void atmega_headwater_bpm_output(uint8_t enabled) {
   if(enabled == 0) {
@@ -96,96 +96,74 @@ void atmega_headwater_global_register_setup(void) {
 }
 
 void atmega_headwater_global_state_setup(void) {
-  headwater_api.payload_preprocessor = &headwater_api_payload_preprocessor;
-  headwater_api.payload_postprocessor = &headwater_api_payload_postprocessor;
-  headwater_api.request = api_new_request();
+  api.payload_preprocessor = &headwater_api_payload_preprocessor;
+  api.payload_postprocessor = &headwater_api_payload_postprocessor;
+  api.request = api_new_request();
 
   // TODO pull state out of api
-  headwater_api.state = headwater_state_new();
+  api.state = headwater_state_new();
 
   // TODO create lcd state, screens
-  LCD lcd_state_ = lcd_new();
-  lcd_state = lcd_state_;
+  LCD lcd_ = lcd_new();
+  lcd = lcd_;
 
   // TODO don't start automatically
-  headwater_state_play(&headwater_api.state);
+  headwater_state_play(&api.state);
 
   // TODO move ui setup?
-  main_screen = headwater_ui_main_screen(&headwater_api.state, &lcd_state);
-  lcd_state.selected_position = ui_selected_position(&main_screen);
+  screen = headwater_ui_main_screen(&api.state, &lcd);
+  lcd.selected_position = ui_selected_position(&screen);
 
   // load preset 0
-  headwater_ui_load_preset(
-    &main_screen,
-    &headwater_api.state,
-    &atmega_eeprom_read
-  );
+  headwater_ui_load_preset(&screen, &api.state, &atmega_eeprom_read);
+
+  inputs = headwater_ui_inputs_new();
 }
 
-void atmega_headwater_global_inputs_setup(void) {
-  uint8_t debounce_threshold = 5;
+uint8_t atmega_headwater_sample_inputs(uint8_t count) {
+  // snapshot inputs on falling edge of shift
+  // UI_INPUT_PIN (Q) immediately set to H input
+  bytes_unset_bit(&UI_PORT, UI_SHIFT_PIN);
+  bytes_set_bit(&UI_PORT, UI_SHIFT_PIN);
 
-  inputs.stop_button = debounce_button_new(
-    DEBOUNCE_BUTTON_STATE_HIGH,
-    debounce_threshold
-  );
+  uint8_t flags = 0;
+  for(uint8_t i = 0; i < count; i++) {
+    flags |= (bytes_check_bit(UI_PIN, UI_INPUT_PIN) << i);
 
-  inputs.play_button = debounce_button_new(
-    DEBOUNCE_BUTTON_STATE_HIGH,
-    debounce_threshold
-  );
+    // don't advance the clock after the last value
+    if(i != (count - 1)) {
+      bytes_set_bit(&UI_PORT, UI_CLK_PIN);
+      bytes_unset_bit(&UI_PORT, UI_CLK_PIN);
+    }
+  }
 
-  inputs.rotary_encoder = debounce_encoder_new(
-    DEBOUNCE_BUTTON_STATE_HIGH,
-    debounce_threshold
-  );
-
-  inputs.rotary_encoder_button = debounce_button_new(
-    DEBOUNCE_BUTTON_STATE_HIGH,
-    debounce_threshold
-  );
-
-  inputs.left_button = debounce_button_new(
-    DEBOUNCE_BUTTON_STATE_HIGH,
-    debounce_threshold
-  );
-
-  inputs.right_button = debounce_button_new(
-    DEBOUNCE_BUTTON_STATE_HIGH,
-    debounce_threshold
-  );
-
-  inputs.save_button = debounce_button_new(
-    DEBOUNCE_BUTTON_STATE_HIGH,
-    debounce_threshold
-  );
+  return flags;
 }
 
 int main(void) {
   atmega_headwater_global_register_setup();
   atmega_headwater_global_state_setup();
-  atmega_headwater_global_inputs_setup();
 
   sei(); // enable interrupts
 
   while(1) {
-    if(headwater_api.state.change_flags != 0) {
-      headwater_state_change(&headwater_api.state);
+    if(api.state.change_flags != 0) {
+      headwater_state_change(&api.state);
 
     } else if(
-      lcd_state.mode == LCD_MODE_WRITE
-      && ui_is_display_changed(&main_screen)
+      lcd.mode == LCD_MODE_WRITE
+      && ui_is_display_changed(&screen)
     ) {
-      ui_update_changed_display(&main_screen);
+      ui_update_changed_display(&screen);
 
       // TODO only send if changed?
-      if(ui_selected_modifier(&main_screen) == 0) {
+      if(ui_selected_modifier(&screen) == 0) {
         atmega_lcd_send_cmd(0x0E); // cursor only
       } else {
         atmega_lcd_send_cmd(0x0F); // cursor blinking
       }
 
-      lcd_state.mode = LCD_MODE_READ;
+      lcd.mode = LCD_MODE_READ;
     } else {
       // TODO move input scanning to an interrupt (after sample interrupt?)
       // use this to implement
@@ -193,114 +171,82 @@ int main(void) {
       // - asynchronous (get_change to get and clear latest change)
       // - proper timing for debounce and hold
 
-      // snapshot inputs on falling edge of shift
-      // UI_INPUT_PIN (Q) immediately set to H input
-      UI_PORT &= ~(1 << UI_SHIFT_PIN);
-      UI_PORT |= (1 << UI_SHIFT_PIN);
-
-      uint8_t stop_value = (UI_PIN & (1 << UI_INPUT_PIN));
-      UI_PORT |= (1 << UI_CLK_PIN);
-      UI_PORT &= ~(1 << UI_CLK_PIN);
-      uint8_t play_value = (UI_PIN & (1 << UI_INPUT_PIN));
-      UI_PORT |= (1 << UI_CLK_PIN);
-      UI_PORT &= ~(1 << UI_CLK_PIN);
-      uint8_t re_a_value = (UI_PIN & (1 << UI_INPUT_PIN));
-      UI_PORT |= (1 << UI_CLK_PIN);
-      UI_PORT &= ~(1 << UI_CLK_PIN);
-      uint8_t re_b_value = (UI_PIN & (1 << UI_INPUT_PIN));
-      UI_PORT |= (1 << UI_CLK_PIN);
-      UI_PORT &= ~(1 << UI_CLK_PIN);
-      uint8_t re_sw_value = (UI_PIN & (1 << UI_INPUT_PIN));
-      UI_PORT |= (1 << UI_CLK_PIN);
-      UI_PORT &= ~(1 << UI_CLK_PIN);
-      uint8_t left_value = (UI_PIN & (1 << UI_INPUT_PIN));
-      UI_PORT |= (1 << UI_CLK_PIN);
-      UI_PORT &= ~(1 << UI_CLK_PIN);
-      uint8_t right_value = (UI_PIN & (1 << UI_INPUT_PIN));
-      UI_PORT |= (1 << UI_CLK_PIN);
-      UI_PORT &= ~(1 << UI_CLK_PIN);
-      uint8_t save_value = (UI_PIN & (1 << UI_INPUT_PIN));
-
-      uint8_t input_flags =
-        stop_value
-        | (play_value << 1)
-        | (re_a_value << 2)
-        | (re_b_value << 3)
-        | (re_sw_value << 4)
-        | (left_value << 5)
-        | (right_value << 6)
-        | (save_value << 7);
+      uint8_t input_flags = atmega_headwater_sample_inputs(8);
 
       debounce_button_update(
         &inputs.stop_button,
         bytes_check_bit(input_flags, 0)
       );
+
       debounce_button_update(
         &inputs.play_button,
         bytes_check_bit(input_flags, 1)
       );
+
       debounce_encoder_update(
         &inputs.rotary_encoder,
         bytes_check_bit(input_flags, 2),
         bytes_check_bit(input_flags, 3)
       );
+
       debounce_button_update(
         &inputs.rotary_encoder_button,
         bytes_check_bit(input_flags, 4)
       );
+
       debounce_button_update(
         &inputs.left_button,
         bytes_check_bit(input_flags, 5)
       );
+
       debounce_button_update(
         &inputs.right_button,
         bytes_check_bit(input_flags, 6)
       );
+
       debounce_button_update(
         &inputs.save_button,
         bytes_check_bit(input_flags, 7)
       );
 
       if(inputs.stop_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
-        headwater_api.state.change_flags |=
-          (1 << HEADWATER_STATE_CHANGE_STOP);
+        api.state.change_flags |= (1 << HEADWATER_STATE_CHANGE_STOP);
       }
 
       if(inputs.play_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
-        headwater_api.state.change_flags |=
-          (1 << HEADWATER_STATE_CHANGE_PLAY);
+        api.state.change_flags |= (1 << HEADWATER_STATE_CHANGE_PLAY);
       }
 
       if(inputs.rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_LEFT) {
-        ui_update_selected_modifier(&main_screen, -1);
+        ui_update_selected_modifier(&screen, -1);
       }
 
       if(inputs.rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_RIGHT) {
-        ui_update_selected_modifier(&main_screen, 1);
+        ui_update_selected_modifier(&screen, 1);
       }
 
       if(inputs.rotary_encoder_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         headwater_ui_update_selected_state(
-          &main_screen,
-          &headwater_api.state,
+          &screen,
+          &api.state,
           &atmega_eeprom_read
         );
       }
 
       if(inputs.left_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
-        ui_move_selected(&main_screen, UI_SCREEN_DIRECTION_DEC);
-        lcd_state.selected_position = ui_selected_position(&main_screen);
+        ui_move_selected(&screen, UI_SCREEN_DIRECTION_DEC);
+        lcd.selected_position = ui_selected_position(&screen);
       }
 
       if(inputs.right_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
-        ui_move_selected(&main_screen, UI_SCREEN_DIRECTION_INC);
-        lcd_state.selected_position = ui_selected_position(&main_screen);
+        ui_move_selected(&screen, UI_SCREEN_DIRECTION_INC);
+        lcd.selected_position = ui_selected_position(&screen);
       }
 
       if(inputs.save_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
         headwater_ui_save_preset(
-          &main_screen,
-          &headwater_api.state,
+          &screen,
+          &api.state,
           &atmega_eeprom_write
         );
       }
@@ -309,24 +255,18 @@ int main(void) {
 }
 
 ISR(TIMER1_COMPA_vect) {
-  headwater_state_cycle(&headwater_api.state);
+  headwater_state_cycle(&api.state);
 
-  atmega_headwater_bpm_output(
-    headwater_api.state.bpm_channel.output
-  );
-  atmega_headwater_multiplier_a_output(
-    headwater_api.state.multiplier_a_channel.output
-  );
-  atmega_headwater_multiplier_b_output(
-    headwater_api.state.multiplier_b_channel.output
-  );
+  atmega_headwater_bpm_output(api.state.bpm_channel.output);
+  atmega_headwater_multiplier_a_output(api.state.multiplier_a_channel.output);
+  atmega_headwater_multiplier_b_output(api.state.multiplier_b_channel.output);
 }
 
 ISR(TIMER0_COMPA_vect) {
-  lcd_handle_interrupt(&lcd_state, &atmega_lcd_send);
+  lcd_handle_interrupt(&lcd, &atmega_lcd_send);
 
   // Reduce interrupt rate when not reading
-  if(lcd_state.mode == LCD_MODE_READ) {
+  if(lcd.mode == LCD_MODE_READ) {
     OCR0A = 1;
   } else {
     OCR0A = 156;
@@ -334,5 +274,5 @@ ISR(TIMER0_COMPA_vect) {
 }
 
 ISR(SPI_STC_vect) {
-  SPDR = api_handle_interrupt(&headwater_api, SPDR);
+  SPDR = api_handle_interrupt(&api, SPDR);
 }
