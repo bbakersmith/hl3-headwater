@@ -121,7 +121,11 @@ void atmega_headwater_global_state_setup(void) {
   lcd_state.selected_position = ui_selected_position(&main_screen);
 
   // load preset 0
-  headwater_ui_load_preset(&headwater_api.state, &atmega_eeprom_read);
+  headwater_ui_load_preset(
+    &main_screen,
+    &headwater_api.state,
+    &atmega_eeprom_read
+  );
 }
 
 void atmega_headwater_global_inputs_setup(void) {

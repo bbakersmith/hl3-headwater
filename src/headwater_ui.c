@@ -1,5 +1,6 @@
 #include "headwater_ui.h"
 
+// FIXME needs to stop modifier from increasing
 uint8_t headwater_ui_modify_with_restrictions(
   uint8_t current,
   int16_t modifier,
@@ -15,6 +16,7 @@ uint8_t headwater_ui_modify_with_restrictions(
   }
 }
 
+// FIXME needs to stop modifier from increasing
 uint16_t headwater_ui_modify_with_restrictions_16(
   uint16_t current,
   int16_t modifier,
@@ -331,10 +333,12 @@ UIScreen headwater_ui_main_screen(
 }
 
 void headwater_ui_load_preset(
+  UIScreen *screen,
   HeadwaterState *state,
   HeadwaterUIEEPROMRead eeprom_read
 ) {
-  uint8_t preset = state->preset;
+  uint8_t preset =
+    state->preset + screen->fields[screen->select_index].uncommitted_modifier;
 
   // read bpm, a, b, mode
   uint8_t data[HEADWATER_UI_PRESET_SIZE];
@@ -346,6 +350,8 @@ void headwater_ui_load_preset(
   if(data[0] != preset) {
     return;
   }
+
+  ui_update_selected_state(screen);
 
   // read preset data
   for(uint16_t i = 1; i < HEADWATER_UI_PRESET_SIZE; i++) {
@@ -399,11 +405,11 @@ void headwater_ui_update_selected_state(
   HeadwaterState *state,
   HeadwaterUIEEPROMRead eeprom_read
 ) {
-  ui_update_selected_state(screen);
-
   // FIXME preset field magic index
   if(screen->select_index == 5) {
-    headwater_ui_load_preset(state, eeprom_read);
+    headwater_ui_load_preset(screen, state, eeprom_read);
     screen->change_flags = 0xFF;
+  } else {
+    ui_update_selected_state(screen);
   }
 }

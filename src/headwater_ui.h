@@ -38,6 +38,7 @@ UIScreen headwater_ui_main_screen(
   LCD *display
 );
 void headwater_ui_load_preset(
+  UIScreen *screen,
   HeadwaterState *state,
   HeadwaterUIEEPROMRead eeprom_read
 );
