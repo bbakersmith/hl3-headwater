@@ -10,6 +10,9 @@
 
 #include "ui.h"
 
+#define HEADWATER_UI_PRESET_SIZE_MAX 10
+#define HEADWATER_UI_PRESET_SIZE 6
+
 typedef uint8_t (*HeadwaterUIEEPROMRead)(uint16_t address);
 typedef void (*HeadwaterUIEEPROMWrite)(uint16_t address, uint8_t data);
 

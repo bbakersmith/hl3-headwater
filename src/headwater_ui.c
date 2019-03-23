@@ -337,18 +337,26 @@ void headwater_ui_load_preset(
   uint8_t preset = state->preset;
 
   // read bpm, a, b, mode
-  uint8_t data[5];
+  uint8_t data[HEADWATER_UI_PRESET_SIZE];
 
-  // save preset data
-  for(uint16_t i = 0; i < 5; i++) {
-    uint16_t address = (preset * 5) + i;
+  // if first byte (preset number) is not equal to the current
+  // preset number, assume corrupted and do nothing
+  data[0] = eeprom_read(preset * HEADWATER_UI_PRESET_SIZE_MAX);
+
+  if(data[0] != preset) {
+    return;
+  }
+
+  // read preset data
+  for(uint16_t i = 1; i < HEADWATER_UI_PRESET_SIZE; i++) {
+    uint16_t address = (preset * HEADWATER_UI_PRESET_SIZE_MAX) + i;
     data[i] = eeprom_read(address);
   }
 
-  state->bpm = bytes_high_low_to_16bit(data[0], data[1]);
-  state->multiplier_a_channel.multiplier = data[2];
-  state->multiplier_b_channel.multiplier = data[3];
-  state->mode = data[4];
+  state->bpm = bytes_high_low_to_16bit(data[1], data[2]);
+  state->multiplier_a_channel.multiplier = data[3];
+  state->multiplier_b_channel.multiplier = data[4];
+  state->mode = data[5];
 
   state->change_flags |=
     (1 << HEADWATER_STATE_CHANGE_MODE)
@@ -370,7 +378,8 @@ void headwater_ui_save_preset(
   uint16_t bpm = state->bpm;
 
   // write bpm, a, b, mode
-  uint8_t data[5] = {
+  uint8_t data[HEADWATER_UI_PRESET_SIZE] = {
+    preset,
     bytes_16bit_to_high(bpm),
     bytes_16bit_to_low(bpm),
     state->multiplier_a_channel.multiplier,
@@ -379,9 +388,8 @@ void headwater_ui_save_preset(
   };
 
   // save preset data
-  // TODO pad save data for future parameters
-  for(uint8_t i = 0; i < 5; i++) {
-    uint16_t address = (preset * 5) + i;
+  for(uint8_t i = 0; i < HEADWATER_UI_PRESET_SIZE; i++) {
+    uint16_t address = (preset * HEADWATER_UI_PRESET_SIZE_MAX) + i;
     eeprom_write(address, data[i]);
   }
 }
