@@ -64,5 +64,13 @@ void headwater_ui_update_selected_state(
   HeadwaterUIEEPROMRead eeprom_read
 );
 HeadwaterUIInputs headwater_ui_inputs_new(void);
+void headwater_ui_handle_inputs(
+  HeadwaterUIInputs *inputs,
+  uint8_t input_flags,
+  UIScreen *screen,
+  HeadwaterState *state,
+  HeadwaterUIEEPROMRead eeprom_read,
+  HeadwaterUIEEPROMWrite eeprom_write
+);
 
 #endif

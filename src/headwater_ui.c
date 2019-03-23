@@ -456,3 +456,97 @@ HeadwaterUIInputs headwater_ui_inputs_new(void) {
 
   return inputs;
 }
+
+void headwater_ui_update_inputs(
+  HeadwaterUIInputs *inputs,
+  uint8_t input_flags
+) {
+  debounce_button_update(
+    &inputs->stop_button,
+    bytes_check_bit(input_flags, 0)
+  );
+
+  debounce_button_update(
+    &inputs->play_button,
+    bytes_check_bit(input_flags, 1)
+  );
+
+  debounce_encoder_update(
+    &inputs->rotary_encoder,
+    bytes_check_bit(input_flags, 2),
+    bytes_check_bit(input_flags, 3)
+  );
+
+  debounce_button_update(
+    &inputs->rotary_encoder_button,
+    bytes_check_bit(input_flags, 4)
+  );
+
+  debounce_button_update(
+    &inputs->left_button,
+    bytes_check_bit(input_flags, 5)
+  );
+
+  debounce_button_update(
+    &inputs->right_button,
+    bytes_check_bit(input_flags, 6)
+  );
+
+  debounce_button_update(
+    &inputs->save_button,
+    bytes_check_bit(input_flags, 7)
+  );
+}
+
+void headwater_ui_handle_inputs(
+  HeadwaterUIInputs *inputs,
+  uint8_t input_flags,
+  UIScreen *screen,
+  HeadwaterState *state,
+  HeadwaterUIEEPROMRead eeprom_read,
+  HeadwaterUIEEPROMWrite eeprom_write
+) {
+  headwater_ui_update_inputs(inputs, input_flags);
+
+  if(inputs->stop_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+    state->change_flags |= (1 << HEADWATER_STATE_CHANGE_STOP);
+  }
+
+  if(inputs->play_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+    state->change_flags |= (1 << HEADWATER_STATE_CHANGE_PLAY);
+  }
+
+  if(inputs->rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_LEFT) {
+    ui_update_selected_modifier(screen, -1);
+  }
+
+  if(inputs->rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_RIGHT) {
+    ui_update_selected_modifier(screen, 1);
+  }
+
+  if(inputs->rotary_encoder_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+    headwater_ui_update_selected_state(
+      screen,
+      state,
+      eeprom_read
+    );
+  }
+
+  if(inputs->left_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+    ui_move_selected(screen, UI_SCREEN_DIRECTION_DEC);
+    screen->display->selected_position = ui_selected_position(screen);
+  }
+
+  if(inputs->right_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+    ui_move_selected(screen, UI_SCREEN_DIRECTION_INC);
+    screen->display->selected_position = ui_selected_position(screen);
+  }
+
+  if(inputs->save_button.change == DEBOUNCE_BUTTON_CHANGE_LOW) {
+    headwater_ui_save_preset(
+      screen,
+      state,
+      eeprom_write
+    );
+  }
+}
