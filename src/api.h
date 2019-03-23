@@ -33,7 +33,7 @@ typedef volatile struct API {
   APIRequest request;
   void (*payload_preprocessor)(volatile struct API *api);
   void (*payload_postprocessor)(volatile struct API *api);
-  APIState state;
+  APIState *state;
 } API;
 
 void api_parse_header(APIRequest *request, uint8_t header);
