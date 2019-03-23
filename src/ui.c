@@ -74,6 +74,7 @@ void ui_update_selected_state(UIScreen *screen) {
   UIField selected_field = screen->fields[screen->select_index];
   selected_field.update_state(&selected_field, screen->state);
   screen->fields[screen->select_index].uncommitted_modifier = 0;
+  screen->change_flags |= (1 << screen->select_index);
 }
 
 UI_DISPLAY_CHANGED ui_is_display_changed(UIScreen *screen) {
