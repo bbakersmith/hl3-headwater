@@ -1,4 +1,4 @@
-TEST_COMPILER=gcc
+TEST_COMPILER=gcc-4.9
 
 BUILD_DIR=./build
 UNITY_DIR=./Unity
@@ -6,7 +6,7 @@ UNITY_DIR=./Unity
 HEADWATER_ELF=$(BUILD_DIR)/headwater.elf
 HEADWATER_HEX=$(HEADWATER_ELF:%.elf=%.hex)
 
-HEADWATER_FLAGS=-g -Wall -fno-strict-aliasing -fno-strict-overflow
+HEADWATER_FLAGS=-std=c11 -g -Wall -Wdouble-promotion -Wshadow -Wlogical-op -fno-strict-aliasing -fno-strict-overflow -fno-strict-aliasing -fno-strict-overflow
 
 HEADWATER_SOURCE_FILES=\
 	src/atmega_eeprom.c \
@@ -26,7 +26,7 @@ HEADWATER_AVR_FUSES=-U lfuse:w:0xD7:m -U hfuse:w:0xD1:m
 
 TEST_TARGET=$(BUILD_DIR)/run_tests.o
 
-TEST_FLAGS=-g -fno-strict-aliasing -fno-strict-overflow
+TEST_FLAGS=-std=c11 -g -fno-strict-aliasing -fno-strict-overflow
 
 TEST_SOURCE_FILES=\
   $(UNITY_DIR)/src/unity.c \
@@ -62,7 +62,7 @@ $(HEADWATER_HEX): $(HEADWATER_ELF)
 	avr-objcopy -j .text -j .data -O ihex $< $@
 
 $(HEADWATER_ELF):
-	avr-gcc $(HEADWATER_FLAGS) -Os -mmcu=atmega328p -std=c11 -o $@ $(HEADWATER_SOURCE_FILES)
+	avr-gcc $(HEADWATER_FLAGS) -Os -mmcu=atmega328p -o $@ $(HEADWATER_SOURCE_FILES)
 
 test: $(TEST_TARGET)
 

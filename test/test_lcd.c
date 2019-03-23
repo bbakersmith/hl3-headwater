@@ -48,6 +48,7 @@ TEST_SETUP(lcd) {
 
 TEST_TEAR_DOWN(lcd) {};
 
+// TODO FIXME pass in send function
 TEST(lcd, test_lcd_handle_interrupt) {
   LCDCommand result;
   uint16_t dummy_wait = 100;
