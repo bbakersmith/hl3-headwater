@@ -15,12 +15,13 @@ HEADWATER_SOURCE_FILES=\
 	lib/lcd.c \
 	lib/ui.c \
 	src/atmega_eeprom.c \
-	src/atmega_headwater.c \
+	src/atmega_io.c \
 	src/atmega_lcd.c \
 	src/atmega_spi.c \
 	src/headwater_api.c \
 	src/headwater_state.c \
-	src/headwater_ui.c
+	src/headwater_ui.c \
+	src/main.c
 
 HEADWATER_AVR_FUSES=-U lfuse:w:0xD7:m -U hfuse:w:0xD1:m
 
