@@ -5,7 +5,6 @@
 
 typedef enum {
   HEADWATER_STATE_CHANGE_STOP,
-  HEADWATER_STATE_CHANGE_RESET,
   HEADWATER_STATE_CHANGE_PLAY,
   HEADWATER_STATE_CHANGE_MODE,
   HEADWATER_STATE_CHANGE_BPM,
@@ -38,6 +37,8 @@ typedef volatile struct HeadwaterState {
   uint8_t mode;
   uint8_t output_enabled;
   uint8_t preset;
+  uint16_t reset_count;
+  uint16_t samples_per_second;
   uint16_t samples_since_reset_count; // TODO used? rename?
 } HeadwaterState;
 
@@ -45,7 +46,14 @@ typedef volatile struct HeadwaterState {
 typedef void (HeadwaterOutputFn)(uint8_t enabled);
 
 HeadwaterState headwater_state_new(void);
-uint16_t headwater_state_samples_per_bpm(int16_t bpm);
+int16_t headwater_state_samples_to_bpm(
+  uint16_t samples_per_second,
+  uint16_t samples_per_beat
+);
+uint16_t headwater_state_bpm_to_samples(
+  uint16_t samples_per_second,
+  int16_t bpm
+);
 void headwater_state_increment_counts(HeadwaterState *state);
 
 void headwater_state_update(
@@ -60,9 +68,8 @@ void headwater_state_update_samples_per_beat(
   uint16_t samples_per_beat
 );
 void headwater_state_stop(HeadwaterState *state);
-void headwater_state_reset(HeadwaterState *state);
 void headwater_state_play(HeadwaterState *state);
 void headwater_state_cycle(HeadwaterState *state);
-void headwater_state_change(HeadwaterState *state);
+void headwater_state_handle_change(HeadwaterState *state);
 
 #endif

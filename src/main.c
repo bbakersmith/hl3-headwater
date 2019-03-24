@@ -67,7 +67,7 @@ int main(void) {
 
   while(1) {
     if(state.change_flags != 0) {
-      headwater_state_change(&state);
+      headwater_state_handle_change(&state);
     } else if(lcd.mode == LCD_MODE_WRITE && ui_is_display_changed(&screen)) {
       ui_update_changed_display(&screen);
 

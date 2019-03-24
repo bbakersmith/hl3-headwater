@@ -92,9 +92,6 @@ void headwater_api_payload_postprocessor(API *api) {
     case HEADWATER_API_UPDATE_PLAY:
       (api->state)->change_flags |= (1 << HEADWATER_STATE_CHANGE_PLAY);
       break;
-    case HEADWATER_API_UPDATE_RESET:
-      (api->state)->change_flags |= (1 << HEADWATER_STATE_CHANGE_RESET);
-      break;
     case HEADWATER_API_UPDATE_STOP:
       (api->state)->change_flags |= (1 << HEADWATER_STATE_CHANGE_STOP);
       break;

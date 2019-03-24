@@ -251,15 +251,6 @@ TEST(headwater_api, test_api_cmd_update_play) {
   );
 }
 
-TEST(headwater_api, test_api_cmd_update_reset) {
-  api_handle_interrupt(&dummy_api, HEADWATER_API_UPDATE_RESET);
-
-  TEST_ASSERT_EQUAL(
-    (1 << HEADWATER_STATE_CHANGE_RESET),
-    dummy_api.state->change_flags
-  );
-}
-
 TEST(headwater_api, test_api_cmd_update_stop) {
   api_handle_interrupt(&dummy_api, HEADWATER_API_UPDATE_STOP);
 
@@ -300,7 +291,6 @@ TEST_GROUP_RUNNER(headwater_api) {
   RUN_TEST_CASE(headwater_api, test_api_cmd_update_multiplier_a);
   RUN_TEST_CASE(headwater_api, test_api_cmd_update_multiplier_b);
   RUN_TEST_CASE(headwater_api, test_api_cmd_update_play);
-  RUN_TEST_CASE(headwater_api, test_api_cmd_update_reset);
   RUN_TEST_CASE(headwater_api, test_api_cmd_update_stop);
   RUN_TEST_CASE(headwater_api, test_api_cmd_update_mode);
 }
