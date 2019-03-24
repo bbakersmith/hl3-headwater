@@ -6,21 +6,21 @@ UNITY_DIR=./Unity
 HEADWATER_ELF=$(BUILD_DIR)/headwater.elf
 HEADWATER_HEX=$(HEADWATER_ELF:%.elf=%.hex)
 
-HEADWATER_FLAGS=-std=c11 -g -Os -mmcu=atmega328p -Wall -Wdouble-promotion -Wshadow -Wlogical-op -fno-strict-aliasing -fno-strict-overflow -fno-strict-aliasing -fno-strict-overflow
+HEADWATER_FLAGS=-std=c11 -g -Os -mmcu=atmega328p -Ilib -Wall -Wdouble-promotion -Wshadow -Wlogical-op -fno-strict-aliasing -fno-strict-overflow -fno-strict-aliasing -fno-strict-overflow
 
 HEADWATER_SOURCE_FILES=\
+	lib/api.c \
+	lib/bytes.c \
+	lib/debounce.c \
+	lib/lcd.c \
+	lib/ui.c \
 	src/atmega_eeprom.c \
 	src/atmega_headwater.c \
 	src/atmega_lcd.c \
 	src/atmega_spi.c \
-	src/api.c \
-	src/bytes.c \
-	src/debounce.c \
 	src/headwater_api.c \
 	src/headwater_state.c \
-	src/headwater_ui.c \
-	src/lcd.c \
-	src/ui.c
+	src/headwater_ui.c
 
 HEADWATER_AVR_FUSES=-U lfuse:w:0xD7:m -U hfuse:w:0xD1:m
 
@@ -31,11 +31,11 @@ TEST_FLAGS=-std=c11 -g -fno-strict-aliasing -fno-strict-overflow
 TEST_SOURCE_FILES=\
   $(UNITY_DIR)/src/unity.c \
   $(UNITY_DIR)/extras/fixture/src/unity_fixture.c \
-  src/api.c \
-	src/bytes.c \
-	src/debounce.c \
-	src/lcd.c \
-	src/ui.c \
+  lib/api.c \
+	lib/bytes.c \
+	lib/debounce.c \
+	lib/lcd.c \
+	lib/ui.c \
   src/headwater_api.c \
   src/headwater_state.c \
   src/headwater_ui.c \
@@ -49,7 +49,7 @@ TEST_SOURCE_FILES=\
   test/test_headwater_ui.c \
 	test/run_tests.c
 
-TEST_INC_DIRS=-Isrc -I$(UNITY_DIR)/src -I$(UNITY_DIR)/extras/fixture/src
+TEST_INC_DIRS=-Isrc -Ilib -I$(UNITY_DIR)/src -I$(UNITY_DIR)/extras/fixture/src
 
 all:
 	make clean

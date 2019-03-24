@@ -247,8 +247,8 @@ void headwater_ui_mode_update_display(
       char2 = LCD__QUES;
   }
 
-  lcd->characters[position] = char1;
-  lcd->characters[position + 1] = char2;
+  lcd->characters[position - 1] = char1;
+  lcd->characters[position] = char2;
 }
 
 void headwater_ui_preset_update_state(

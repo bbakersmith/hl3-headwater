@@ -10,6 +10,7 @@ uint8_t volatile dummy_cmd_change_flag;
 uint8_t volatile dummy_data;
 uint8_t volatile dummy_data_change_flag;
 uint8_t volatile dummy_rs;
+uint16_t volatile dummy_send_count;
 
 void dummy_write_cmd_fn(uint8_t value) {
   dummy_cmd = value;
@@ -24,6 +25,7 @@ void dummy_write_data_fn(uint8_t value) {
 void dummy_lcd_send_fn(uint8_t rs, uint8_t data) {
   dummy_data = data;
   dummy_rs = rs;
+  dummy_send_count++;
 }
 
 void assert_dummy_cmd(uint8_t expected) {
@@ -44,6 +46,7 @@ TEST_SETUP(lcd) {
   dummy_data = 0;
   dummy_data_change_flag = 0;
   dummy_rs = 99;
+  dummy_send_count = 0;
 };
 
 TEST_TEAR_DOWN(lcd) {};
@@ -126,19 +129,18 @@ TEST(lcd, test_lcd_handle_interrupt) {
     lcd_handle_interrupt(&dummy_lcd, &dummy_lcd_send_fn);
 
     // wait
-    for(uint8_t i = 0; i < dummy_wait; i++) {
+    uint16_t pre_wait_send_count = dummy_send_count;
+    for(uint8_t i = 0; i < dummy_wait + 1; i++) {
       TEST_ASSERT_EQUAL(LCD_MODE_WAIT, dummy_lcd.mode);
       lcd_handle_interrupt(&dummy_lcd, &dummy_lcd_send_fn);
-      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_RS, dummy_rs);
-      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_DATA, dummy_data);
+      TEST_ASSERT_EQUAL(pre_wait_send_count, dummy_send_count);
     }
 
     // write
     for(uint16_t i = 0; i < 500; i++) {
       TEST_ASSERT_EQUAL(LCD_MODE_WRITE, dummy_lcd.mode);
       lcd_handle_interrupt(&dummy_lcd, &dummy_lcd_send_fn);
-      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_RS, dummy_rs);
-      TEST_ASSERT_EQUAL(LCD_COMMAND_NULL_DATA, dummy_data);
+      TEST_ASSERT_EQUAL(pre_wait_send_count, dummy_send_count);
     }
 
     dummy_lcd.mode = LCD_MODE_READ;

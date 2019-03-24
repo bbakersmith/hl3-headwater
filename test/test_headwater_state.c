@@ -107,7 +107,6 @@ TEST(headwater_state, test_headwater_state_stop) {
     headwater_state_cycle(&dummy_state);
 
     TEST_ASSERT_EQUAL(0, dummy_state.bpm_channel.output);
-    TEST_ASSERT_EQUAL(2, dummy_state.bpm_channel.samples);
   }
 
   headwater_state_play(&dummy_state);
