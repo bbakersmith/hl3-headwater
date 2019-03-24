@@ -83,3 +83,6 @@ analyzer:
 
 size:
 	avr-size -Cx --mcu atmega328p $(HEADWATER_ELF)
+
+loc:
+	cloc src lib
