@@ -205,7 +205,13 @@ void headwater_ui_mode_update_state(
   UIField *field,
   HeadwaterState *state
 ) {
-  // TODO actually update mode state
+  uint8_t value = headwater_ui_modify_with_restrictions(
+      state->mode,
+      field->uncommitted_modifier,
+      HEADWATER_STATE_MODE_INTERNAL,
+      HEADWATER_STATE_MODE_MIDI
+  );
+  state->mode = value;
   state->change_flags |= (1 << HEADWATER_STATE_CHANGE_MODE);
 }
 

@@ -95,6 +95,16 @@ int main(void) {
 ISR(TIMER1_COMPA_vect) {
   headwater_state_cycle(&state);
 
+  // TODO FIXME update display after external and tap inputs
+  // ...this may not be the right place
+  if(
+    state.mode == HEADWATER_STATE_MODE_EXTERNAL
+    && state.bpm_channel.output != 0
+  ) {
+    // TODO fix magic number field index
+    screen.change_flags |= (1 << 0);
+  }
+
   atmega_io_bpm_output(state.bpm_channel.output);
   atmega_io_multiplier_a_output(state.multiplier_a_channel.output);
   atmega_io_multiplier_b_output(state.multiplier_b_channel.output);
