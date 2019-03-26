@@ -225,6 +225,7 @@ TEST(headwater_state, test_headwater_state_cycle_external) {
     }
 
     headwater_state_cycle(&dummy_state);
+    headwater_state_handle_change(&dummy_state);
 
     sprintf(message, "Wrong reset_count for iteration %i", i);
     TEST_ASSERT_EQUAL_MESSAGE(

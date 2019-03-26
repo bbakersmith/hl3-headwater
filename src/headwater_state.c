@@ -112,7 +112,13 @@ void headwater_state_update_outputs(HeadwaterState *state) {
 
     switch(state->mode) {
       case HEADWATER_STATE_MODE_EXTERNAL:
-        state->change_flags |= (1 << HEADWATER_STATE_CHANGE_BPM);
+        if(1 < state->reset_count) {
+          state->bpm_channel.samples_per_beat =
+            state->samples_since_reset_count;
+
+          state->samples_since_reset_count = 0;
+          state->change_flags |= (1 << HEADWATER_STATE_CHANGE_BPM);
+        }
         break;
       default:
         break;
@@ -181,7 +187,6 @@ void headwater_state_handle_change(HeadwaterState *state) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A);
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
 
-    uint16_t samples_since_reset_count;
     switch(state->mode) {
       case HEADWATER_STATE_MODE_INTERNAL:
         headwater_state_update_samples_per_beat(
@@ -192,22 +197,14 @@ void headwater_state_handle_change(HeadwaterState *state) {
           )
         );
         break;
+
       case HEADWATER_STATE_MODE_EXTERNAL:
-        if(1 < state->reset_count) {
-          samples_since_reset_count = state->samples_since_reset_count;
-          state->samples_since_reset_count = 0;
-
-          state->bpm = headwater_state_samples_to_bpm(
-            state->samples_per_second,
-            samples_since_reset_count
-          );
-
-          headwater_state_update_samples_per_beat(
-            &state->bpm_channel,
-            samples_since_reset_count
-          );
-        }
+        state->bpm = headwater_state_samples_to_bpm(
+          state->samples_per_second,
+          state->bpm_channel.samples_per_beat
+        );
         break;
+
       default:
         break;
     }

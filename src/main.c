@@ -102,7 +102,7 @@ ISR(TIMER1_COMPA_vect) {
     && state.bpm_channel.output != 0
   ) {
     // TODO fix magic number field index
-    screen.change_flags |= (1 << 0);
+    screen.change_flags |= (1 << 1);
   }
 
   atmega_io_bpm_output(state.bpm_channel.output);
