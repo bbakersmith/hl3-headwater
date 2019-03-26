@@ -139,20 +139,20 @@ TEST(headwater_state, test_headwater_state_cycle_external) {
 
   // in | reset count | since reset | bpm | a | b
   int16_t input_outputs[100][7] = {
-    {0, 0, 0, 0, 0, 0, initial_bpm}, // 0
-    {0, 0, 0, 0, 0, 0, initial_bpm},
-    {0, 0, 0, 0, 0, 0, initial_bpm},
-    {0, 0, 0, 0, 0, 0, initial_bpm},
-    {0, 0, 0, 0, 0, 0, initial_bpm},
-    {0, 0, 0, 0, 0, 0, initial_bpm},
-    {0, 0, 0, 0, 0, 0, initial_bpm},
-    {0, 0, 0, 0, 0, 0, initial_bpm},
-    {0, 0, 0, 0, 0, 0, initial_bpm},
-    {0, 0, 0, 0, 0, 0, initial_bpm},
-    {0, 0, 0, 0, 0, 0, initial_bpm},
-    {0, 0, 0, 0, 0, 0, initial_bpm},
+    {0, 0, 1, 0, 0, 0, initial_bpm}, // 0
+    {0, 0, 2, 0, 0, 0, initial_bpm},
+    {0, 0, 3, 0, 0, 0, initial_bpm},
+    {0, 0, 4, 0, 0, 0, initial_bpm},
+    {0, 0, 5, 0, 0, 0, initial_bpm},
+    {0, 0, 6, 0, 0, 0, initial_bpm},
+    {0, 0, 7, 0, 0, 0, initial_bpm},
+    {0, 0, 8, 0, 0, 0, initial_bpm},
+    {0, 0, 9, 0, 0, 0, initial_bpm},
+    {0, 0, 10, 0, 0, 0, initial_bpm},
+    {0, 0, 11, 0, 0, 0, initial_bpm},
+    {0, 0, 12, 0, 0, 0, initial_bpm},
 
-    {1, 1, 1, 1, 1, 1, initial_bpm}, // 12
+    {1, 1, 1, 0, 0, 0, initial_bpm}, // 12
     {0, 1, 2, 0, 0, 0, initial_bpm},
     {0, 1, 3, 0, 0, 0, initial_bpm},
     {0, 1, 4, 0, 0, 0, initial_bpm},

@@ -3,11 +3,9 @@
 
 #include "headwater_state.h"
 
-#define SECONDS_IN_MINUTE 60
-
-HeadwaterStateChannel headwater_state_new_channel(void) {
+HeadwaterStateChannel headwater_state_new_channel(uint16_t samples_per_beat) {
   HeadwaterStateChannel channel = {
-    .samples_per_beat = 1000,
+    .samples_per_beat = samples_per_beat,
     .samples = 0,
     .beats = 0,
     .multiplier = 1,
@@ -17,12 +15,24 @@ HeadwaterStateChannel headwater_state_new_channel(void) {
 }
 
 HeadwaterState headwater_state_new(void) {
-  HeadwaterStateChannel bpm_channel = headwater_state_new_channel();
-  HeadwaterStateChannel multiplier_a_channel = headwater_state_new_channel();
-  HeadwaterStateChannel multiplier_b_channel = headwater_state_new_channel();
+  uint32_t samples_per_second = 1000;
+
+  uint16_t samples = headwater_state_bpm_to_samples(
+    samples_per_second,
+    HEADWATER_STATE_DEFAULT_BPM
+  );
+
+  HeadwaterStateChannel bpm_channel =
+    headwater_state_new_channel(samples);
+
+  HeadwaterStateChannel multiplier_a_channel =
+    headwater_state_new_channel(samples);
+
+  HeadwaterStateChannel multiplier_b_channel =
+    headwater_state_new_channel(samples);
 
   HeadwaterState state = {
-    .bpm = 600,
+    .bpm = HEADWATER_STATE_DEFAULT_BPM,
     .bpm_channel = bpm_channel,
     .mode = HEADWATER_STATE_MODE_INTERNAL,
     .multiplier_a_channel = multiplier_a_channel,
@@ -30,7 +40,7 @@ HeadwaterState headwater_state_new(void) {
     .output_enabled = 0,
     .preset = 0,
     .reset_count = 0,
-    .samples_per_second = 1000,
+    .samples_per_second = samples_per_second,
     .samples_since_reset_count = 0
   };
   return state;
@@ -62,27 +72,53 @@ void headwater_state_stop(HeadwaterState *state) {
   state->reset_count = 0;
 }
 
+void headwater_state_reset_channel(HeadwaterStateChannel *channel) {
+  channel->beats = 0;
+  channel->samples = 0;
+}
+
 void headwater_state_play(HeadwaterState *state) {
-  state->bpm_channel.samples = 0;
-  state->multiplier_a_channel.samples = 0;
-  state->multiplier_a_channel.beats = 0;
-  state->multiplier_b_channel.samples = 0;
-  state->multiplier_b_channel.beats = 0;
-  state->output_enabled = 1; // TODO enum
+  headwater_state_reset_channel(&state->bpm_channel);
+  headwater_state_reset_channel(&state->multiplier_a_channel);
+  headwater_state_reset_channel(&state->multiplier_b_channel);
+
   state->reset_count++;
+
+  switch(state->mode) {
+    case HEADWATER_STATE_MODE_EXTERNAL:
+      if(state->reset_count == 1) {
+        // TODO display unknown ---.- ???.?
+      } else {
+        state->output_enabled = 1; // TODO enum
+
+        state->bpm_channel.samples_per_beat =
+          state->samples_since_reset_count;
+
+        state->change_flags |= (1 << HEADWATER_STATE_CHANGE_BPM);
+      }
+      state->samples_since_reset_count = 0;
+      break;
+    default:
+      state->output_enabled = 1; // TODO enum
+      break;
+  }
 }
 
 void headwater_state_increment_counts(HeadwaterState *state) {
-  state->bpm_channel.samples += 1;
-  state->multiplier_a_channel.samples += 1;
-  state->multiplier_b_channel.samples += 1;
+  if(state->bpm_channel.samples < UINT16_MAX)
+    state->bpm_channel.samples++;
 
-  // timeout & reset at overflow
-  if(state->samples_since_reset_count < 65535) {
-    state->samples_since_reset_count += 1;
+  if(state->multiplier_a_channel.samples < UINT16_MAX)
+    state->multiplier_a_channel.samples++;
+
+  if(state->multiplier_b_channel.samples < UINT16_MAX)
+    state->multiplier_b_channel.samples++;
+
+  // timeout & reset
+  if(state->samples_since_reset_count < UINT16_MAX) {
+    state->samples_since_reset_count++;
   } else {
-    state->samples_since_reset_count = 0;
-    state->reset_count = 0;
+    headwater_state_stop(state);
   }
 
   // loop based on internal clock for internal and tap modes
@@ -109,20 +145,6 @@ void headwater_state_update_outputs(HeadwaterState *state) {
     state->multiplier_a_channel.beats += 1;
     state->multiplier_b_channel.output = 1;
     state->multiplier_b_channel.beats += 1;
-
-    switch(state->mode) {
-      case HEADWATER_STATE_MODE_EXTERNAL:
-        if(1 < state->reset_count) {
-          state->bpm_channel.samples_per_beat =
-            state->samples_since_reset_count;
-
-          state->samples_since_reset_count = 0;
-          state->change_flags |= (1 << HEADWATER_STATE_CHANGE_BPM);
-        }
-        break;
-      default:
-        break;
-    }
   } else {
     state->bpm_channel.output = 0;
 
@@ -157,14 +179,12 @@ void headwater_state_update_outputs(HeadwaterState *state) {
 void headwater_state_cycle(HeadwaterState *state) {
   if(state->output_enabled == 1) {
     headwater_state_update_outputs(state);
-    headwater_state_increment_counts(state);
   } else {
     state->bpm_channel.output = 0;
     state->multiplier_a_channel.output = 0;
     state->multiplier_b_channel.output = 0;
-    state->samples_since_reset_count = 0;
-    state->reset_count = 0;
   }
+  headwater_state_increment_counts(state);
 }
 
 void headwater_state_handle_change(HeadwaterState *state) {
@@ -180,7 +200,7 @@ void headwater_state_handle_change(HeadwaterState *state) {
 
   } else if((change_flags & (1 << HEADWATER_STATE_CHANGE_MODE))) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MODE);
-    // TODO react to mode change
+    headwater_state_stop(state);
 
   } else if((change_flags & (1 << HEADWATER_STATE_CHANGE_BPM))) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_BPM);

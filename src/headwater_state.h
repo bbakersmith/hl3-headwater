@@ -3,6 +3,9 @@
 
 #include "stdint.h"
 
+#define SECONDS_IN_MINUTE 60
+#define HEADWATER_STATE_DEFAULT_BPM 600
+
 typedef enum {
   HEADWATER_STATE_CHANGE_STOP,
   HEADWATER_STATE_CHANGE_PLAY,

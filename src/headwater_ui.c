@@ -353,9 +353,7 @@ void headwater_ui_load_preset(
   // preset number, assume corrupted and do nothing
   data[0] = eeprom_read(preset * HEADWATER_UI_PRESET_SIZE_MAX);
 
-  if(data[0] != preset) {
-    return;
-  }
+  if(data[0] != preset) return;
 
   ui_update_selected_state(screen);
 
