@@ -37,14 +37,14 @@ HeadwaterState headwater_state_new(void) {
 }
 
 int16_t headwater_state_samples_to_bpm(
-  uint16_t samples_per_second,
+  uint32_t samples_per_second,
   uint16_t samples_per_beat
 ) {
   return (samples_per_second * SECONDS_IN_MINUTE * 10) / samples_per_beat;
 }
 
 uint16_t headwater_state_bpm_to_samples(
-  uint16_t samples_per_second,
+  uint32_t samples_per_second,
   int16_t bpm
 ) {
   return (samples_per_second * SECONDS_IN_MINUTE * 10) / bpm;

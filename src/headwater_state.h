@@ -38,7 +38,7 @@ typedef volatile struct HeadwaterState {
   uint8_t output_enabled;
   uint8_t preset;
   uint16_t reset_count;
-  uint16_t samples_per_second;
+  uint32_t samples_per_second;
   uint16_t samples_since_reset_count; // TODO used? rename?
 } HeadwaterState;
 
@@ -47,11 +47,11 @@ typedef void (HeadwaterOutputFn)(uint8_t enabled);
 
 HeadwaterState headwater_state_new(void);
 int16_t headwater_state_samples_to_bpm(
-  uint16_t samples_per_second,
+  uint32_t samples_per_second,
   uint16_t samples_per_beat
 );
 uint16_t headwater_state_bpm_to_samples(
-  uint16_t samples_per_second,
+  uint32_t samples_per_second,
   int16_t bpm
 );
 void headwater_state_increment_counts(HeadwaterState *state);
