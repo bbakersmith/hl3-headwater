@@ -281,6 +281,48 @@ TEST(headwater_state, test_headwater_state_cycle_external) {
   TEST_ASSERT_EQUAL(1200, dummy_state.bpm);
 }
 
+TEST(headwater_state, test_headwater_state_prevent_int_mode_overflow) {
+  headwater_state_play(&dummy_state);
+
+  uint32_t outputs = 0;
+  uint16_t previous_bpm_samples = 65535;
+  uint16_t previous_multiplier_a_samples = 65535;
+  uint16_t previous_multiplier_b_samples = 65535;
+  for(uint32_t i = 0; i < 100000; i++) {
+    headwater_state_cycle(&dummy_state);
+    outputs += dummy_state.bpm_channel.output;
+
+    // sample count should always change
+    TEST_ASSERT_NOT_EQUAL(
+      previous_bpm_samples,
+      dummy_state.bpm_channel.samples
+    );
+    previous_bpm_samples = dummy_state.bpm_channel.samples;
+
+    TEST_ASSERT_NOT_EQUAL(
+      previous_multiplier_a_samples,
+      dummy_state.multiplier_a_channel.samples
+    );
+    previous_multiplier_a_samples = dummy_state.multiplier_a_channel.samples;
+
+    TEST_ASSERT_NOT_EQUAL(
+      previous_multiplier_b_samples,
+      dummy_state.multiplier_b_channel.samples
+    );
+    previous_multiplier_b_samples = dummy_state.multiplier_b_channel.samples;
+  }
+
+  TEST_ASSERT_EQUAL(1, dummy_state.output_enabled);
+  TEST_ASSERT_EQUAL(100, outputs);
+
+  for(uint32_t i = 0; i < 100000; i++) {
+    headwater_state_cycle(&dummy_state);
+    outputs += dummy_state.bpm_channel.output;
+  }
+
+  TEST_ASSERT_EQUAL(200, outputs);
+}
+
 TEST_GROUP_RUNNER(headwater_state) {
   RUN_TEST_CASE(headwater_state, test_headwater_state_samples_to_bpm);
   RUN_TEST_CASE(headwater_state, test_headwater_state_bpm_to_samples);
@@ -293,4 +335,8 @@ TEST_GROUP_RUNNER(headwater_state) {
   RUN_TEST_CASE(headwater_state, test_headwater_state_stop);
   RUN_TEST_CASE(headwater_state, test_headwater_state_cycle_internal);
   RUN_TEST_CASE(headwater_state, test_headwater_state_cycle_external);
+  RUN_TEST_CASE(
+    headwater_state,
+    test_headwater_state_prevent_int_mode_overflow
+  );
 }

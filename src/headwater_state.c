@@ -118,7 +118,8 @@ void headwater_state_increment_counts(HeadwaterState *state) {
   if(state->samples_since_reset_count < UINT16_MAX) {
     state->samples_since_reset_count++;
   } else {
-    headwater_state_stop(state);
+    state->reset_count = 0;
+    state->samples_since_reset_count = 0;
   }
 
   // loop based on internal clock for internal and tap modes
@@ -200,7 +201,7 @@ void headwater_state_handle_change(HeadwaterState *state) {
 
   } else if((change_flags & (1 << HEADWATER_STATE_CHANGE_MODE))) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MODE);
-    headwater_state_stop(state);
+    // TODO react to mode change
 
   } else if((change_flags & (1 << HEADWATER_STATE_CHANGE_BPM))) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_BPM);
