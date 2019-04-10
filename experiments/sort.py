@@ -23,14 +23,17 @@ multiplier = int(sys.argv[2])
 remainder_count = int(sys.argv[3])
 no_remainder_count = multiplier - remainder_count
 
+# need to guard for division by zero
 remainder_frequency = int((multiplier * 100) / remainder_count)
 no_remainder_frequency = int((multiplier * 100) / no_remainder_count)
 
+# reset priorities to base frequency when multiplier resets
 remainder_priority = remainder_frequency
 no_remainder_priority = no_remainder_frequency
 
 result = []
 
+# doesn't care if it overruns multiplier, will keep repeating forever
 for _ in range(multiplier):
     samples_per_beat_total = samples_per_beat
 
