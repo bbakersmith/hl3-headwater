@@ -23,12 +23,17 @@ typedef enum {
 } HEADWATER_STATE_MODE;
 
 typedef volatile struct HeadwaterStateChannel {
-  uint16_t beats; // count_multiplier_a
-  uint16_t limit; // max beats
-  uint8_t multiplier; // multiplier_a
-  uint8_t output; // output_multiplier_a
-  uint16_t samples_per_beat; // samples_per_multiplier_a
-  uint16_t samples; // sample_count_multiplier_a
+  uint16_t beats;
+  uint16_t limit;
+  uint16_t no_remainder_frequency;
+  uint16_t no_remainder_priority;
+  uint8_t multiplier;
+  uint8_t output;
+  uint16_t remainder_frequency;
+  uint16_t remainder_priority;
+  uint16_t samples_per_beat;
+  uint16_t samples_per_beat_with_remainder;
+  uint16_t samples;
 } HeadwaterStateChannel;
 
 typedef volatile struct HeadwaterState {
@@ -48,6 +53,7 @@ typedef volatile struct HeadwaterState {
 // TODO should be able to avoid dealing with this in state module
 typedef void (HeadwaterOutputFn)(uint8_t enabled);
 
+HeadwaterStateChannel headwater_state_channel_new(uint16_t samples_per_beat);
 HeadwaterState headwater_state_new(void);
 uint16_t headwater_state_samples_to_bpm(
   uint32_t samples_per_second,
@@ -65,6 +71,7 @@ void headwater_state_update_samples_per_beat(
 );
 void headwater_state_stop(HeadwaterState *state);
 void headwater_state_play(HeadwaterState *state);
+void headwater_state_channel_fire(HeadwaterStateChannel *channel);
 void headwater_state_cycle(HeadwaterState *state);
 void headwater_state_handle_change(HeadwaterState *state);
 

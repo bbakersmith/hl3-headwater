@@ -53,7 +53,7 @@ TEST(
 }
 
 TEST(headwater_state, test_headwater_state_increment_counts) {
-  dummy_state.bpm_channel.samples_per_beat = 3;
+  headwater_state_update_samples_per_beat(&dummy_state.bpm_channel, 3);
   TEST_ASSERT_EQUAL(0, dummy_state.bpm_channel.samples);
   headwater_state_increment_counts(&dummy_state);
   TEST_ASSERT_EQUAL(1, dummy_state.bpm_channel.samples);
@@ -95,8 +95,16 @@ TEST(headwater_state, test_headwater_state_stop) {
 TEST(headwater_state, test_headwater_state_cycle_internal) {
   dummy_state.mode = HEADWATER_STATE_MODE_INTERNAL;
   dummy_state.multiplier_a_channel.multiplier = 3;
-  dummy_state.bpm_channel.samples_per_beat = 7;
-  dummy_state.multiplier_a_channel.samples_per_beat = 2;
+
+  headwater_state_update_samples_per_beat(
+    &dummy_state.bpm_channel,
+    7
+  );
+
+  headwater_state_update_samples_per_beat(
+    &dummy_state.multiplier_a_channel,
+    7
+  );
 
   int8_t expected_outputs[9][2] = {
     {1, 1},
@@ -110,19 +118,22 @@ TEST(headwater_state, test_headwater_state_cycle_internal) {
     {0, 0}
   };
 
+  uint8_t message[50];
   for(uint8_t i = 0; i < 9; i++) {
     headwater_state_cycle(&dummy_state);
 
+    sprintf(message, "Bad bpm output for iteration %i", i);
     TEST_ASSERT_EQUAL_MESSAGE(
       expected_outputs[i][0],
       dummy_state.bpm_channel.output,
-      "Bad bpm output"
+      message
     );
 
+    sprintf(message, "Bad multiplier a output for iteration %i", i);
     TEST_ASSERT_EQUAL_MESSAGE(
       expected_outputs[i][1],
       dummy_state.multiplier_a_channel.output,
-      "Bad multiplier a output"
+      message
     );
   }
 }
@@ -211,10 +222,10 @@ TEST(headwater_state, test_headwater_state_cycle_external) {
     {0, 5, 5, 0, 0, 1, 375},
 
     {1, 6, 1, 1, 1, 1, 1200}, // 65
-    {0, 6, 2, 0, 0, 1, 1200},
+    {0, 6, 2, 0, 0, 0, 1200},
     {0, 6, 3, 0, 1, 1, 1200},
     {0, 6, 4, 0, 0, 1, 1200},
-    {0, 6, 5, 0, 0, 0, 1200}
+    {0, 6, 5, 0, 0, 1, 1200}
   };
 
   uint8_t message[50];
@@ -323,6 +334,106 @@ TEST(headwater_state, test_headwater_state_prevent_int_mode_overflow) {
   TEST_ASSERT_EQUAL(200, outputs);
 }
 
+TEST(
+  headwater_state,
+  test_headwater_state_update_samples_per_beat_with_remainder
+) {
+  uint16_t samples_per_beat = 2003;
+  uint8_t multiplier = 5;
+
+  HeadwaterStateChannel channel =
+    headwater_state_channel_new(samples_per_beat);
+
+  channel.multiplier = multiplier;
+
+  headwater_state_update_samples_per_beat(
+    &channel,
+    samples_per_beat
+  );
+
+  TEST_ASSERT_EQUAL(166, channel.remainder_frequency);
+  TEST_ASSERT_EQUAL(166, channel.remainder_priority);
+  TEST_ASSERT_EQUAL(250, channel.no_remainder_frequency);
+  TEST_ASSERT_EQUAL(250, channel.no_remainder_priority);
+}
+
+TEST(headwater_state, test_headwater_state_evenly_distributed_groups) {
+  typedef struct TestCase {
+    uint16_t samples_per_beat;
+    uint8_t multiplier;
+    uint8_t expected[100];
+  } TestCase;
+
+  TestCase test_cases[100] = {
+    {6, 3, {2, 2, 2}}, // 0
+    {7, 3, {2, 2, 3}},
+    {8, 3, {3, 2, 3}},
+
+    {8, 4, {2, 2, 2, 2}}, // 3
+    {9, 4, {2, 2, 2, 3}},
+    {10, 4, {2, 3, 2, 3}},
+    {11, 4, {3, 3, 3, 2}},
+
+    {10, 5, {2, 2, 2, 2, 2}}, // 7
+    {11, 5, {2, 2, 2, 2, 3}},
+    {12, 5, {2, 3, 2, 2, 3}},
+    {13, 5, {3, 2, 3, 3, 2}},
+    {14, 5, {3, 3, 3, 2, 3}},
+
+    {12, 6, {2, 2, 2, 2, 2, 2}}, // 12
+    {13, 6, {2, 2, 2, 2, 2, 3}},
+    {14, 6, {2, 2, 3, 2, 2, 3}},
+    {15, 6, {2, 3, 2, 3, 2, 3}},
+    {16, 6, {3, 2, 3, 3, 2, 3}},
+    {17, 6, {3, 3, 3, 3, 2, 3}},
+
+    {14, 7, {2, 2, 2, 2, 2, 2, 2}}, // 18
+    {15, 7, {2, 2, 2, 2, 2, 2, 3}},
+    {16, 7, {2, 2, 3, 2, 2, 2, 3}},
+    {17, 7, {2, 3, 2, 3, 2, 3, 2}},
+    {18, 7, {3, 2, 3, 2, 3, 2, 3}},
+    {19, 7, {3, 3, 2, 3, 3, 2, 3}},
+    {20, 7, {3, 3, 3, 3, 3, 3, 2}},
+
+    // 25
+    {42, 21, {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}},
+    {43, 21, {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3}},
+    {44, 21, {2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3}},
+    {45, 21, {2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 3}},
+    {46, 21, {2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 3}},
+    {47, 21, {2, 2, 2, 3, 2, 2, 2, 3, 2, 2, 2, 3, 2, 2, 2, 3, 2, 2, 2, 2, 3}},
+    {48, 21, {2, 2, 3, 2, 2, 2, 3, 2, 2, 3, 2, 2, 2, 3, 2, 2, 3, 2, 2, 2, 3}}
+  };
+
+  for(uint8_t i = 0; i < 32; i++) {
+    TestCase test_case = test_cases[i];
+
+    HeadwaterStateChannel channel = headwater_state_channel_new(
+      test_case.samples_per_beat
+    );
+
+    channel.multiplier = test_case.multiplier;
+    headwater_state_update_samples_per_beat(
+      &channel,
+      test_case.samples_per_beat
+    );
+
+    // for samples_per_beat...
+    uint8_t message[50];
+    for(uint8_t n = 0; n < test_case.multiplier; n++) {
+      headwater_state_channel_fire(&channel);
+
+      sprintf(message, "Bad result for case %i, beat %i", i, n);
+
+      TEST_ASSERT_EQUAL_MESSAGE(
+        test_case.expected[n],
+        channel.samples_per_beat_with_remainder,
+        message
+      );
+    }
+  }
+}
+
 TEST_GROUP_RUNNER(headwater_state) {
   RUN_TEST_CASE(headwater_state, test_headwater_state_samples_to_bpm);
   RUN_TEST_CASE(headwater_state, test_headwater_state_bpm_to_samples);
@@ -338,5 +449,13 @@ TEST_GROUP_RUNNER(headwater_state) {
   RUN_TEST_CASE(
     headwater_state,
     test_headwater_state_prevent_int_mode_overflow
+  );
+  RUN_TEST_CASE(
+    headwater_state,
+    test_headwater_state_update_samples_per_beat_with_remainder
+  );
+  RUN_TEST_CASE(
+    headwater_state,
+    test_headwater_state_evenly_distributed_groups
   );
 }
