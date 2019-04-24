@@ -29,6 +29,7 @@ typedef volatile struct HeadwaterStateChannel {
   uint16_t no_remainder_priority;
   uint8_t multiplier;
   uint8_t output;
+  uint8_t output_enabled;
   uint16_t remainder_frequency;
   uint16_t remainder_priority;
   uint16_t samples_per_beat;

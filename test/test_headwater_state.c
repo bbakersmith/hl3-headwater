@@ -95,6 +95,7 @@ TEST(headwater_state, test_headwater_state_stop) {
 TEST(headwater_state, test_headwater_state_cycle_internal) {
   dummy_state.mode = HEADWATER_STATE_MODE_INTERNAL;
   dummy_state.multiplier_a_channel.multiplier = 3;
+  dummy_state.multiplier_b_channel.multiplier = 0;
 
   headwater_state_update_samples_per_beat(
     &dummy_state.bpm_channel,
@@ -106,16 +107,21 @@ TEST(headwater_state, test_headwater_state_cycle_internal) {
     7
   );
 
-  int8_t expected_outputs[9][2] = {
-    {1, 1},
-    {0, 0},
-    {0, 1},
-    {0, 0},
-    {0, 1},
-    {0, 0},
-    {0, 0},
-    {1, 1},
-    {0, 0}
+  headwater_state_update_samples_per_beat(
+    &dummy_state.multiplier_b_channel,
+    7
+  );
+
+  int8_t expected_outputs[9][3] = {
+    {1, 1, 0},
+    {0, 0, 0},
+    {0, 1, 0},
+    {0, 0, 0},
+    {0, 1, 0},
+    {0, 0, 0},
+    {0, 0, 0},
+    {1, 1, 0},
+    {0, 0, 0}
   };
 
   uint8_t message[50];
@@ -133,6 +139,13 @@ TEST(headwater_state, test_headwater_state_cycle_internal) {
     TEST_ASSERT_EQUAL_MESSAGE(
       expected_outputs[i][1],
       dummy_state.multiplier_a_channel.output,
+      message
+    );
+
+    sprintf(message, "Bad multiplier b output for iteration %i", i);
+    TEST_ASSERT_EQUAL_MESSAGE(
+      expected_outputs[i][2],
+      dummy_state.multiplier_b_channel.output,
       message
     );
   }

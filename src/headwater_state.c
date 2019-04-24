@@ -7,6 +7,13 @@ void headwater_state_update_samples_per_beat(
   HeadwaterStateChannel *channel,
   uint16_t samples_per_beat
 ) {
+  if(channel->multiplier == 0) {
+    channel->output_enabled = 0;
+    return;
+  } else {
+    channel->output_enabled = 1;
+  }
+
   uint8_t multiplier = channel->multiplier;
   uint16_t base_samples = samples_per_beat / multiplier;
   uint8_t remainder = samples_per_beat % multiplier;
@@ -148,7 +155,11 @@ void headwater_state_channel_fire(
 void headwater_state_channel_update_output(
   HeadwaterStateChannel *channel
 ) {
-  if(channel->beats < channel->multiplier && channel->samples == 0) {
+  if(
+    channel->output_enabled == 1
+    && channel->beats < channel->multiplier
+    && channel->samples == 0
+  ) {
     headwater_state_channel_fire(channel);
   } else {
     channel->output = 0;
