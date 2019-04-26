@@ -41,9 +41,11 @@ typedef volatile struct HeadwaterState {
   uint16_t bpm;
   HeadwaterStateChannel bpm_channel;
   uint8_t change_flags;
-  HeadwaterStateChannel multiplier_a_channel;
-  HeadwaterStateChannel multiplier_b_channel; // TODO test!
+  HeadwaterStateChannel midi_channel;
+  void (*midi_writer)(uint8_t data);
   uint8_t mode;
+  HeadwaterStateChannel multiplier_a_channel;
+  HeadwaterStateChannel multiplier_b_channel;
   uint8_t output_enabled;
   uint8_t preset;
   uint16_t reset_count;

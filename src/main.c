@@ -6,6 +6,7 @@
 #include "atmega_io.h"
 #include "atmega_lcd.h"
 #include "atmega_spi.h"
+#include "bytes.h"
 #include "debounce.h"
 #include "headwater_api.h"
 #include "headwater_state.h"
@@ -19,6 +20,21 @@ volatile HeadwaterUIInputs inputs;
 volatile LCD lcd;
 volatile UIScreen screen;
 
+#define USART_BAUDRATE 31250
+#define BAUD_PRESCALE (((16000000 / (USART_BAUDRATE * 16UL))) - 1)
+
+void atmega_headwater_uart_init(void) {
+  /* set baud rate */
+  UBRR0H = bytes_16bit_to_high(BAUD_PRESCALE);
+  UBRR0L = bytes_16bit_to_low(BAUD_PRESCALE);
+
+  /* enable transmitter */
+  UCSR0B = (1 << TXEN0);
+
+  /* Set frame format: 8data, 1 stop bit */
+  UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+}
+
 void atmega_headwater_global_register_setup(void) {
   // timer clear timer on compare (ctc) mode
   TCCR0A |= (1 << WGM01);
@@ -26,7 +42,7 @@ void atmega_headwater_global_register_setup(void) {
 
   // timer prescale
   TCCR0B |= (1 << CS02) | (1 << CS00); // 1/1024
-  TCCR1B |= (1 << CS11);
+  TCCR1B |= (1 << CS11);               // 1/8
 
   // timer reset value
   OCR0A = 156;
@@ -39,10 +55,18 @@ void atmega_headwater_global_register_setup(void) {
   atmega_io_init();
   atmega_lcd_init();
   atmega_spi_slave_init();
+  atmega_headwater_uart_init();
+}
+
+// FIXME should use buffer not block
+void atmega_headwater_midi_writer(uint8_t data) {
+  while((UCSR0A & (1 << UDRE0)) == 0);
+  UDR0 = data;
 }
 
 void atmega_headwater_global_state_setup(void) {
   state = headwater_state_new();
+  state.midi_writer = *atmega_headwater_midi_writer;
 
   api.payload_preprocessor = &headwater_api_payload_preprocessor;
   api.payload_postprocessor = &headwater_api_payload_postprocessor;
@@ -92,6 +116,17 @@ int main(void) {
   }
 }
 
+ISR(TIMER0_COMPA_vect) {
+  lcd_handle_interrupt(&lcd, &atmega_lcd_send);
+
+  // Reduce interrupt rate when not reading
+  if(lcd.mode == LCD_MODE_READ) {
+    OCR0A = 1;
+  } else {
+    OCR0A = 156;
+  }
+}
+
 ISR(TIMER1_COMPA_vect) {
   headwater_state_cycle(&state);
 
@@ -108,16 +143,9 @@ ISR(TIMER1_COMPA_vect) {
   atmega_io_bpm_output(state.bpm_channel.output);
   atmega_io_multiplier_a_output(state.multiplier_a_channel.output);
   atmega_io_multiplier_b_output(state.multiplier_b_channel.output);
-}
 
-ISR(TIMER0_COMPA_vect) {
-  lcd_handle_interrupt(&lcd, &atmega_lcd_send);
-
-  // Reduce interrupt rate when not reading
-  if(lcd.mode == LCD_MODE_READ) {
-    OCR0A = 1;
-  } else {
-    OCR0A = 156;
+  if(state.midi_channel.output) {
+    atmega_headwater_midi_writer(0xF8);
   }
 }
 
