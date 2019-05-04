@@ -50,6 +50,8 @@ HeadwaterStateChannel headwater_state_channel_new(uint16_t samples_per_beat) {
   return channel;
 }
 
+void headwater_state_dummy_midi_writer(uint8_t data) {}
+
 HeadwaterState headwater_state_new(void) {
   uint32_t samples_per_second = 1000;
 
@@ -80,6 +82,7 @@ HeadwaterState headwater_state_new(void) {
     .multiplier_a_channel = multiplier_a_channel,
     .multiplier_b_channel = multiplier_b_channel,
     .midi_channel = midi_channel,
+    .midi_writer = &headwater_state_dummy_midi_writer,
     .output_enabled = 0,
     .preset = 0,
     .reset_count = 0,
