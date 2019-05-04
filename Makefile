@@ -36,6 +36,7 @@ TEST_SOURCE_FILES=\
 	lib/bytes.c \
 	lib/debounce.c \
 	lib/lcd.c \
+	lib/queue.c \
 	lib/ui.c \
   src/headwater_api.c \
   src/headwater_state.c \
@@ -44,6 +45,7 @@ TEST_SOURCE_FILES=\
   test/test_bytes.c \
   test/test_debounce.c \
   test/test_lcd.c \
+  test/test_queue.c \
   test/test_ui.c \
   test/test_headwater_api.c \
   test/test_headwater_state.c \
