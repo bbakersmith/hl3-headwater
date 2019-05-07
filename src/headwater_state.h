@@ -3,6 +3,8 @@
 
 #include "stdint.h"
 
+#include "midi.h"
+
 #define SECONDS_IN_MINUTE 60
 #define HEADWATER_STATE_DEFAULT_BPM 600
 

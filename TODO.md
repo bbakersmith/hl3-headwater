@@ -51,10 +51,22 @@ X mode: external
     X bpm (for disiplay)
     X samples for multipliers
 
+X output midi clock (3rd x24 multiplier channel?) based on bpm
+
 TODO HIGH
 =========
 
-- internal mode: only update clock speed (samples) after each beat
+- midi output
+  - continue (0xFB) instead of start (0xFA) on play?
+  - midi writer (uart out) shouldn't block, use queue instead
+  - active sensing (0xFE) output every 300ms to keep slave waiting?
+
+- midi input
+  - stop (0xFC)
+  - start (0xFA) and (0xFB) continue synonyms
+  - clock (0xF8) for timing
+
+- internal mode: only update clock speed (samples) for bpm and / or multipliers after each beat
 
 - mode: tap
   X auto loop based on internal bpm
@@ -66,8 +78,6 @@ TODO HIGH
   - calculate bpm from incoming midi clock
   - play every beat (1/24?) of incoming midi clock
   - passthrough to midi output?
-
-- output midi clock (3rd x24 multiplier channel?) based on bpm
 
 - ui range restriction stops display / value,
   but the uncommitted modifier keeps counting, which is bad
@@ -86,3 +96,4 @@ TODO LOW
 
 - should button change be handled in interrupt?
 
+- accept midi program change messages to change current preset?

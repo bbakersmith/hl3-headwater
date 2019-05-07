@@ -6,34 +6,22 @@
 #include "atmega_io.h"
 #include "atmega_lcd.h"
 #include "atmega_spi.h"
+#include "atmega_uart.h"
 #include "bytes.h"
 #include "debounce.h"
 #include "headwater_api.h"
 #include "headwater_state.h"
 #include "headwater_ui.h"
 #include "lcd.h"
+#include "midi.h"
 #include "ui.h"
 
 volatile API api;
 volatile HeadwaterState state;
 volatile HeadwaterUIInputs inputs;
 volatile LCD lcd;
+volatile MIDI midi;
 volatile UIScreen screen;
-
-#define USART_BAUDRATE 31250
-#define BAUD_PRESCALE (((16000000 / (USART_BAUDRATE * 16UL))) - 1)
-
-void atmega_headwater_uart_init(void) {
-  /* set baud rate */
-  UBRR0H = bytes_16bit_to_high(BAUD_PRESCALE);
-  UBRR0L = bytes_16bit_to_low(BAUD_PRESCALE);
-
-  /* enable transmitter */
-  UCSR0B = (1 << TXEN0);
-
-  /* Set frame format: 8data, 1 stop bit */
-  UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
-}
 
 void atmega_headwater_global_register_setup(void) {
   // timer clear timer on compare (ctc) mode
@@ -55,16 +43,18 @@ void atmega_headwater_global_register_setup(void) {
   atmega_io_init();
   atmega_lcd_init();
   atmega_spi_slave_init();
-  atmega_headwater_uart_init();
+  atmega_uart_init();
 }
 
-// FIXME should use buffer not block
 void atmega_headwater_midi_writer(uint8_t data) {
-  while((UCSR0A & (1 << UDRE0)) == 0);
-  UDR0 = data;
+  midi_write(&midi, data);
 }
 
 void atmega_headwater_global_state_setup(void) {
+  midi = midi_new();
+  midi.writer = &atmega_uart_writer;
+  midi.writer_status_check = &atmega_uart_status_check;
+
   state = headwater_state_new();
   state.midi_writer = *atmega_headwater_midi_writer;
 
@@ -145,10 +135,20 @@ ISR(TIMER1_COMPA_vect) {
   atmega_io_multiplier_b_output(state.multiplier_b_channel.output);
 
   if(state.midi_channel.output) {
-    atmega_headwater_midi_writer(0xF8);
+    atmega_headwater_midi_writer(MIDI_CLOCK);
   }
 }
 
 ISR(SPI_STC_vect) {
   SPDR = api_handle_interrupt(&api, SPDR);
+}
+
+ISR(USART_RX_vect) {
+  // TODO midi_read
+  // - stop, start, continue
+  // - clock (fire play every 24th)
+}
+
+ISR(USART_TX_vect) {
+  midi_write_queue(&midi);
 }

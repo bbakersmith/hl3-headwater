@@ -13,11 +13,14 @@ HEADWATER_SOURCE_FILES=\
 	lib/bytes.c \
 	lib/debounce.c \
 	lib/lcd.c \
+	lib/midi.c \
+	lib/queue.c \
 	lib/ui.c \
 	src/atmega_eeprom.c \
 	src/atmega_io.c \
 	src/atmega_lcd.c \
 	src/atmega_spi.c \
+	src/atmega_uart.c \
 	src/headwater_api.c \
 	src/headwater_state.c \
 	src/headwater_ui.c \
@@ -36,6 +39,7 @@ TEST_SOURCE_FILES=\
 	lib/bytes.c \
 	lib/debounce.c \
 	lib/lcd.c \
+	lib/midi.c \
 	lib/queue.c \
 	lib/ui.c \
   src/headwater_api.c \
@@ -45,6 +49,7 @@ TEST_SOURCE_FILES=\
   test/test_bytes.c \
   test/test_debounce.c \
   test/test_lcd.c \
+  test/test_midi.c \
   test/test_queue.c \
   test/test_ui.c \
   test/test_headwater_api.c \

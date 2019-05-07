@@ -109,7 +109,7 @@ uint16_t headwater_state_bpm_to_samples(
 void headwater_state_stop(HeadwaterState *state) {
   state->output_enabled = 0; // TODO enum
   state->reset_count = 0;
-  state->midi_writer(0xFC); // TODO define
+  state->midi_writer(MIDI_STOP);
 }
 
 void headwater_state_reset_channel(HeadwaterStateChannel *channel) {
@@ -145,7 +145,7 @@ void headwater_state_play(HeadwaterState *state) {
       break;
   }
 
-  state->midi_writer(0xFA);
+  state->midi_writer(MIDI_START);
 }
 
 void headwater_state_channel_fire(
