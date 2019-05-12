@@ -56,17 +56,19 @@ X output midi clock (3rd x24 multiplier channel?) based on bpm
 TODO HIGH
 =========
 
+- internal mode: only update clock speed (samples) for bpm and / or multipliers after each beat
+
 - midi output
   - continue (0xFB) instead of start (0xFA) on play?
-  - midi writer (uart out) shouldn't block, use queue instead
-  - active sensing (0xFE) output every 300ms to keep slave waiting?
+  X midi writer (uart out) shouldn't block, use queue instead
+  NO active sensing (0xFE) output every 300ms to keep slave waiting?
+     seems like a good idea, but apparently not widely implemented
+     and doesn't seem to work with the mpc
 
 - midi input
   - stop (0xFC)
   - start (0xFA) and (0xFB) continue synonyms
   - clock (0xF8) for timing
-
-- internal mode: only update clock speed (samples) for bpm and / or multipliers after each beat
 
 - mode: tap
   X auto loop based on internal bpm

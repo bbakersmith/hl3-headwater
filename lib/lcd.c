@@ -112,7 +112,7 @@ void lcd_wait(LCD *lcd) {
 
 void lcd_handle_interrupt(
   LCD *lcd,
-  void (*lcd_send)(uint8_t rs, uint8_t data)
+  void (*lcd_send)(bool rs, uint8_t data)
 ) {
   if(lcd->mode == LCD_MODE_READ) {
     LCDCommand command = lcd_next_command(lcd);

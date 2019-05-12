@@ -1,3 +1,7 @@
+/**
+ * @file main.c
+ */
+
 #include "stdint.h"
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -23,6 +27,9 @@ volatile LCD lcd;
 volatile MIDI midi;
 volatile UIScreen screen;
 
+/**
+ * TODO
+ */
 void atmega_headwater_global_register_setup(void) {
   // timer clear timer on compare (ctc) mode
   TCCR0A |= (1 << WGM01);
@@ -46,10 +53,16 @@ void atmega_headwater_global_register_setup(void) {
   atmega_uart_init();
 }
 
+/**
+ * TODO
+ */
 void atmega_headwater_midi_writer(uint8_t data) {
   midi_write(&midi, data);
 }
 
+/**
+ * TODO
+ */
 void atmega_headwater_global_state_setup(void) {
   midi = midi_new();
   midi.writer = &atmega_uart_writer;
@@ -73,6 +86,9 @@ void atmega_headwater_global_state_setup(void) {
   inputs = headwater_ui_inputs_new();
 }
 
+/**
+ * TODO
+ */
 int main(void) {
   atmega_headwater_global_register_setup();
   atmega_headwater_global_state_setup();
@@ -106,6 +122,9 @@ int main(void) {
   }
 }
 
+/**
+ * TODO
+ */
 ISR(TIMER0_COMPA_vect) {
   lcd_handle_interrupt(&lcd, &atmega_lcd_send);
 
@@ -117,6 +136,9 @@ ISR(TIMER0_COMPA_vect) {
   }
 }
 
+/**
+ * TODO
+ */
 ISR(TIMER1_COMPA_vect) {
   headwater_state_cycle(&state);
 
@@ -139,16 +161,25 @@ ISR(TIMER1_COMPA_vect) {
   }
 }
 
+/**
+ * TODO
+ */
 ISR(SPI_STC_vect) {
   SPDR = api_handle_interrupt(&api, SPDR);
 }
 
+/**
+ * TODO
+ */
 ISR(USART_RX_vect) {
   // TODO midi_read
   // - stop, start, continue
   // - clock (fire play every 24th)
 }
 
+/**
+ * TODO
+ */
 ISR(USART_TX_vect) {
   midi_write_queue(&midi);
 }

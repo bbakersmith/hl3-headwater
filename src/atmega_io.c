@@ -1,6 +1,6 @@
 #include "atmega_io.h"
 
-void atmega_io_bpm_output(uint8_t enabled) {
+void atmega_io_bpm_output(bool enabled) {
   if(enabled == 0) {
     OUTPUT_PORT |= (1 << BPM_PIN);
   } else {
@@ -8,7 +8,7 @@ void atmega_io_bpm_output(uint8_t enabled) {
   }
 }
 
-void atmega_io_multiplier_a_output(uint8_t enabled) {
+void atmega_io_multiplier_a_output(bool enabled) {
   if(enabled == 0) {
     OUTPUT_PORT |= (1 << MULTIPLIER_A_PIN);
   } else {
@@ -16,7 +16,7 @@ void atmega_io_multiplier_a_output(uint8_t enabled) {
   }
 }
 
-void atmega_io_multiplier_b_output(uint8_t enabled) {
+void atmega_io_multiplier_b_output(bool enabled) {
   if(enabled == 0) {
     OUTPUT_PORT |= (1 << MULTIPLIER_B_PIN);
   } else {

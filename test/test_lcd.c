@@ -9,7 +9,7 @@ uint8_t volatile dummy_cmd;
 uint8_t volatile dummy_cmd_change_flag;
 uint8_t volatile dummy_data;
 uint8_t volatile dummy_data_change_flag;
-uint8_t volatile dummy_rs;
+bool volatile dummy_rs;
 uint16_t volatile dummy_send_count;
 
 void dummy_write_cmd_fn(uint8_t value) {
@@ -22,7 +22,7 @@ void dummy_write_data_fn(uint8_t value) {
   dummy_data_change_flag = 1;
 }
 
-void dummy_lcd_send_fn(uint8_t rs, uint8_t data) {
+void dummy_lcd_send_fn(bool rs, uint8_t data) {
   dummy_data = data;
   dummy_rs = rs;
   dummy_send_count++;
@@ -45,7 +45,7 @@ TEST_SETUP(lcd) {
   dummy_cmd_change_flag = 0;
   dummy_data = 0;
   dummy_data_change_flag = 0;
-  dummy_rs = 99;
+  dummy_rs = 1;
   dummy_send_count = 0;
 };
 

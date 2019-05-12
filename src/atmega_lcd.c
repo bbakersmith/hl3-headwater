@@ -39,13 +39,12 @@ void atmega_lcd_74164_send(uint8_t data) {
   }
 }
 
-// does this need any delay?
 void atmega_lcd_execute(void) {
   LCD_PORT |= (1 << LCD_E_PIN);
   LCD_PORT &= ~(1 << LCD_E_PIN);
 }
 
-void atmega_lcd_send(uint8_t rs, uint8_t data) {
+void atmega_lcd_send(bool rs, uint8_t data) {
   if(rs == 0) {
     LCD_PORT &= ~(1 << LCD_RS_PIN);
   } else {

@@ -40,7 +40,7 @@ void atmega_spi_master_init(void) {
   SPI_PORT |= (1 << SS_PIN);
   // Set MOSI, SCK, and SS output, all others input
   SPI_DDR = (1 << MOSI_PIN) | (1 << SCK_PIN) | (1 << SS_PIN);
-  // Enable SPI, saster, set clock rate fck/16
+  // Enable SPI, master, set clock rate fck/16
   SPCR = (1 << SPE) | (1 << MSTR) | (0 << SPR1) | (1 << SPR0);
 }
 

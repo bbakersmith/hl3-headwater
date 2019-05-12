@@ -1,3 +1,9 @@
+/**
+ * @file api.h
+ *
+ * Framework for creating a serial API.
+ */
+
 #ifndef _API_H_
 #define _API_H_
 

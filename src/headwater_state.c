@@ -255,6 +255,23 @@ void headwater_state_cycle(HeadwaterState *state) {
   headwater_state_increment_counts(state);
 }
 
+/* uint8_t headwater_state_filter_change_flags(HeadwaterState *state) { */
+/*   uint8_t change_flags; */
+/*  */
+/*   // internal mode handles bpm and multiplier changes after beat and on stop */
+/*   if(state->mode == HEADWATER_STATE_MODE_INTERNAL) { */
+/*     change_flags = state->change_flags & ~( */
+/*       (1 << HEADWATER_STATE_CHANGE_BPM) */
+/*       | (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A) */
+/*       | (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B) */
+/*     ); */
+/*   } else { */
+/*     change_flags = state->change_flags; */
+/*   } */
+/*  */
+/*   return change_flags; */
+/* } */
+
 void headwater_state_handle_change(HeadwaterState *state) {
   uint8_t change_flags = state->change_flags;
 
@@ -270,6 +287,8 @@ void headwater_state_handle_change(HeadwaterState *state) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MODE);
     // TODO react to mode change
 
+  // TODO BPM, MULTIPLIER_A, MULTIPLIER_B changes should be handled by
+  // sample interrupt
   } else if((change_flags & (1 << HEADWATER_STATE_CHANGE_BPM))) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_BPM);
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A);

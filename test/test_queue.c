@@ -1,3 +1,4 @@
+#include "stdbool.h"
 #include "queue.h"
 #include "unity.h"
 #include "unity_fixture.h"
@@ -13,10 +14,10 @@ TEST_SETUP(queue) {
 TEST_TEAR_DOWN(queue) {}
 
 TEST(queue, test_queue_is_empty) {
-  TEST_ASSERT_EQUAL(QUEUE_EMPTY_TRUE, queue_fifo255_is_empty(&dummy_queue));
-  TEST_ASSERT_EQUAL(QUEUE_EMPTY_TRUE, queue_fifo255_is_empty(&dummy_queue));
+  TEST_ASSERT_EQUAL(true, queue_fifo255_is_empty(&dummy_queue));
+  TEST_ASSERT_EQUAL(true, queue_fifo255_is_empty(&dummy_queue));
   queue_fifo255_push(&dummy_queue, 123);
-  TEST_ASSERT_EQUAL(QUEUE_EMPTY_FALSE, queue_fifo255_is_empty(&dummy_queue));
+  TEST_ASSERT_EQUAL(false, queue_fifo255_is_empty(&dummy_queue));
 }
 
 TEST(queue, test_queue_push) {

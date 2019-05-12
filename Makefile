@@ -1,3 +1,5 @@
+.PHONY: docs
+
 TEST_COMPILER=gcc-4.9
 
 BUILD_DIR=./build
@@ -93,3 +95,7 @@ size:
 
 loc:
 	cloc src lib
+
+docs:
+	doxygen
+	/opt/google/chrome/chrome docs/html/index.html

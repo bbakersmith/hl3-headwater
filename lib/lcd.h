@@ -1,9 +1,19 @@
+/**
+ * @file lcd.h
+ *
+ * 16x02 style LCD state management.
+ */
+
 #ifndef _LCD_H_
 #define _LCD_H_
 
+#include "stdbool.h"
 #include "stdint.h"
 #include <stdio.h>
 
+/**
+ * LCD character codes.
+ */
 typedef enum {
   LCD__ = 0x20,
   LCD__BANG,
@@ -66,6 +76,9 @@ typedef enum {
   LCD__Z
 } LCD_CHAR;
 
+/**
+ * Data and RS pin state for writing a command to the LCD.
+ */
 typedef struct LCDCommand {
   volatile uint8_t rs;
   volatile uint8_t data;
@@ -74,12 +87,18 @@ typedef struct LCDCommand {
 #define LCD_COMMAND_NULL_RS 0x00
 #define LCD_COMMAND_NULL_DATA 0x00
 
+/**
+ * LCD operational lifecycle states.
+ */
 typedef enum {
   LCD_MODE_WRITE,
   LCD_MODE_READ,
   LCD_MODE_WAIT
 } LCD_MODE;
 
+/**
+ * Current value of all LCD characters, and metadata for writer.
+ */
 typedef volatile struct LCD {
   LCD_CHAR characters[32];
   int8_t characters_index;
@@ -90,15 +109,37 @@ typedef volatile struct LCD {
   uint16_t wait_count;
 } LCD;
 
-typedef void (*LCDSendFunction)(uint8_t rs, uint8_t data);
+/**
+ * Function signature for system specific command writing.
+ */
+typedef void (*LCDSendFunction)(bool rs, uint8_t data);
 
+/**
+ * TODO
+ */
 LCD lcd_new(void);
+
+/**
+ * TODO
+ */
 LCDCommand lcd_next_command(LCD *lcd);
+
+/**
+ * TODO
+ */
 void lcd_handle_interrupt(
   LCD *lcd,
   LCDSendFunction lcd_send
 );
+
+/**
+ * TODO
+ */
 LCD_CHAR lcd_digit_to_char(uint8_t digit);
+
+/**
+ * TODO
+ */
 void lcd_wait(LCD *lcd);
 
 #endif

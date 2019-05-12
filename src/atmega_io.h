@@ -1,6 +1,13 @@
+/**
+ * @file atmega_io.h
+ *
+ * Headwater GPIO setup and read / write functions for the Atmega328p.
+ */
+
 #ifndef _ATMEGA_IO_H_
 #define _ATMEGA_IO_H_
 
+#include "stdbool.h"
 #include "stdint.h"
 #include <avr/io.h>
 
@@ -21,10 +28,33 @@
 #define MULTIPLIER_A_PIN PORTC1
 #define MULTIPLIER_B_PIN PORTC2
 
-void atmega_io_bpm_output(uint8_t enabled);
-void atmega_io_multiplier_a_output(uint8_t enabled);
-void atmega_io_multiplier_b_output(uint8_t enabled);
+/**
+ * Set state of BPM output pin.
+ */
+void atmega_io_bpm_output(bool enabled);
+
+/**
+ * Set state of multiplier A output pin.
+ */
+void atmega_io_multiplier_a_output(bool enabled);
+
+/**
+ * Set state of multiplier A output pin.
+ */
+void atmega_io_multiplier_b_output(bool enabled);
+
+/**
+ * Read inputs from parallel to serial shift register.
+ *
+ * @param Number of inputs to sample, max 8
+ *
+ * @return Byte with each bit representing the state of an input
+ */
 uint8_t atmega_io_sample_inputs(uint8_t count);
+
+/**
+ * Initialize GPIO for outputs and parallel to serial shift register.
+ */
 void atmega_io_init(void);
 
 #endif

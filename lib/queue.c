@@ -4,13 +4,13 @@
 
 QueueFifo255 queue_fifo255_new(void) {
   QueueFifo255 queue = {
-    count: 0,
-    head: 0
+    .count = 0,
+    .head = 0
   };
   return queue;
 }
 
-QUEUE_EMPTY queue_fifo255_is_empty(QueueFifo255 *queue) {
+bool queue_fifo255_is_empty(QueueFifo255 *queue) {
   return queue->count == 0;
 }
 

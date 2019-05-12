@@ -7,7 +7,7 @@ MIDI dummy_midi;
 uint8_t dummy_read_data;
 uint8_t dummy_writes_count;
 uint8_t dummy_writes[100];
-MIDI_WRITER_STATUS dummy_writer_status = MIDI_WRITER_STATUS_READY;
+bool dummy_writer_status = MIDI_WRITER_STATUS_READY;
 
 uint8_t dummy_read_fn(void) {
   return dummy_read_data;
@@ -18,7 +18,7 @@ void dummy_write_fn(uint8_t data) {
   dummy_writes_count++;
 }
 
-uint8_t dummy_writer_status_check_fn(void) {
+bool dummy_writer_status_check_fn(void) {
   return dummy_writer_status;
 }
 
