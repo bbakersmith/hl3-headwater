@@ -8,7 +8,7 @@ UNITY_DIR=./Unity
 HEADWATER_ELF=$(BUILD_DIR)/headwater.elf
 HEADWATER_HEX=$(HEADWATER_ELF:%.elf=%.hex)
 
-HEADWATER_FLAGS=-std=c11 -g -Os -mmcu=atmega328p -Ilib -Wall -Wdouble-promotion -Wshadow -Wlogical-op -fno-strict-aliasing -fno-strict-overflow -fno-strict-aliasing -fno-strict-overflow
+HEADWATER_FLAGS=-std=c11 -g -Os -mmcu=atmega328p -Ilib -Wall -Wpedantic -Wdouble-promotion -Wshadow -Wlogical-op -fno-strict-aliasing -fno-strict-overflow -fno-strict-aliasing -fno-strict-overflow
 
 HEADWATER_SOURCE_FILES=\
 	lib/api.c \
