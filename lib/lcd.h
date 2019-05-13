@@ -74,7 +74,7 @@ typedef enum {
   LCD__X,
   LCD__Y,
   LCD__Z
-} LCD_CHAR;
+} LCDCharacter;
 
 /**
  * Data and RS pin state for writing a command to the LCD.
@@ -94,15 +94,15 @@ typedef enum {
   LCD_MODE_WRITE,
   LCD_MODE_READ,
   LCD_MODE_WAIT
-} LCD_MODE;
+} LCDMode;
 
 /**
  * Current value of all LCD characters, and metadata for writer.
  */
 typedef volatile struct LCD {
-  LCD_CHAR characters[32];
+  LCDCharacter characters[32];
   int8_t characters_index;
-  LCD_MODE mode;
+  LCDMode mode;
   int8_t rows_index;
   uint8_t selected_position;
   uint16_t wait;
@@ -135,7 +135,7 @@ void lcd_handle_interrupt(
 /**
  * TODO
  */
-LCD_CHAR lcd_digit_to_char(uint8_t digit);
+LCDCharacter lcd_digit_to_char(uint8_t digit);
 
 /**
  * TODO

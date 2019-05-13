@@ -148,7 +148,7 @@ TEST(lcd, test_lcd_handle_interrupt) {
 }
 
 TEST(lcd, test_lcd_digit_to_char) {
-  LCD_CHAR expected[10] = {
+  LCDCharacter expected[10] = {
     LCD__0,
     LCD__1,
     LCD__2,

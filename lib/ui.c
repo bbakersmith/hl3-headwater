@@ -31,7 +31,7 @@ int16_t ui_selected_modifier(UIScreen *screen) {
 
 void ui_move_selected(
   UIScreen *screen,
-  UI_SCREEN_DIRECTION direction
+  UIScreenDirection direction
 ) {
   screen->fields[screen->select_index].uncommitted_modifier = 0;
   screen->change_flags |= (1 << screen->select_index);
@@ -77,11 +77,11 @@ void ui_update_selected_state(UIScreen *screen) {
   screen->change_flags |= (1 << screen->select_index);
 }
 
-UI_DISPLAY_CHANGED ui_is_display_changed(UIScreen *screen) {
+UIDisplayChanged ui_is_display_changed(UIScreen *screen) {
   uint8_t mask = (1 << screen->fields_count) - 1;
   uint8_t masked = screen->change_flags & mask;
 
-  UI_DISPLAY_CHANGED result;
+  UIDisplayChanged result;
   if(masked == 0) {
     result = UI_DISPLAY_CHANGED_FALSE;
   } else {

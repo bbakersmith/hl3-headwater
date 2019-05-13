@@ -1,6 +1,6 @@
 #include "debounce.h"
 
-static DEBOUNCE_ENCODER_STATE DebounceEncoderTransition[9][4] = {
+static DebounceEncoderState DebounceEncoderTransition[9][4] = {
   {
     DEBOUNCE_ENCODER_STATE_NONE,
     DEBOUNCE_ENCODER_STATE_LEFT_1,
@@ -58,7 +58,7 @@ static DEBOUNCE_ENCODER_STATE DebounceEncoderTransition[9][4] = {
 };
 
 DebounceButton debounce_button_new(
-  DEBOUNCE_BUTTON_STATE initial_state,
+  DebounceButtonState initial_state,
   uint8_t debounce_threshold
 ) {
   DebounceButton button = {
@@ -72,7 +72,7 @@ DebounceButton debounce_button_new(
 }
 
 DebounceEncoder debounce_encoder_new(
-  DEBOUNCE_BUTTON_STATE initial_state,
+  DebounceButtonState initial_state,
   uint8_t debounce_threshold
 ) {
   DebounceEncoder encoder = {
@@ -86,7 +86,7 @@ DebounceEncoder debounce_encoder_new(
 
 void debounce_button_update(
   DebounceButton *button,
-  DEBOUNCE_BUTTON_STATE new_state
+  DebounceButtonState new_state
 ) {
   if(button->hold_count != 65535) {
     button->hold_count += 1;
@@ -124,13 +124,13 @@ void debounce_button_reset(DebounceButton *button) {
 // FIXME assumes rotary encoder is pulling to ground
 void debounce_encoder_update(
   DebounceEncoder *encoder,
-  DEBOUNCE_BUTTON_STATE a_value,
-  DEBOUNCE_BUTTON_STATE b_value
+  DebounceButtonState a_value,
+  DebounceButtonState b_value
 ) {
   debounce_button_update(&encoder->a, a_value);
   debounce_button_update(&encoder->b, b_value);
 
-  DEBOUNCE_ENCODER_EVENT debounce_event =
+  DebounceEncoderEvent debounce_event =
     encoder->a.state
     | (encoder->b.state << 1);
 

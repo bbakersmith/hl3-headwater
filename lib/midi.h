@@ -18,10 +18,11 @@
 #define MIDI_START 0xFA
 #define MIDI_STOP 0xFC
 
+// TODO should just be bool if only two states
 typedef enum {
   MIDI_WRITER_STATUS_READY,
   MIDI_WRITER_STATUS_BUSY
-} MIDI_WRITER_STATUS;
+} MIDIWriterStatus;
 
 /**
  * MIDI state holding serial read / write functions and message buffers.

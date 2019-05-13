@@ -30,7 +30,7 @@ TEST_TEAR_DOWN(headwater_api) {};
 
 void assert_headwater_api_get_8bit(
   API *api,
-  HEADWATER_API_CMD command,
+  HeadwaterAPICommand command,
   volatile uint8_t *target,
   uint8_t value
 ) {
@@ -45,7 +45,7 @@ void assert_headwater_api_get_8bit(
 
 void assert_headwater_api_get_16bit(
   API *api,
-  HEADWATER_API_CMD command,
+  HeadwaterAPICommand command,
   volatile uint16_t *target,
   uint16_t value
 ) {
@@ -179,7 +179,7 @@ TEST(headwater_api, test_api_cmd_get_sample_count_multiplier_b) {
 
 void assert_headwater_api_update_8bit(
   API *api,
-  HEADWATER_API_CMD command,
+  HeadwaterAPICommand command,
   volatile uint8_t *target,
   uint8_t value,
   uint8_t change_flags
@@ -195,7 +195,7 @@ void assert_headwater_api_update_8bit(
 
 void assert_headwater_api_update_16bit(
   API *api,
-  HEADWATER_API_CMD command,
+  HeadwaterAPICommand command,
   volatile uint16_t *target,
   uint16_t value,
   uint8_t change_flags

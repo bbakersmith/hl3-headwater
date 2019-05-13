@@ -7,7 +7,7 @@ void headwater_api_16bit_payload(volatile uint8_t payload[8], uint16_t value) {
 }
 
 void headwater_api_payload_preprocessor(API *api) {
-  HEADWATER_API_CMD command = api->request.command;
+  HeadwaterAPICommand command = api->request.command;
   switch(command) {
     case HEADWATER_API_GET_OUTPUT_ENABLED:
       api->request.payload[0] = (api->state)->output_enabled;
@@ -87,7 +87,7 @@ void headwater_api_payload_preprocessor(API *api) {
 }
 
 void headwater_api_payload_postprocessor(API *api) {
-  HEADWATER_API_CMD command = api->request.command;
+  HeadwaterAPICommand command = api->request.command;
   switch(command) {
     case HEADWATER_API_UPDATE_PLAY:
       (api->state)->change_flags |= (1 << HEADWATER_STATE_CHANGE_PLAY);

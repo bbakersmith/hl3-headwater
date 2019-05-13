@@ -1,7 +1,7 @@
 #include "lcd.h"
 
-LCD_CHAR lcd_digit_to_char(uint8_t digit) {
-  LCD_CHAR character;
+LCDCharacter lcd_digit_to_char(uint8_t digit) {
+  LCDCharacter character;
 
   switch(digit) {
     case 0:

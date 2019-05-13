@@ -6,8 +6,8 @@
 #include "lcd.h"
 #include "headwater_state.h"
 
-#define UI_DISPLAY LCD
-#define UI_STATE HeadwaterState
+#define UIDisplay LCD
+#define UIState HeadwaterState
 
 #include "ui.h"
 

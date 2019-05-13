@@ -9,10 +9,9 @@
 
 #include "stdint.h"
 
-#ifdef API_STATE
-#define APIState API_STATE
-#else
-typedef struct APIState {} APIState;
+#ifndef APIState
+#include "dummy_struct.h"
+#define APIState DummyStruct
 #endif
 
 #define API_CMD_NEW_REQUEST 31
@@ -26,7 +25,7 @@ typedef enum {
   API_HEADER_SIZE0,
   API_HEADER_SIZE1,
   API_HEADER_SIZE2
-} API_HEADER;
+} APIHeader;
 
 typedef volatile struct APIRequest {
   uint8_t command;

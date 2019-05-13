@@ -1,34 +1,36 @@
+/**
+ * @file ui.h
+ */
+
 #ifndef _UI_H_
 #define _UI_H_
 
 #include "stdint.h"
 
-#ifdef UI_DISPLAY
-#define UIDisplay UI_DISPLAY
-#else
-typedef struct UIDisplay {} UIDisplay;
+#ifndef UIDisplay
+#include "dummy_struct.h"
+#define UIDisplay DummyStruct
 #endif
 
-#ifdef UI_STATE
-#define UIState UI_STATE
-#else
-typedef struct UIState {} UIState;
+#ifndef UIState
+#include "dummy_struct.h"
+#define UIState DummyStruct
 #endif
 
 typedef enum {
   UI_FIELD_MODIFIER_DEC,
   UI_FIELD_MODIFIER_INC
-} UI_FIELD_MODIFIER;
+} UIFieldModifier;
 
 typedef enum {
   UI_SCREEN_DIRECTION_DEC,
   UI_SCREEN_DIRECTION_INC
-} UI_SCREEN_DIRECTION;
+} UIScreenDirection;
 
 typedef enum {
   UI_DISPLAY_CHANGED_FALSE,
   UI_DISPLAY_CHANGED_TRUE
-} UI_DISPLAY_CHANGED;
+} UIDisplayChanged;
 
 typedef struct UIField {
   uint8_t selected_position;
@@ -62,11 +64,11 @@ UIScreen ui_screen_new(
 );
 uint8_t ui_selected_position(UIScreen *screen);
 int16_t ui_selected_modifier(UIScreen *screen);
-void ui_move_selected(UIScreen *screen, UI_SCREEN_DIRECTION direction);
+void ui_move_selected(UIScreen *screen, UIScreenDirection direction);
 void ui_update_selected_modifier(UIScreen *screen, int8_t modifier);
 void ui_update_selected_display(UIScreen *screen);
 void ui_update_selected_state(UIScreen *screen);
-UI_DISPLAY_CHANGED ui_is_display_changed(UIScreen *screen);
+UIDisplayChanged ui_is_display_changed(UIScreen *screen);
 void ui_update_changed_display(UIScreen *screen);
 
 #endif

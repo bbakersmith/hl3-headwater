@@ -2,7 +2,9 @@
 #define _HEADWATER_API_H_
 
 #include "headwater_state.h"
-#define API_STATE HeadwaterState
+
+#define APIState HeadwaterState
+
 #include "api.h"
 
 // This comment is here so the commands start on line 10
@@ -28,7 +30,7 @@ typedef enum {
   HEADWATER_API_UPDATE_BPM,
   HEADWATER_API_UPDATE_MULTIPLIER_A,
   HEADWATER_API_UPDATE_MULTIPLIER_B
-} HEADWATER_API_CMD;
+} HeadwaterAPICommand;
 
 void headwater_api_payload_preprocessor(API *api);
 void headwater_api_payload_postprocessor(API *api);
