@@ -17,7 +17,7 @@ void assert_payload_equal(
 TEST_GROUP(api);
 
 TEST_SETUP(api) {
-  dummy_request = api_new_request();
+  dummy_request = api_request_new();
 };
 
 TEST_TEAR_DOWN(api) {};
@@ -69,8 +69,8 @@ TEST(api, test_api_parse_header_size7_cmd1) {
   TEST_ASSERT_EQUAL(1, dummy_request.command);
 }
 
-TEST(api, test_api_new_request) {
-  APIRequest request = api_new_request();
+TEST(api, test_api_request_new) {
+  APIRequest request = api_request_new();
 
   TEST_ASSERT_EQUAL(API_CMD_NEW_REQUEST, request.command);
   TEST_ASSERT_EQUAL(0, dummy_request.size);
@@ -318,7 +318,7 @@ TEST_GROUP_RUNNER(api) {
   RUN_TEST_CASE(api, test_api_parse_header_size1_cmd10);
   RUN_TEST_CASE(api, test_api_parse_header_size2_cmd21);
   RUN_TEST_CASE(api, test_api_parse_header_size7_cmd1);
-  RUN_TEST_CASE(api, test_api_new_request);
+  RUN_TEST_CASE(api, test_api_request_new);
   RUN_TEST_CASE(api, test_api_new_payload_size3);
   RUN_TEST_CASE(api, test_api_new_payload_size8);
   RUN_TEST_CASE(api, test_api_handle_request_size1);

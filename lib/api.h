@@ -45,7 +45,7 @@ void api_parse_header(APIRequest *request, uint8_t header);
 void api_new_payload(APIRequest *request, uint8_t payload[8]);
 uint8_t api_handle_request(APIRequest *request, uint8_t incoming_value);
 uint8_t api_handle_interrupt(API *api, uint8_t incoming_value);
-APIRequest api_new_request();
+APIRequest api_request_new();
 void api_request_reset(APIRequest *request);
 
 #endif

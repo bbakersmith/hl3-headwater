@@ -12,7 +12,7 @@ HeadwaterState dummy_state;
 TEST_GROUP(headwater_api);
 
 TEST_SETUP(headwater_api) {
-  dummy_request = api_new_request();
+  dummy_request = api_request_new();
   dummy_state = headwater_state_new();
 
   API dummy_api_ = {

@@ -16,8 +16,7 @@ void api_request_reset(APIRequest *request) {
   request->size = 0;
 }
 
-// TODO rename api_request_new
-APIRequest api_new_request() {
+APIRequest api_request_new() {
   APIRequest request;
   api_request_reset(&request);
   return request;

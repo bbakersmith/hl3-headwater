@@ -73,7 +73,7 @@ void atmega_headwater_global_state_setup(void) {
 
   api.payload_preprocessor = &headwater_api_payload_preprocessor;
   api.payload_postprocessor = &headwater_api_payload_postprocessor;
-  api.request = api_new_request();
+  api.request = api_request_new();
   api.state = &state;
 
   lcd = lcd_new();
