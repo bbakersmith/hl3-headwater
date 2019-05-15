@@ -53,10 +53,10 @@ X mode: external
 
 X output midi clock (3rd x24 multiplier channel?) based on bpm
 
+X internal mode: only update clock speed (samples) for bpm and / or multipliers after each beat
+
 TODO HIGH
 =========
-
-- internal mode: only update clock speed (samples) for bpm and / or multipliers after each beat
 
 - midi output
   - continue (0xFB) instead of start (0xFA) on play?

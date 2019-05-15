@@ -17,6 +17,28 @@ TEST_TEAR_DOWN(headwater_state) {}
 
 // Tests
 
+TEST(headwater_state, test_headwater_state_has_change_now) {
+  TEST_ASSERT_EQUAL(
+    true,
+    headwater_state_has_change_now((1 << HEADWATER_STATE_CHANGE_STOP))
+  );
+  TEST_ASSERT_EQUAL(
+    false,
+    headwater_state_has_change_now((1 << HEADWATER_STATE_CHANGE_BPM))
+  );
+}
+
+TEST(headwater_state, test_headwater_state_has_change_after_beat) {
+  TEST_ASSERT_EQUAL(
+    false,
+    headwater_state_has_change_after_beat((1 << HEADWATER_STATE_CHANGE_STOP))
+  );
+  TEST_ASSERT_EQUAL(
+    true,
+    headwater_state_has_change_after_beat((1 << HEADWATER_STATE_CHANGE_BPM))
+  );
+}
+
 TEST(headwater_state, test_headwater_state_samples_to_bpm) {
   TEST_ASSERT_EQUAL(600, headwater_state_samples_to_bpm(1000, 1000));
   TEST_ASSERT_EQUAL(1200, headwater_state_samples_to_bpm(1000, 500));
@@ -112,8 +134,8 @@ TEST(headwater_state, test_headwater_state_cycle_internal) {
     7
   );
 
-  int8_t expected_outputs[9][3] = {
-    {1, 1, 0},
+  int8_t expected_outputs[22][3] = {
+    {1, 1, 0}, // 0
     {0, 0, 0},
     {0, 1, 0},
     {0, 0, 0},
@@ -121,11 +143,35 @@ TEST(headwater_state, test_headwater_state_cycle_internal) {
     {0, 0, 0},
     {0, 0, 0},
     {1, 1, 0},
-    {0, 0, 0}
+    {0, 0, 0},
+    {0, 1, 0},
+
+    {0, 0, 0}, // 10
+    {0, 1, 0},
+    {0, 0, 0},
+    {0, 0, 0},
+    {1, 1, 1},
+    {0, 1, 0},
+    {0, 1, 1},
+    {0, 1, 0},
+    {0, 1, 1},
+    {0, 1, 0},
+    {0, 1, 0},
+    {1, 1, 1} // 21
   };
 
+  uint8_t magic_number_to_update_multipliers = 9;
+
   uint8_t message[50];
-  for(uint8_t i = 0; i < 9; i++) {
+  for(uint8_t i = 0; i < 22; i++) {
+    if(i == magic_number_to_update_multipliers) {
+      dummy_state.multiplier_a_channel.multiplier = 7;
+      dummy_state.multiplier_b_channel.multiplier = 3;
+      dummy_state.change_flags |= (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A);
+      dummy_state.change_flags |= (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
+    }
+
+    headwater_state_handle_change_now(&dummy_state);
     headwater_state_cycle(&dummy_state);
 
     sprintf(message, "Bad bpm output for iteration %i", i);
@@ -235,10 +281,10 @@ TEST(headwater_state, test_headwater_state_cycle_external) {
     {0, 5, 5, 0, 0, 1, 375},
 
     {1, 6, 1, 1, 1, 1, 1200}, // 65
-    {0, 6, 2, 0, 0, 0, 1200},
+    {0, 6, 2, 0, 0, 1, 1200},
     {0, 6, 3, 0, 1, 1, 1200},
     {0, 6, 4, 0, 0, 1, 1200},
-    {0, 6, 5, 0, 0, 1, 1200}
+    {0, 6, 5, 0, 0, 0, 1200}
   };
 
   uint8_t message[50];
@@ -249,7 +295,7 @@ TEST(headwater_state, test_headwater_state_cycle_external) {
     }
 
     headwater_state_cycle(&dummy_state);
-    headwater_state_handle_change(&dummy_state);
+    headwater_state_handle_change_now(&dummy_state);
 
     sprintf(message, "Wrong reset_count for iteration %i", i);
     TEST_ASSERT_EQUAL_MESSAGE(
@@ -451,6 +497,8 @@ TEST(headwater_state, test_headwater_state_evenly_distributed_groups) {
 // to update after change to bpm or multiplier (preset changes too)
 
 TEST_GROUP_RUNNER(headwater_state) {
+  RUN_TEST_CASE(headwater_state, test_headwater_state_has_change_now);
+  RUN_TEST_CASE(headwater_state, test_headwater_state_has_change_after_beat);
   RUN_TEST_CASE(headwater_state, test_headwater_state_samples_to_bpm);
   RUN_TEST_CASE(headwater_state, test_headwater_state_bpm_to_samples);
   RUN_TEST_CASE(headwater_state, test_headwater_state_update_samples_per_beat);

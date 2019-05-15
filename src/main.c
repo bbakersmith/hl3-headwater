@@ -98,7 +98,7 @@ int main(void) {
 
   while(1) {
     if(state.change_flags != 0) {
-      headwater_state_handle_change(&state);
+      headwater_state_handle_change_now(&state);
     } else if(lcd.mode == LCD_MODE_WRITE && ui_is_display_changed(&screen)) {
       ui_update_changed_display(&screen);
 
@@ -159,9 +159,8 @@ ISR(TIMER1_COMPA_vect) {
   atmega_io_multiplier_a_output(state.multiplier_a_channel.output);
   atmega_io_multiplier_b_output(state.multiplier_b_channel.output);
 
-  if(state.midi_channel.output) {
+  if(state.midi_channel.output)
     atmega_headwater_midi_writer(MIDI_CLOCK);
-  }
 }
 
 /**

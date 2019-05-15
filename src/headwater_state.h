@@ -1,3 +1,9 @@
+/**
+ * @file headwater_state.h
+ */
+
+// TODO doxygen
+
 #ifndef _HEADWATER_STATE_H_
 #define _HEADWATER_STATE_H_
 
@@ -31,7 +37,6 @@ typedef volatile struct HeadwaterStateChannel {
   uint16_t no_remainder_priority;
   uint8_t multiplier;
   uint8_t output;
-  uint8_t output_enabled; // TODO should be boolean
   uint16_t remainder_frequency;
   uint16_t remainder_priority;
   uint16_t samples_per_beat;
@@ -48,7 +53,7 @@ typedef volatile struct HeadwaterState {
   uint8_t mode;
   HeadwaterStateChannel multiplier_a_channel;
   HeadwaterStateChannel multiplier_b_channel;
-  uint8_t output_enabled;
+  uint8_t output_enabled; // TODO should be boolean
   uint8_t preset;
   uint16_t reset_count;
   uint32_t samples_per_second;
@@ -77,7 +82,12 @@ void headwater_state_update_samples_per_beat(
 void headwater_state_stop(HeadwaterState *state);
 void headwater_state_play(HeadwaterState *state);
 void headwater_state_channel_fire(HeadwaterStateChannel *channel);
+
+// TODO rename headwater_state_handle_interrupt
 void headwater_state_cycle(HeadwaterState *state);
-void headwater_state_handle_change(HeadwaterState *state);
+bool headwater_state_has_change_now(uint8_t change_flags);
+void headwater_state_handle_change_now(HeadwaterState *state);
+bool headwater_state_has_change_after_beat(uint8_t change_flags);
+void headwater_state_handle_change_after_beat(HeadwaterState *state);
 
 #endif
