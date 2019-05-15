@@ -1,5 +1,7 @@
 /**
  * @file ui.h
+ *
+ * @brief Framework for defining simple menu interfaces.
  */
 
 #ifndef _UI_H_

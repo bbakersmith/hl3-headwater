@@ -1,7 +1,7 @@
 /**
  * @file api.h
  *
- * Framework for creating a serial API.
+ * @brief Framework for creating a serial API.
  */
 
 #ifndef _API_H_

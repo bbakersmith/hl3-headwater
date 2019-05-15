@@ -1,5 +1,7 @@
 /**
  * @file debounce.h
+ *
+ * @brief Debounce button and rotary encoder inputs.
  */
 
 #ifndef _DEBOUNCE_H_
