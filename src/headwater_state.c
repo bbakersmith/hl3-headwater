@@ -7,12 +7,8 @@ void headwater_state_update_samples_per_beat(
   HeadwaterStateChannel *channel,
   uint16_t samples_per_beat
 ) {
-  if(channel->multiplier == 0) {
-    channel->output_enabled = 0;
+  if(channel->multiplier == 0)
     return;
-  } else {
-    channel->output_enabled = 1;
-  }
 
   uint8_t multiplier = channel->multiplier;
   uint16_t base_samples = samples_per_beat / multiplier;
@@ -170,7 +166,7 @@ void headwater_state_channel_update_output(
   HeadwaterStateChannel *channel
 ) {
   if(
-    channel->output_enabled == 1
+    channel->multiplier != 0
     && channel->beats < channel->multiplier
     && channel->samples == 0
   ) {
@@ -252,28 +248,26 @@ void headwater_state_cycle(HeadwaterState *state) {
     state->multiplier_b_channel.output = 0;
     state->midi_channel.output = 0;
   }
+
+  if(state->bpm_channel.output == 1)
+    headwater_state_handle_change_after_beat(state);
+
   headwater_state_increment_counts(state);
 }
 
-/* uint8_t headwater_state_filter_change_flags(HeadwaterState *state) { */
-/*   uint8_t change_flags; */
-/*  */
-/*   // internal mode handles bpm and multiplier changes after beat and on stop */
-/*   if(state->mode == HEADWATER_STATE_MODE_INTERNAL) { */
-/*     change_flags = state->change_flags & ~( */
-/*       (1 << HEADWATER_STATE_CHANGE_BPM) */
-/*       | (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A) */
-/*       | (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B) */
-/*     ); */
-/*   } else { */
-/*     change_flags = state->change_flags; */
-/*   } */
-/*  */
-/*   return change_flags; */
-/* } */
+bool headwater_state_has_change_now(uint8_t change_flags) {
+  uint8_t mask =
+    (1 << HEADWATER_STATE_CHANGE_STOP)
+    | (1 << HEADWATER_STATE_CHANGE_PLAY)
+    | (1 << HEADWATER_STATE_CHANGE_MODE);
 
-void headwater_state_handle_change(HeadwaterState *state) {
+  return (mask & change_flags) != 0;
+}
+
+void headwater_state_handle_change_now(HeadwaterState *state) {
   uint8_t change_flags = state->change_flags;
+  if(!headwater_state_has_change_now(change_flags))
+    return;
 
   if((change_flags & (1 << HEADWATER_STATE_CHANGE_PLAY))) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_PLAY);
@@ -286,10 +280,24 @@ void headwater_state_handle_change(HeadwaterState *state) {
   } else if((change_flags & (1 << HEADWATER_STATE_CHANGE_MODE))) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MODE);
     // react to mode change here, if ever a reason to
+  }
+}
 
-  // TODO BPM, MULTIPLIER_A, MULTIPLIER_B changes should be handled by
-  // sample interrupt
-  } else if((change_flags & (1 << HEADWATER_STATE_CHANGE_BPM))) {
+bool headwater_state_has_change_after_beat(uint8_t change_flags) {
+  uint8_t mask =
+    (1 << HEADWATER_STATE_CHANGE_BPM)
+    | (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A)
+    | (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
+
+  return (mask & change_flags) != 0;
+}
+
+void headwater_state_handle_change_after_beat(HeadwaterState *state) {
+  uint8_t change_flags = state->change_flags;
+  if(!headwater_state_has_change_after_beat(change_flags))
+    return;
+
+  if((change_flags & (1 << HEADWATER_STATE_CHANGE_BPM))) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_BPM);
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A);
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
@@ -331,14 +339,18 @@ void headwater_state_handle_change(HeadwaterState *state) {
       state->bpm_channel.samples_per_beat
     );
 
-  } else if((change_flags & (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A))) {
+  }
+
+  if((change_flags & (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A))) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MULTIPLIER_A);
     headwater_state_update_samples_per_beat(
       &state->multiplier_a_channel,
       state->bpm_channel.samples_per_beat
     );
 
-  } else if((change_flags & (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B))) {
+  }
+
+  if((change_flags & (1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B))) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MULTIPLIER_B);
     headwater_state_update_samples_per_beat(
       &state->multiplier_b_channel,
