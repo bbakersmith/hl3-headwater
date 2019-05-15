@@ -8,9 +8,18 @@ TEST_GROUP(headwater_state);
 
 HeadwaterState dummy_state;
 
+
+uint8_t dummy_midi_writer_output;
+
+void dummy_midi_writer(uint8_t data) {
+  dummy_midi_writer_output = data;
+}
+
 TEST_SETUP(headwater_state) {
   dummy_state = headwater_state_new();
   dummy_state.output_enabled = true;
+  dummy_state.midi_writer = &dummy_midi_writer;
+  dummy_midi_writer_output = 0;
 }
 
 TEST_TEAR_DOWN(headwater_state) {}
@@ -112,6 +121,22 @@ TEST(headwater_state, test_headwater_state_stop) {
 
   TEST_ASSERT_EQUAL(1, dummy_state.bpm_channel.output);
   TEST_ASSERT_EQUAL(1, dummy_state.bpm_channel.samples);
+}
+
+TEST(headwater_state, test_headwater_state_play) {
+  headwater_state_stop(&dummy_state);
+
+  dummy_midi_writer_output = 0;
+  headwater_state_play(&dummy_state);
+  TEST_ASSERT_EQUAL(MIDI_START, dummy_midi_writer_output);
+
+  dummy_midi_writer_output = 0;
+  headwater_state_play(&dummy_state);
+  TEST_ASSERT_EQUAL(MIDI_CONTINUE, dummy_midi_writer_output);
+
+  dummy_midi_writer_output = 0;
+  headwater_state_play(&dummy_state);
+  TEST_ASSERT_EQUAL(MIDI_CONTINUE, dummy_midi_writer_output);
 }
 
 TEST(headwater_state, test_headwater_state_cycle_internal) {
@@ -508,6 +533,7 @@ TEST_GROUP_RUNNER(headwater_state) {
   );
   RUN_TEST_CASE(headwater_state, test_headwater_state_increment_counts);
   RUN_TEST_CASE(headwater_state, test_headwater_state_stop);
+  RUN_TEST_CASE(headwater_state, test_headwater_state_play);
   RUN_TEST_CASE(headwater_state, test_headwater_state_cycle_internal);
   RUN_TEST_CASE(headwater_state, test_headwater_state_cycle_external);
   RUN_TEST_CASE(

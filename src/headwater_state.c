@@ -115,6 +115,8 @@ void headwater_state_reset_channel(HeadwaterStateChannel *channel) {
 }
 
 void headwater_state_play(HeadwaterState *state) {
+  uint8_t previous_output_enabled = state->output_enabled;
+
   headwater_state_reset_channel(&state->bpm_channel);
   headwater_state_reset_channel(&state->multiplier_a_channel);
   headwater_state_reset_channel(&state->multiplier_b_channel);
@@ -141,7 +143,13 @@ void headwater_state_play(HeadwaterState *state) {
       break;
   }
 
-  state->midi_writer(MIDI_START);
+  if(state->output_enabled) {
+    if(previous_output_enabled == 0) {
+      state->midi_writer(MIDI_START);
+    } else {
+      state->midi_writer(MIDI_CONTINUE);
+    }
+  }
 }
 
 void headwater_state_channel_fire(
