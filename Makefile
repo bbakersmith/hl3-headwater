@@ -1,4 +1,4 @@
-.PHONY: docs
+.PHONY: analyzer clean docs flash loc size term test
 
 TEST_COMPILER=gcc-4.9
 
