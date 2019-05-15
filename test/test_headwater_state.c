@@ -518,9 +518,6 @@ TEST(headwater_state, test_headwater_state_evenly_distributed_groups) {
   }
 }
 
-// TODO test that samples per beat for all channels waits until next beat
-// to update after change to bpm or multiplier (preset changes too)
-
 TEST_GROUP_RUNNER(headwater_state) {
   RUN_TEST_CASE(headwater_state, test_headwater_state_has_change_now);
   RUN_TEST_CASE(headwater_state, test_headwater_state_has_change_after_beat);

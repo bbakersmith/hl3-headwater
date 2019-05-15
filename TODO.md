@@ -65,12 +65,6 @@ X midi output
 TODO HIGH
 =========
 
-- mode: tap
-  X auto loop based on internal bpm
-  - after each play, re-calculate
-    - bpm (for display and ongoing playback)
-    - samples for multipliers
-
 - mode: midi
   - input commands
     - stop (0xFC)
@@ -78,7 +72,15 @@ TODO HIGH
     - clock (0xF8) for timing
   - calculate bpm from incoming midi clock
   - play every beat (1/24?) of incoming midi clock
+    - reuse state.samples_since_reset_count
+    - will need another counter for division by 24
   - passthrough to midi output?
+
+- mode: tap
+  X auto loop based on internal bpm
+  - after each play, re-calculate
+    - bpm (for display and ongoing playback)
+    - samples for multipliers
 
 - ui range restriction stops display / value,
   but the uncommitted modifier keeps counting, which is bad

@@ -520,7 +520,7 @@ void headwater_ui_handle_inputs(
     state->change_flags |= (1 << HEADWATER_STATE_CHANGE_PLAY);
   }
 
-  if(inputs->rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_LEFT) {
+  if(inputs->rotary_encoder.output == DEBOUNCE_ENCODER_CHANGE_LEFT) {
     ui_update_selected_modifier(screen, -1);
     if(inputs->rotary_encoder_button.state == DEBOUNCE_BUTTON_STATE_LOW) {
       headwater_ui_update_selected_state(
@@ -531,7 +531,7 @@ void headwater_ui_handle_inputs(
     }
   }
 
-  if(inputs->rotary_encoder.output == DEBOUNCE_ENCODER_OUTPUT_RIGHT) {
+  if(inputs->rotary_encoder.output == DEBOUNCE_ENCODER_CHANGE_RIGHT) {
     ui_update_selected_modifier(screen, 1);
     if(inputs->rotary_encoder_button.state == DEBOUNCE_BUTTON_STATE_LOW) {
       headwater_ui_update_selected_state(

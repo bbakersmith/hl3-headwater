@@ -1,3 +1,7 @@
+/**
+ * @file headwater_api.h
+ */
+
 #ifndef _HEADWATER_API_H_
 #define _HEADWATER_API_H_
 
@@ -7,7 +11,9 @@
 
 #include "api.h"
 
-// This comment is here so the commands start on line 10
+/**
+ * Headwater API command codes.
+ */
 typedef enum {
   HEADWATER_API_GET_OUTPUT_ENABLED,
   HEADWATER_API_GET_MODE,
@@ -32,7 +38,16 @@ typedef enum {
   HEADWATER_API_UPDATE_MULTIPLIER_B
 } HeadwaterAPICommand;
 
+/**
+ * API handler to run before the next transfer event. Generally writing
+ * outbound responses to "get" requests.
+ */
 void headwater_api_payload_preprocessor(API *api);
+
+/**
+ * API handler to run after the next transfer event. Generally reading
+ * inbound "update" requests.
+ */
 void headwater_api_payload_postprocessor(API *api);
 
 #endif
