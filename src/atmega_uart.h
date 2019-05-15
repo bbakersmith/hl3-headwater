@@ -26,6 +26,6 @@ void atmega_uart_writer(uint8_t data);
  *
  * @return True if ready for writing, false if busy
  */
-bool atmega_uart_status_check(void);
+bool atmega_uart_is_busy(void);
 
 #endif

@@ -7,7 +7,7 @@ MIDI dummy_midi;
 uint8_t dummy_read_data;
 uint8_t dummy_writes_count;
 uint8_t dummy_writes[100];
-bool dummy_writer_status = MIDI_WRITER_STATUS_READY;
+bool dummy_writer_is_busy = false;
 
 uint8_t dummy_read_fn(void) {
   return dummy_read_data;
@@ -18,8 +18,8 @@ void dummy_write_fn(uint8_t data) {
   dummy_writes_count++;
 }
 
-bool dummy_writer_status_check_fn(void) {
-  return dummy_writer_status;
+bool dummy_writer_is_busy_fn(void) {
+  return dummy_writer_is_busy;
 }
 
 TEST_GROUP(midi);
@@ -28,7 +28,7 @@ TEST_SETUP(midi) {
   dummy_midi = midi_new();
   /* dummy_midi.reader = &dummy_read_fn; */
   dummy_midi.writer = &dummy_write_fn;
-  dummy_midi.writer_status_check = &dummy_writer_status_check_fn;
+  dummy_midi.writer_is_busy = &dummy_writer_is_busy_fn;
 
   dummy_writes_count = 0;
   for(uint8_t i = 0; i < 100; i++) {
@@ -60,17 +60,17 @@ TEST(midi, test_midi_write_queue) {
   TEST_ASSERT_EQUAL(0, dummy_writes_count);
 
   uint8_t test_cases[6][3] = {
-    {MIDI_WRITER_STATUS_READY, dummy_data_1, 1},
-    {MIDI_WRITER_STATUS_BUSY, dummy_data_2, 1},
-    {MIDI_WRITER_STATUS_BUSY, dummy_data_3, 1},
-    {MIDI_WRITER_STATUS_READY, magic_dont_write_value, 2},
-    {MIDI_WRITER_STATUS_READY, magic_dont_write_value, 3},
-    {MIDI_WRITER_STATUS_BUSY, dummy_data_4, 3}
+    {false, dummy_data_1, 1},
+    {true, dummy_data_2, 1},
+    {true, dummy_data_3, 1},
+    {false, magic_dont_write_value, 2},
+    {false, magic_dont_write_value, 3},
+    {true, dummy_data_4, 3}
   };
 
   uint8_t message[50];
   for(uint8_t i = 0; i < 6; i ++) {
-    dummy_writer_status = test_cases[i][0];
+    dummy_writer_is_busy = test_cases[i][0];
 
     uint8_t data = test_cases[i][1];
     if(data != magic_dont_write_value)

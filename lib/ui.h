@@ -35,9 +35,7 @@ typedef enum {
 typedef struct UIField {
   uint8_t selected_position;
   volatile int16_t uncommitted_modifier;
-  // TODO react to change, in future only when re sw is activated
   void (*update_state)(struct UIField *field, UIState *state);
-  // TODO highlight selected in field, future display not-yet-committed value
   void (*update_display)(
     struct UIField *field,
     UIState *state,
@@ -50,7 +48,6 @@ typedef volatile struct UIScreen {
   UIDisplay *display;
   UIField fields[8];
   uint8_t fields_count;
-  uint8_t last_index; // TODO remove
   uint8_t select_index;
   UIState *state;
   uint8_t update_index;

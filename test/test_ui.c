@@ -38,7 +38,7 @@ TEST_SETUP(ui) {
 TEST_TEAR_DOWN(ui) {};
 
 TEST(ui, test_ui_screen_new) {
-  TEST_ASSERT_EQUAL(2, dummy_screen.last_index);
+  TEST_ASSERT_EQUAL(3, dummy_screen.fields_count);
   TEST_ASSERT_EQUAL(0, dummy_screen.select_index);
   TEST_ASSERT_EQUAL(0, dummy_screen.update_index);
 }

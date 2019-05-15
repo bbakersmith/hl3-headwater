@@ -9,7 +9,6 @@ UIScreen ui_screen_new(
   UIScreen screen = {
     .change_flags = 0xFF,
     .fields_count = fields_count,
-    .last_index = fields_count - 1, // TODO remove
     .select_index = 0,
     .update_index = 0
   };
@@ -40,10 +39,10 @@ void ui_move_selected(
     if(0 < screen->select_index) {
       screen->select_index -= 1;
     } else {
-      screen->select_index = screen->last_index;
+      screen->select_index = (screen->fields_count - 1);
     }
   } else if(direction == UI_SCREEN_DIRECTION_INC) {
-    if(screen->select_index < screen->last_index) {
+    if(screen->select_index < (screen->fields_count - 1)) {
       screen->select_index += 1;
     } else {
       screen->select_index = 0;

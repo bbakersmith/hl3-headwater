@@ -10,7 +10,7 @@ HeadwaterState dummy_state;
 
 TEST_SETUP(headwater_state) {
   dummy_state = headwater_state_new();
-  dummy_state.output_enabled = 1;
+  dummy_state.output_enabled = true;
 }
 
 TEST_TEAR_DOWN(headwater_state) {}
@@ -152,7 +152,7 @@ TEST(headwater_state, test_headwater_state_cycle_internal) {
 }
 
 TEST(headwater_state, test_headwater_state_cycle_external) {
-  dummy_state.output_enabled = 0;
+  dummy_state.output_enabled = false;
   dummy_state.samples_per_second = 10;
   dummy_state.samples_since_reset_count = 0;
   dummy_state.mode = HEADWATER_STATE_MODE_EXTERNAL;
@@ -336,7 +336,7 @@ TEST(headwater_state, test_headwater_state_prevent_int_mode_overflow) {
     previous_multiplier_b_samples = dummy_state.multiplier_b_channel.samples;
   }
 
-  TEST_ASSERT_EQUAL(1, dummy_state.output_enabled);
+  TEST_ASSERT_EQUAL(true, dummy_state.output_enabled);
   TEST_ASSERT_EQUAL(100, outputs);
 
   for(uint32_t i = 0; i < 100000; i++) {
