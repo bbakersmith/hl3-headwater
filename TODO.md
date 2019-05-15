@@ -71,12 +71,11 @@ TODO HIGH
     - bpm (for display and ongoing playback)
     - samples for multipliers
 
-- midi input
-  - stop (0xFC)
-  - start (0xFA) and (0xFB) continue synonyms
-  - clock (0xF8) for timing
-
 - mode: midi
+  - input commands
+    - stop (0xFC)
+    - start (0xFA) and (0xFB) continue synonyms
+    - clock (0xF8) for timing
   - calculate bpm from incoming midi clock
   - play every beat (1/24?) of incoming midi clock
   - passthrough to midi output?
@@ -90,14 +89,16 @@ TODO HIGH
 TODO LOW
 ========
 
-- rename LCD_MODE states, reading / writing is confusing
-
 - external and midi modes: disable bpm in UI
+
+- rename LCD_MODE states, reading / writing is confusing
 
 - reset needs overhaul, play & reset are same now
 
 - make lcd module work with various row / column sizes (specifically 8x2)
 
 - should button change be handled in interrupt?
+  - seems generally unnecessary
+  - button debouncing would be a lot more effective / tunable
 
 - accept midi program change messages to change current preset?
