@@ -1,7 +1,7 @@
 /**
  * @file bytes.h
  *
- * Functions for common bit and byte manipulation tasks.
+ * @brief Functions for common bit and byte manipulation tasks.
  */
 
 #ifndef _BYTES_H_

@@ -1,8 +1,10 @@
 /**
  * @file dummy_struct.h
  *
- * Because C doesn't allow empty structs, this provides a placeholder for
- * libraries which allow optional exernal structs to be injected via macros.
+ * @brief A placeholder struct because C doesn't allow empty structs.
+ *
+ * Intended for libraries which allow optional exernal structs to be injected
+ * via macros.
  */
 
 #ifndef _DUMMY_STRUCT_H_

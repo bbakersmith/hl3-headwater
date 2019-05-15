@@ -1,7 +1,7 @@
 /**
  * @file queue.h
  *
- * General purpose queue implementations.
+ * @brief General purpose queue implementations.
  */
 
 #ifndef _QUEUE_H_

@@ -1,8 +1,9 @@
 /**
  * @file midi.h
  *
- * MIDI read / write library with buffering, intended for use with system
- * specific serial read / write functions.
+ * @brief MIDI read / write library with buffering.
+ *
+ * Intended for use with system specific serial read / write functions.
  */
 
 #ifndef _MIDI_H_

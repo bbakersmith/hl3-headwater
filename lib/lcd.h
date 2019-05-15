@@ -1,7 +1,7 @@
 /**
  * @file lcd.h
  *
- * 16x02 style LCD state management.
+ * @brief 16x02 style LCD state management.
  */
 
 #ifndef _LCD_H_
