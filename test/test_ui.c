@@ -89,22 +89,13 @@ TEST(ui, test_ui_move_selected) {
 
 TEST(ui, test_ui_is_display_changed) {
   dummy_screen.change_flags = (1 << 1);
-  TEST_ASSERT_EQUAL(
-    UI_DISPLAY_CHANGED_TRUE,
-    ui_is_display_changed(&dummy_screen)
-  );
+  TEST_ASSERT_EQUAL(true, ui_is_display_changed(&dummy_screen));
 
   dummy_screen.change_flags = (1 << 3);
-  TEST_ASSERT_EQUAL(
-    UI_DISPLAY_CHANGED_FALSE,
-    ui_is_display_changed(&dummy_screen)
-  );
+  TEST_ASSERT_EQUAL(false, ui_is_display_changed(&dummy_screen));
 
   dummy_screen.change_flags = (1 << 0) | (1 << 3);
-  TEST_ASSERT_EQUAL(
-    UI_DISPLAY_CHANGED_TRUE,
-    ui_is_display_changed(&dummy_screen)
-  );
+  TEST_ASSERT_EQUAL(true, ui_is_display_changed(&dummy_screen));
 }
 
 TEST_GROUP_RUNNER(ui) {

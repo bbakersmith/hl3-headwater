@@ -1,4 +1,3 @@
-#include "stdbool.h"
 #include "queue.h"
 #include "unity.h"
 #include "unity_fixture.h"

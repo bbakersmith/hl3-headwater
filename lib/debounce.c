@@ -78,7 +78,7 @@ DebounceEncoder debounce_encoder_new(
   DebounceEncoder encoder = {
     .a = debounce_button_new(initial_state, debounce_threshold),
     .b = debounce_button_new(initial_state, debounce_threshold),
-    .output = DEBOUNCE_ENCODER_OUTPUT_NONE,
+    .output = DEBOUNCE_ENCODER_CHANGE_NONE,
     .state = DEBOUNCE_ENCODER_STATE_NONE
   };
   return encoder;
@@ -138,15 +138,15 @@ void debounce_encoder_update(
 
   switch(encoder->state) {
     case DEBOUNCE_ENCODER_STATE_LEFT_OUTPUT:
-      encoder->output = DEBOUNCE_ENCODER_OUTPUT_LEFT;
+      encoder->output = DEBOUNCE_ENCODER_CHANGE_LEFT;
       encoder->state = DEBOUNCE_ENCODER_STATE_NONE;
       break;
     case DEBOUNCE_ENCODER_STATE_RIGHT_OUTPUT:
-      encoder->output = DEBOUNCE_ENCODER_OUTPUT_RIGHT;
+      encoder->output = DEBOUNCE_ENCODER_CHANGE_RIGHT;
       encoder->state = DEBOUNCE_ENCODER_STATE_NONE;
       break;
     default:
-      encoder->output = DEBOUNCE_ENCODER_OUTPUT_NONE;
+      encoder->output = DEBOUNCE_ENCODER_CHANGE_NONE;
   }
 
   if(encoder->state == DEBOUNCE_ENCODER_STATE_NONE) {

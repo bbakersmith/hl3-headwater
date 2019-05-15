@@ -76,17 +76,10 @@ void ui_update_selected_state(UIScreen *screen) {
   screen->change_flags |= (1 << screen->select_index);
 }
 
-UIDisplayChanged ui_is_display_changed(UIScreen *screen) {
+bool ui_is_display_changed(UIScreen *screen) {
   uint8_t mask = (1 << screen->fields_count) - 1;
   uint8_t masked = screen->change_flags & mask;
-
-  UIDisplayChanged result;
-  if(masked == 0) {
-    result = UI_DISPLAY_CHANGED_FALSE;
-  } else {
-    result = UI_DISPLAY_CHANGED_TRUE;
-  }
-  return result;
+  return (masked == 0) ? false : true;
 }
 
 void ui_update_changed_display(UIScreen *screen) {
