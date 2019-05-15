@@ -115,17 +115,22 @@ typedef volatile struct LCD {
 typedef void (*LCDSendFunction)(bool rs, uint8_t data);
 
 /**
- * TODO
+ * Create new LCD.
+ *
+ * @return New LCD
  */
 LCD lcd_new(void);
 
 /**
- * TODO
+ * Get the next command for writing characters to the LCD. Intended to be
+ * called repeatedly when in LCD_MODE_READ until finished writing the full
+ * screen of characters. When finished sets mode to LCD_MODE_WAIT.
  */
 LCDCommand lcd_next_command(LCD *lcd);
 
 /**
- * TODO
+ * Handler for LCD update interrupt. Increments wait count or updates LCD
+ * depending on the current mode.
  */
 void lcd_handle_interrupt(
   LCD *lcd,
@@ -133,12 +138,13 @@ void lcd_handle_interrupt(
 );
 
 /**
- * TODO
+ * Convert integers to their LCDCharacter code.
  */
 LCDCharacter lcd_digit_to_char(uint8_t digit);
 
 /**
- * TODO
+ * Increment wait count during LCD_MODE_WAIT, when threshold reached switches
+ * to LCD_MODE_WRITE.
  */
 void lcd_wait(LCD *lcd);
 

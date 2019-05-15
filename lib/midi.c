@@ -34,9 +34,8 @@ MIDI midi_new(void) {
 /* } */
 
 void midi_write_queue(MIDI *midi) {
-  MIDIWriterStatus status = midi->writer_status_check();
   if(
-    status == MIDI_WRITER_STATUS_READY
+    !midi->writer_is_busy()
     && !queue_fifo255_is_empty(&midi->write_queue)
   ) {
     midi->writer(queue_fifo255_pop(&midi->write_queue));

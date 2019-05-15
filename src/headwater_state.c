@@ -107,7 +107,7 @@ uint16_t headwater_state_bpm_to_samples(
 }
 
 void headwater_state_stop(HeadwaterState *state) {
-  state->output_enabled = 0; // TODO enum
+  state->output_enabled = 0;
   state->reset_count = 0;
   state->midi_writer(MIDI_STOP);
 }
@@ -131,7 +131,7 @@ void headwater_state_play(HeadwaterState *state) {
       if(state->reset_count == 1) {
         // TODO display unknown ---.- ???.?
       } else {
-        state->output_enabled = 1; // TODO enum
+        state->output_enabled = 1;
 
         state->bpm_channel.samples_per_beat =
           state->samples_since_reset_count;
@@ -141,7 +141,7 @@ void headwater_state_play(HeadwaterState *state) {
       state->samples_since_reset_count = 0;
       break;
     default:
-      state->output_enabled = 1; // TODO enum
+      state->output_enabled = 1;
       break;
   }
 
@@ -285,7 +285,7 @@ void headwater_state_handle_change(HeadwaterState *state) {
 
   } else if((change_flags & (1 << HEADWATER_STATE_CHANGE_MODE))) {
     state->change_flags &= ~(1 << HEADWATER_STATE_CHANGE_MODE);
-    // TODO react to mode change
+    // react to mode change here, if ever a reason to
 
   // TODO BPM, MULTIPLIER_A, MULTIPLIER_B changes should be handled by
   // sample interrupt

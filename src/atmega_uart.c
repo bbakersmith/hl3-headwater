@@ -19,6 +19,6 @@ void atmega_uart_writer(uint8_t data) {
   UDR0 = data;
 }
 
-bool atmega_uart_status_check(void) {
+bool atmega_uart_is_busy(void) {
   return (UCSR0A & (1 << UDRE0)) == 0;
 }

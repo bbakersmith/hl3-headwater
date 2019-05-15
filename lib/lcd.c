@@ -46,7 +46,7 @@ LCD lcd_new(void) {
     .characters_index = 0,
     .mode = LCD_MODE_WRITE,
     .rows_index = -1,
-    .selected_position = 0, // TODO how to disable? negative position?
+    .selected_position = 0,
     .wait = 25,
     .wait_count = 0
   };
@@ -56,7 +56,6 @@ LCD lcd_new(void) {
   return lcd;
 }
 
-// need to be able to handle the row changes...
 LCDCommand lcd_next_command(LCD *lcd) {
   uint8_t data;
   uint8_t rs;

@@ -75,12 +75,9 @@ void headwater_api_payload_preprocessor(API *api) {
         (api->state)->multiplier_b_channel.samples
       );
       break;
-
-    // TODO test
     case HEADWATER_API_GET_CHANGE_FLAGS:
       api->request.payload[0] = (api->state)->change_flags;
       break;
-
     default:
       break;
   }

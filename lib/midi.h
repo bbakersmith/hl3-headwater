@@ -18,19 +18,13 @@
 #define MIDI_START 0xFA
 #define MIDI_STOP 0xFC
 
-// TODO should just be bool if only two states
-typedef enum {
-  MIDI_WRITER_STATUS_READY,
-  MIDI_WRITER_STATUS_BUSY
-} MIDIWriterStatus;
-
 /**
  * MIDI state holding serial read / write functions and message buffers.
  */
 typedef volatile struct MIDI {
   QueueFifo255 write_queue;
   void (*writer)(uint8_t data);
-  bool (*writer_status_check)(void);
+  bool (*writer_is_busy)(void);
 } MIDI;
 
 /**

@@ -28,9 +28,9 @@ volatile MIDI midi;
 volatile UIScreen screen;
 
 /**
- * TODO
+ * Initialize timers, interrupts, GPIO, and peripherals.
  */
-void atmega_headwater_global_register_setup(void) {
+void atmega_headwater_global_register_init(void) {
   // timer clear timer on compare (ctc) mode
   TCCR0A |= (1 << WGM01);
   TCCR1B |= (1 << WGM12);
@@ -54,19 +54,20 @@ void atmega_headwater_global_register_setup(void) {
 }
 
 /**
- * TODO
+ * Shim for the midi_write function to allow it to work with existing
+ * HeadwaterState midi_writer functionality.
  */
 void atmega_headwater_midi_writer(uint8_t data) {
   midi_write(&midi, data);
 }
 
 /**
- * TODO
+ * Initialize global state objects.
  */
-void atmega_headwater_global_state_setup(void) {
+void atmega_headwater_global_state_init(void) {
   midi = midi_new();
   midi.writer = &atmega_uart_writer;
-  midi.writer_status_check = &atmega_uart_status_check;
+  midi.writer_is_busy = &atmega_uart_is_busy;
 
   state = headwater_state_new();
   state.midi_writer = *atmega_headwater_midi_writer;
@@ -87,11 +88,11 @@ void atmega_headwater_global_state_setup(void) {
 }
 
 /**
- * TODO
+ * The program entrypoint, including initialization and the main loop.
  */
 int main(void) {
-  atmega_headwater_global_register_setup();
-  atmega_headwater_global_state_setup();
+  atmega_headwater_global_register_init();
+  atmega_headwater_global_state_init();
 
   sei(); // enable interrupts
 
@@ -123,7 +124,8 @@ int main(void) {
 }
 
 /**
- * TODO
+ * Interrupt for refreshing the LCD display. Changes speed depending on LCD
+ * mode.
  */
 ISR(TIMER0_COMPA_vect) {
   lcd_handle_interrupt(&lcd, &atmega_lcd_send);
@@ -137,7 +139,8 @@ ISR(TIMER0_COMPA_vect) {
 }
 
 /**
- * TODO
+ * Interrupt for updating HeadwaterState counts and outputs. This is the
+ * heart of the Headwater system.
  */
 ISR(TIMER1_COMPA_vect) {
   headwater_state_cycle(&state);
@@ -162,14 +165,14 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 /**
- * TODO
+ * Interrupt for reading and reacting to inbound SPI commands.
  */
 ISR(SPI_STC_vect) {
   SPDR = api_handle_interrupt(&api, SPDR);
 }
 
 /**
- * TODO
+ * Interrupt for reading inbound MIDI data.
  */
 ISR(USART_RX_vect) {
   // TODO midi_read
@@ -178,7 +181,7 @@ ISR(USART_RX_vect) {
 }
 
 /**
- * TODO
+ * Interrupt for writing outbound MIDI data.
  */
 ISR(USART_TX_vect) {
   midi_write_queue(&midi);

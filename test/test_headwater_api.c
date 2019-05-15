@@ -175,6 +175,15 @@ TEST(headwater_api, test_api_cmd_get_sample_count_multiplier_b) {
   );
 }
 
+TEST(headwater_api, test_api_cmd_get_change_flags) {
+  assert_headwater_api_get_8bit(
+    &dummy_api,
+    HEADWATER_API_GET_CHANGE_FLAGS,
+    &dummy_api.state->change_flags,
+    ((1 << 1) | (1 << 3) | (1 << 7))
+  );
+}
+
 // UPDATE Tests
 
 void assert_headwater_api_update_8bit(
@@ -285,6 +294,7 @@ TEST_GROUP_RUNNER(headwater_api) {
   RUN_TEST_CASE(headwater_api, test_api_cmd_get_sample_count_bpm);
   RUN_TEST_CASE(headwater_api, test_api_cmd_get_sample_count_multiplier_a);
   RUN_TEST_CASE(headwater_api, test_api_cmd_get_sample_count_multiplier_b);
+  RUN_TEST_CASE(headwater_api, test_api_cmd_get_change_flags);
 
   // UPDATE
   RUN_TEST_CASE(headwater_api, test_api_cmd_update_bpm);
