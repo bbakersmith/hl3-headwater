@@ -363,3 +363,39 @@ void headwater_state_handle_change_after_beat(HeadwaterState *state) {
     );
   }
 }
+
+void headwater_state_handle_midi_clock(HeadwaterState *state) {
+  if(state->reset_count == 0) {
+    // TODO really this should all probably go in headwater_state_play,
+    // but it's tricky because of MIDI play messages and button input,
+    // using it for clock messages is too much overloading.
+    // May be able to strip out the logic for HEADWATER_STATE_MODE_EXTERNAL
+    // to a headwater_state_external_reset function.
+    if(state->output_enabled) {
+      headwater_state_play(state);
+    }
+    state->samples_since_reset_count = 0;
+    state->reset_count = 1;
+  } else if(23 < state->reset_count) {
+    state->reset_count = 0;
+  } else {
+    state->rest_count++;
+  }
+}
+
+void headwater_state_handle_midi_read(HeadwaterState *state) {
+  uint8_t command = (state->midi)->reader();
+  switch(command) {
+    case MIDI_CLOCK:
+      headwater_state_handle_midi_clock(state);
+      break;
+    case MIDI_START:
+      headwater_state_play(state);
+      break;
+    case MIDI_STOP:
+      headwater_state_stop(state);
+      break;
+    default:
+      break;
+  }
+}

@@ -9,6 +9,11 @@ TEST_GROUP(headwater_state);
 MIDI dummy_midi;
 HeadwaterState dummy_state;
 
+uint8_t dummy_midi_reader_input;
+
+uint8_t dummy_midi_reader(void) {
+  return dummy_midi_reader_input;
+}
 
 uint8_t dummy_midi_writer_output;
 
@@ -17,9 +22,11 @@ void dummy_midi_writer(uint8_t data) {
 }
 
 TEST_SETUP(headwater_state) {
+  dummy_midi_reader_input = 0;
   dummy_midi_writer_output = 0;
 
   dummy_midi = midi_new();
+  dummy_midi.reader = &dummy_midi_reader;
   dummy_midi.writer = &dummy_midi_writer;
 
   dummy_state = headwater_state_new();
@@ -523,6 +530,141 @@ TEST(headwater_state, test_headwater_state_evenly_distributed_groups) {
   }
 }
 
+TEST(headwater_state, test_headwater_state_midi_mode_start) {
+  dummy_state.mode = HEADWATER_STATE_MODE_MIDI;
+  headwater_state_stop(&dummy_state);
+
+  for(uint8_t i = 0; i < 50; i++) {
+    dummy_midi_reader_input = MIDI_CLOCK;
+    headwater_state_handle_midi_read(&dummy_state);
+    headwater_state_cycle(&dummy_state);
+
+    TEST_ASSERT_EQUAL(0, dummy_state.bpm_channel.output);
+    TEST_ASSERT_EQUAL(0, dummy_state.multiplier_a_channel.output);
+    TEST_ASSERT_EQUAL(0, dummy_state.multiplier_b_channel.output);
+  }
+
+  TEST_ASSERT_EQUAL(0, dummy_state.output_enabled);
+
+  dummy_midi_reader_input = MIDI_START;
+  headwater_state_handle_midi_read(&dummy_state);
+  headwater_state_cycle(&dummy_state);
+
+  TEST_ASSERT_EQUAL(1, dummy_state.output_enabled);
+
+  TEST_ASSERT_EQUAL(1, dummy_state.bpm_channel.output);
+  TEST_ASSERT_EQUAL(1, dummy_state.multiplier_a_channel.output);
+  TEST_ASSERT_EQUAL(1, dummy_state.multiplier_b_channel.output);
+}
+
+TEST(headwater_state, test_headwater_state_midi_mode_stop) {
+  dummy_state.mode = HEADWATER_STATE_MODE_MIDI;
+
+  dummy_midi_reader_input = MIDI_START;
+  headwater_state_handle_midi_read(&dummy_state);
+  headwater_state_cycle(&dummy_state);
+
+  TEST_ASSERT_EQUAL(1, dummy_state.bpm_channel.output);
+  TEST_ASSERT_EQUAL(1, dummy_state.multiplier_a_channel.output);
+  TEST_ASSERT_EQUAL(1, dummy_state.multiplier_b_channel.output);
+
+  TEST_ASSERT_EQUAL(1, dummy_state.output_enabled);
+
+  dummy_midi_reader_input = MIDI_STOP;
+  headwater_state_handle_midi_read(&dummy_state);
+  headwater_state_cycle(&dummy_state);
+
+  TEST_ASSERT_EQUAL(0, dummy_state.output_enabled);
+
+  for(uint8_t i = 0; i < 50; i++) {
+    dummy_midi_reader_input = MIDI_CLOCK;
+    headwater_state_handle_midi_read(&dummy_state);
+    headwater_state_cycle(&dummy_state);
+
+    TEST_ASSERT_EQUAL(0, dummy_state.bpm_channel.output);
+    TEST_ASSERT_EQUAL(0, dummy_state.multiplier_a_channel.output);
+    TEST_ASSERT_EQUAL(0, dummy_state.multiplier_b_channel.output);
+  }
+}
+
+TEST(headwater_state, test_headwater_state_midi_mode_continue_playing) {
+  // TODO
+}
+
+TEST(headwater_state, test_headwater_state_midi_mode_continue_stopped) {
+  // TODO
+}
+
+TEST(headwater_state, test_headwater_state_midi_mode) {
+  dummy_state.mode = HEADWATER_STATE_MODE_MIDI;
+
+  // if stopped, no output from clock
+
+  dummy_midi_reader_input = MIDI_STOP;
+  headwater_state_handle_midi_read(&dummy_state);
+  headwater_state_cycle(&dummy_state);
+
+  for(uint8_t i = 0; i < 50; i ++) {
+    dummy_midi_reader_input = MIDI_CLOCK;
+    headwater_state_handle_midi_read(&dummy_state);
+    headwater_state_cycle(&dummy_state);
+
+    TEST_ASSERT_EQUAL(0, dummy_state.bpm_channel.output);
+    TEST_ASSERT_EQUAL(0, dummy_state.multiplier_a_channel.output);
+    TEST_ASSERT_EQUAL(0, dummy_state.multiplier_b_channel.output);
+  }
+
+  // outputs immediately when started
+
+  dummy_midi_reader_input = MIDI_START;
+  headwater_state_handle_midi_read(&dummy_state);
+  headwater_state_cycle(&dummy_state);
+
+  TEST_ASSERT_EQUAL(1, dummy_state.bpm_channel.output);
+  TEST_ASSERT_EQUAL(1, dummy_state.multiplier_a_channel.output);
+  TEST_ASSERT_EQUAL(1, dummy_state.multiplier_b_channel.output);
+
+  // nothing coming in, nothing going out
+
+  for(uint8_t i = 0; i < 50; i ++) {
+    headwater_state_cycle(&dummy_state);
+    TEST_ASSERT_EQUAL(0, dummy_state.bpm_channel.output);
+    TEST_ASSERT_EQUAL(0, dummy_state.multiplier_a_channel.output);
+    TEST_ASSERT_EQUAL(0, dummy_state.multiplier_b_channel.output);
+  }
+
+  // resets and outputs immediately when restarted
+
+  dummy_midi_reader_input = MIDI_START;
+  headwater_state_handle_midi_read(&dummy_state);
+  headwater_state_cycle(&dummy_state);
+
+  TEST_ASSERT_EQUAL(1, dummy_state.bpm_channel.output);
+  TEST_ASSERT_EQUAL(1, dummy_state.multiplier_a_channel.output);
+  TEST_ASSERT_EQUAL(1, dummy_state.multiplier_b_channel.output);
+
+  // next 23 midi clocks do nothing
+  for(uint8_t i = 0; i < 23; i ++) {
+    headwater_state_cycle(&dummy_state);
+    dummy_midi_reader_input = MIDI_CLOCK;
+    headwater_state_handle_midi_read(&dummy_state);
+    headwater_state_cycle(&dummy_state);
+
+    TEST_ASSERT_EQUAL(0, dummy_state.bpm_channel.output);
+    TEST_ASSERT_EQUAL(0, dummy_state.multiplier_a_channel.output);
+    TEST_ASSERT_EQUAL(0, dummy_state.multiplier_b_channel.output);
+  }
+
+
+  // test bpm and multiplier outputs
+
+  // when continue, keep chugging
+
+  // if stopped, no output from clock
+
+  // when continue, start playing
+}
+
 TEST_GROUP_RUNNER(headwater_state) {
   RUN_TEST_CASE(headwater_state, test_headwater_state_has_change_now);
   RUN_TEST_CASE(headwater_state, test_headwater_state_has_change_after_beat);
@@ -550,4 +692,7 @@ TEST_GROUP_RUNNER(headwater_state) {
     headwater_state,
     test_headwater_state_evenly_distributed_groups
   );
+  RUN_TEST_CASE(headwater_state, test_headwater_state_midi_mode_start);
+  RUN_TEST_CASE(headwater_state, test_headwater_state_midi_mode_stop);
+  RUN_TEST_CASE(headwater_state, test_headwater_state_midi_mode);
 }

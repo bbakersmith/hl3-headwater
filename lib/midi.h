@@ -24,6 +24,7 @@
  */
 typedef volatile struct MIDI {
   QueueFifo255 write_queue;
+  uint8_t (*reader)(void);
   void (*writer)(uint8_t data);
   bool (*writer_is_busy)(void);
 } MIDI;

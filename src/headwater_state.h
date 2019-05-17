@@ -128,9 +128,15 @@ void headwater_state_update_samples_per_beat(
 void headwater_state_stop(HeadwaterState *state);
 
 /**
- * TODO
+ * Handle triggers from play button, external input jack, and
+ * MIDI start / continue commands.
  */
 void headwater_state_play(HeadwaterState *state);
+
+/**
+ * TODO
+ */
+void headwater_state_external_reset(HeadwaterState *state);
 
 /**
  * TODO
@@ -161,5 +167,10 @@ bool headwater_state_has_change_after_beat(uint8_t change_flags);
  * TODO
  */
 void headwater_state_handle_change_after_beat(HeadwaterState *state);
+
+/**
+ * TODO
+ */
+void headwater_state_handle_midi_read(HeadwaterState *state);
 
 #endif

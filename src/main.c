@@ -166,9 +166,11 @@ ISR(SPI_STC_vect) {
  * Interrupt for reading inbound MIDI data.
  */
 ISR(USART_RX_vect) {
-  // TODO midi_read
-  // - stop, start, continue
-  // - clock (fire play every 24th)
+  // TODO
+  // if midi mode...
+  // - midi_read
+  //   - stop, start, continue
+  //   - clock (fire play every 24th)
 }
 
 /**
