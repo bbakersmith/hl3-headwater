@@ -6,6 +6,7 @@
 
 TEST_GROUP(headwater_state);
 
+MIDI dummy_midi;
 HeadwaterState dummy_state;
 
 
@@ -16,10 +17,14 @@ void dummy_midi_writer(uint8_t data) {
 }
 
 TEST_SETUP(headwater_state) {
-  dummy_state = headwater_state_new();
-  dummy_state.output_enabled = true;
-  dummy_state.midi_writer = &dummy_midi_writer;
   dummy_midi_writer_output = 0;
+
+  dummy_midi = midi_new();
+  dummy_midi.writer = &dummy_midi_writer;
+
+  dummy_state = headwater_state_new();
+  dummy_state.midi = &dummy_midi;
+  dummy_state.output_enabled = true;
 }
 
 TEST_TEAR_DOWN(headwater_state) {}
