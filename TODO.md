@@ -65,17 +65,6 @@ X midi output
 TODO HIGH
 =========
 
-- mode: midi
-  - input commands
-    - stop (0xFC)
-    - start (0xFA) and (0xFB) continue synonyms
-    - clock (0xF8) for timing
-  - calculate bpm from incoming midi clock
-  - play every beat (1/24?) of incoming midi clock
-    - reuse state.samples_since_reset_count
-    - will need another counter for division by 24
-  - passthrough to midi output?
-
 - mode: tap
   X auto loop based on internal bpm
   - after each play, re-calculate
@@ -87,6 +76,22 @@ TODO HIGH
   - put min max on all fields?
   - store actual value instead of uncomitted modifier?
     - would have to use another method of detecting change...
+
+- mode: midi
+  * might want to scrap midi mode and only provide midi output
+    due to complexity of logic
+  * might want to limit multipliers to max of 24 in midi mode to guarantee
+    one initial clock after start by which to measure base BPM and calculate
+    multiplier samples per beat
+  - input commands
+    - stop (0xFC)
+    - start (0xFA) and (0xFB) continue synonyms
+    - clock (0xF8) for timing
+  - play every beat (1/24?) of incoming midi clock
+    - reuse state.samples_since_reset_count
+    - will need another counter for division by 24
+  - calculate bpm from incoming midi clock
+  - passthrough to midi output?
 
 TODO LOW
 ========

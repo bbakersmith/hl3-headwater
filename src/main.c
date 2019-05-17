@@ -54,14 +54,6 @@ void atmega_headwater_global_register_init(void) {
 }
 
 /**
- * Shim for the midi_write function to allow it to work with existing
- * HeadwaterState midi_writer functionality.
- */
-void atmega_headwater_midi_writer(uint8_t data) {
-  midi_write(&midi, data);
-}
-
-/**
  * Initialize global state objects.
  */
 void atmega_headwater_global_state_init(void) {
@@ -70,7 +62,7 @@ void atmega_headwater_global_state_init(void) {
   midi.writer_is_busy = &atmega_uart_is_busy;
 
   state = headwater_state_new();
-  state.midi_writer = *atmega_headwater_midi_writer;
+  state.midi = &midi;
 
   api.payload_preprocessor = &headwater_api_payload_preprocessor;
   api.payload_postprocessor = &headwater_api_payload_postprocessor;
@@ -160,7 +152,7 @@ ISR(TIMER1_COMPA_vect) {
   atmega_io_multiplier_b_output(state.multiplier_b_channel.output);
 
   if(state.midi_channel.output)
-    atmega_headwater_midi_writer(MIDI_CLOCK);
+    midi.writer(MIDI_CLOCK);
 }
 
 /**

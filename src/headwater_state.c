@@ -46,8 +46,6 @@ HeadwaterStateChannel headwater_state_channel_new(uint16_t samples_per_beat) {
   return channel;
 }
 
-void headwater_state_dummy_midi_writer(uint8_t data) {}
-
 HeadwaterState headwater_state_new(void) {
   uint32_t samples_per_second = 1000;
 
@@ -78,7 +76,6 @@ HeadwaterState headwater_state_new(void) {
     .multiplier_a_channel = multiplier_a_channel,
     .multiplier_b_channel = multiplier_b_channel,
     .midi_channel = midi_channel,
-    .midi_writer = &headwater_state_dummy_midi_writer,
     .output_enabled = 0,
     .preset = 0,
     .reset_count = 0,
@@ -105,7 +102,7 @@ uint16_t headwater_state_bpm_to_samples(
 void headwater_state_stop(HeadwaterState *state) {
   state->output_enabled = 0;
   state->reset_count = 0;
-  state->midi_writer(MIDI_STOP);
+  (state->midi)->writer(MIDI_STOP);
 }
 
 void headwater_state_reset_channel(HeadwaterStateChannel *channel) {
@@ -145,9 +142,9 @@ void headwater_state_play(HeadwaterState *state) {
 
   if(state->output_enabled) {
     if(previous_output_enabled == 0) {
-      state->midi_writer(MIDI_START);
+      (state->midi)->writer(MIDI_START);
     } else {
-      state->midi_writer(MIDI_CONTINUE);
+      (state->midi)->writer(MIDI_CONTINUE);
     }
   }
 }
