@@ -65,11 +65,21 @@ X midi output
 TODO HIGH
 =========
 
+- pcb design
+  - decide on if hl3 will feature midi in
+  - schematic
+  - ui / front panel layout
+  - pcb layout
+
 - mode: tap
   X auto loop based on internal bpm
+  - tap should not trigger play, just recalculation of bpm?
+    or at least need to nail down how slow down of tap vs bpm should work
+    with looping
   - after each play, re-calculate
     - bpm (for display and ongoing playback)
     - samples for multipliers
+  - take into account time between last N taps?
 
 - ui range restriction stops display / value,
   but the uncommitted modifier keeps counting, which is bad

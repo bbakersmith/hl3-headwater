@@ -123,6 +123,7 @@ void headwater_state_play(HeadwaterState *state) {
 
   switch(state->mode) {
     case HEADWATER_STATE_MODE_EXTERNAL:
+    case HEADWATER_STATE_MODE_TAP:
       if(state->reset_count == 1) {
         // TODO display unknown ---.- ???.?
       } else {
@@ -231,16 +232,14 @@ void headwater_state_increment_counts(HeadwaterState *state) {
     state->samples_since_reset_count = 0;
   }
 
-  // TODO channels should have a loop param to not increment beats
-  // then the modes that use internal clock for bpm set bpm channel
-  // to loop
-
   // loop based on internal clock for internal and tap modes
-  if(
-    state->mode == HEADWATER_STATE_MODE_INTERNAL
-    || state->mode == HEADWATER_STATE_MODE_TAP
-  ) {
-    state->bpm_channel.beats = 0;
+  switch(state->mode) {
+    case HEADWATER_STATE_MODE_INTERNAL:
+    case HEADWATER_STATE_MODE_TAP:
+      state->bpm_channel.beats = 0;
+      break;
+    default:
+      break;
   }
 }
 
@@ -319,6 +318,7 @@ void headwater_state_handle_change_after_beat(HeadwaterState *state) {
         break;
 
       case HEADWATER_STATE_MODE_EXTERNAL:
+      case HEADWATER_STATE_MODE_TAP:
         state->bpm = headwater_state_samples_to_bpm(
           state->samples_per_second,
           state->bpm_channel.samples_per_beat
