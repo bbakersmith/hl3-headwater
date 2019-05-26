@@ -1,6 +1,6 @@
 .PHONY: analyzer clean docs flash loc size term test
 
-TEST_COMPILER=gcc-4.9
+TEST_CC ?= gcc-4.9
 
 BUILD_DIR=./build
 UNITY_DIR=./Unity
@@ -77,7 +77,7 @@ $(HEADWATER_ELF):
 test: $(TEST_TARGET)
 
 $(TEST_TARGET): clean
-	$(TEST_COMPILER) $(TEST_FLAGS) $(TEST_INC_DIRS) $(TEST_SOURCE_FILES) -o $(TEST_TARGET)
+	$(TEST_CC) $(TEST_FLAGS) $(TEST_INC_DIRS) $(TEST_SOURCE_FILES) -o $(TEST_TARGET)
 	$(TEST_TARGET) -v
 
 clean:
