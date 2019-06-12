@@ -60,34 +60,34 @@ $EndComp
 $Comp
 L Device:Crystal Y1
 U 1 1 5CE74B31
-P 3500 6750
-F 0 "Y1" H 3500 7018 50  0000 C CNN
-F 1 "16MHz" H 3500 6927 50  0000 C CNN
-F 2 "" H 3500 6750 50  0001 C CNN
-F 3 "~" H 3500 6750 50  0001 C CNN
-	1    3500 6750
+P 2350 6900
+F 0 "Y1" H 2350 7168 50  0000 C CNN
+F 1 "16MHz" H 2350 7077 50  0000 C CNN
+F 2 "" H 2350 6900 50  0001 C CNN
+F 3 "~" H 2350 6900 50  0001 C CNN
+	1    2350 6900
 	1    0    0    -1  
 $EndComp
 $Comp
 L Device:C C?
 U 1 1 5CE74C3A
-P 3800 7000
-F 0 "C?" H 3915 7046 50  0000 L CNN
-F 1 "C" H 3915 6955 50  0000 L CNN
-F 2 "" H 3838 6850 50  0001 C CNN
-F 3 "~" H 3800 7000 50  0001 C CNN
-	1    3800 7000
+P 2650 7150
+F 0 "C?" H 2765 7196 50  0000 L CNN
+F 1 "C" H 2765 7105 50  0000 L CNN
+F 2 "" H 2688 7000 50  0001 C CNN
+F 3 "~" H 2650 7150 50  0001 C CNN
+	1    2650 7150
 	1    0    0    -1  
 $EndComp
 $Comp
 L Device:C C?
 U 1 1 5CE74CA9
-P 3150 7000
-F 0 "C?" H 3265 7046 50  0000 L CNN
-F 1 "C" H 3265 6955 50  0000 L CNN
-F 2 "" H 3188 6850 50  0001 C CNN
-F 3 "~" H 3150 7000 50  0001 C CNN
-	1    3150 7000
+P 2000 7150
+F 0 "C?" H 2115 7196 50  0000 L CNN
+F 1 "C" H 2115 7105 50  0000 L CNN
+F 2 "" H 2038 7000 50  0001 C CNN
+F 3 "~" H 2000 7150 50  0001 C CNN
+	1    2000 7150
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -223,7 +223,7 @@ F 3 "" H 6300 7400 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	6300 7400 6300 7050
+	6300 7400 6300 7300
 Wire Wire Line
 	6900 5250 7100 5250
 Wire Wire Line
@@ -242,40 +242,40 @@ F 3 "" H 6300 3850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	6300 4050 6300 3850
+	6300 4050 6300 3950
 Text Notes 8450 2600 0    50   ~ 0
 LCD Shift Register
-Text Label 3000 6750 2    50   ~ 0
+Text Label 1850 6900 2    50   ~ 0
 XTAL1
-Text Label 3950 6750 0    50   ~ 0
+Text Label 2800 6900 0    50   ~ 0
 XTAL2
 Wire Wire Line
-	3800 6750 3650 6750
+	2650 6900 2500 6900
 Wire Wire Line
-	3800 6850 3800 6750
+	2650 7000 2650 6900
 Wire Wire Line
-	3350 6750 3150 6750
+	2200 6900 2000 6900
 Wire Wire Line
-	3150 6750 3150 6850
+	2000 6900 2000 7000
 $Comp
 L power:GND #PWR?
 U 1 1 5CE7D56E
-P 3500 7300
-F 0 "#PWR?" H 3500 7050 50  0001 C CNN
-F 1 "GND" H 3505 7127 50  0000 C CNN
-F 2 "" H 3500 7300 50  0001 C CNN
-F 3 "" H 3500 7300 50  0001 C CNN
-	1    3500 7300
+P 2350 7450
+F 0 "#PWR?" H 2350 7200 50  0001 C CNN
+F 1 "GND" H 2355 7277 50  0000 C CNN
+F 2 "" H 2350 7450 50  0001 C CNN
+F 3 "" H 2350 7450 50  0001 C CNN
+	1    2350 7450
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3500 7300 3500 7150
+	2350 7450 2350 7300
 Wire Wire Line
-	3950 6750 3800 6750
-Connection ~ 3800 6750
+	2800 6900 2650 6900
+Connection ~ 2650 6900
 Wire Wire Line
-	3150 6750 3000 6750
-Connection ~ 3150 6750
+	2000 6900 1850 6900
+Connection ~ 2000 6900
 $Comp
 L Device:R R?
 U 1 1 5CE8A777
@@ -410,37 +410,37 @@ Wire Wire Line
 $Comp
 L power:GND #PWR?
 U 1 1 5CF058E3
-P 1100 7350
-F 0 "#PWR?" H 1100 7100 50  0001 C CNN
-F 1 "GND" H 1105 7177 50  0000 C CNN
-F 2 "" H 1100 7350 50  0001 C CNN
-F 3 "" H 1100 7350 50  0001 C CNN
-	1    1100 7350
+P 1100 7400
+F 0 "#PWR?" H 1100 7150 50  0001 C CNN
+F 1 "GND" H 1105 7227 50  0000 C CNN
+F 2 "" H 1100 7400 50  0001 C CNN
+F 3 "" H 1100 7400 50  0001 C CNN
+	1    1100 7400
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:+5V #PWR?
 U 1 1 5CF0598C
-P 1100 6850
-F 0 "#PWR?" H 1100 6700 50  0001 C CNN
-F 1 "+5V" H 1115 7023 50  0000 C CNN
-F 2 "" H 1100 6850 50  0001 C CNN
-F 3 "" H 1100 6850 50  0001 C CNN
-	1    1100 6850
+P 1100 6800
+F 0 "#PWR?" H 1100 6650 50  0001 C CNN
+F 1 "+5V" H 1115 6973 50  0000 C CNN
+F 2 "" H 1100 6800 50  0001 C CNN
+F 3 "" H 1100 6800 50  0001 C CNN
+	1    1100 6800
 	1    0    0    -1  
 $EndComp
-Text Label 950  7000 2    50   ~ 0
+Text Label 950  6950 2    50   ~ 0
 +5V
-Text Label 950  7200 2    50   ~ 0
+Text Label 950  7250 2    50   ~ 0
 GND
 Wire Wire Line
-	950  7000 1100 7000
+	950  6950 1100 6950
 Wire Wire Line
-	1100 7000 1100 6850
+	1100 6950 1100 6800
 Wire Wire Line
-	1100 7350 1100 7200
+	1100 7400 1100 7250
 Wire Wire Line
-	1100 7200 950  7200
+	1100 7250 950  7250
 Text Label 4200 1500 2    50   ~ 0
 GND
 Wire Wire Line
@@ -508,35 +508,29 @@ Text Label 14450 1750 2    50   ~ 0
 STOP_PLAY_OUT
 Wire Wire Line
 	14450 1750 14700 1750
-Text Label 7850 1000 2    50   ~ 0
+Text Label 7850 800  2    50   ~ 0
 GND
 Text Label 7850 1100 2    50   ~ 0
 +5V
 Wire Wire Line
-	7850 1100 8800 1100
-Wire Wire Line
 	8800 1100 8800 1200
 Wire Wire Line
-	9000 1200 9000 1000
-Wire Wire Line
-	7850 1000 9000 1000
-Text Label 4050 1050 2    50   ~ 0
+	7850 800  8400 800 
+Text Label 4050 850  2    50   ~ 0
 GND
 Text Label 4050 1150 2    50   ~ 0
 +5V
 Wire Wire Line
-	4050 1150 5000 1150
+	4050 1150 4600 1150
 Wire Wire Line
 	5000 1150 5000 1250
 Wire Wire Line
-	5200 1250 5200 1050
+	4050 850  4600 850 
+Connection ~ 2350 7300
 Wire Wire Line
-	4050 1050 5200 1050
-Connection ~ 3500 7150
+	2350 7300 2650 7300
 Wire Wire Line
-	3500 7150 3800 7150
-Wire Wire Line
-	3150 7150 3500 7150
+	2000 7300 2350 7300
 $Comp
 L Switch:SW_Push SW?
 U 1 1 5CF340E2
@@ -866,17 +860,6 @@ Wire Wire Line
 	1900 3350 1900 3650
 Wire Wire Line
 	2000 3350 2000 3550
-$Comp
-L synthrotek2:Audio-Jack-2_Switch J?
-U 1 1 5D14F93A
-P 850 4600
-F 0 "J?" H 828 4925 50  0000 C CNN
-F 1 "Audio-Jack-2_Switch" H 828 4834 50  0000 C CNN
-F 2 "" H 1100 4700 50  0001 C CNN
-F 3 "~" H 1100 4700 50  0001 C CNN
-	1    850  4600
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	1050 4500 1250 4500
 Wire Wire Line
@@ -895,17 +878,6 @@ Wire Wire Line
 Wire Wire Line
 	650  4800 650  4700
 Connection ~ 1150 4800
-$Comp
-L synthrotek2:Audio-Jack-2_Switch J?
-U 1 1 5D192660
-P 850 5600
-F 0 "J?" H 828 5925 50  0000 C CNN
-F 1 "Audio-Jack-2_Switch" H 828 5834 50  0000 C CNN
-F 2 "" H 1100 5700 50  0001 C CNN
-F 3 "~" H 1100 5700 50  0001 C CNN
-	1    850  5600
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	1050 5500 1250 5500
 Wire Wire Line
@@ -1020,90 +992,77 @@ Wire Wire Line
 $Comp
 L 4xxx:4049 U?
 U 2 1 5D47BC87
-P 14450 5350
-F 0 "U?" H 14450 5667 50  0000 C CNN
-F 1 "4049" H 14450 5576 50  0000 C CNN
-F 2 "" H 14450 5350 50  0001 C CNN
-F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 14450 5350 50  0001 C CNN
-	2    14450 5350
+P 13950 5350
+F 0 "U?" H 13950 5667 50  0000 C CNN
+F 1 "4049" H 13950 5576 50  0000 C CNN
+F 2 "" H 13950 5350 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 13950 5350 50  0001 C CNN
+	2    13950 5350
 	1    0    0    -1  
 $EndComp
 $Comp
 L 4xxx:4049 U?
 U 1 1 5CE73BCF
-P 14450 4700
-F 0 "U?" H 14450 5017 50  0000 C CNN
-F 1 "4049" H 14450 4926 50  0000 C CNN
-F 2 "" H 14450 4700 50  0001 C CNN
-F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 14450 4700 50  0001 C CNN
-	1    14450 4700
+P 13950 4700
+F 0 "U?" H 13950 5017 50  0000 C CNN
+F 1 "4049" H 13950 4926 50  0000 C CNN
+F 2 "" H 13950 4700 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 13950 4700 50  0001 C CNN
+	1    13950 4700
 	1    0    0    -1  
 $EndComp
 $Comp
 L 4xxx:4049 U?
 U 3 1 5D487816
-P 14450 6500
-F 0 "U?" H 14450 6817 50  0000 C CNN
-F 1 "4049" H 14450 6726 50  0000 C CNN
-F 2 "" H 14450 6500 50  0001 C CNN
-F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 14450 6500 50  0001 C CNN
-	3    14450 6500
+P 13950 6500
+F 0 "U?" H 13950 6817 50  0000 C CNN
+F 1 "4049" H 13950 6726 50  0000 C CNN
+F 2 "" H 13950 6500 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 13950 6500 50  0001 C CNN
+	3    13950 6500
 	1    0    0    -1  
 $EndComp
 $Comp
 L 4xxx:4049 U?
 U 4 1 5D48781C
-P 14450 7150
-F 0 "U?" H 14450 7467 50  0000 C CNN
-F 1 "4049" H 14450 7376 50  0000 C CNN
-F 2 "" H 14450 7150 50  0001 C CNN
-F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 14450 7150 50  0001 C CNN
-	4    14450 7150
+P 13950 7150
+F 0 "U?" H 13950 7467 50  0000 C CNN
+F 1 "4049" H 13950 7376 50  0000 C CNN
+F 2 "" H 13950 7150 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 13950 7150 50  0001 C CNN
+	4    13950 7150
 	1    0    0    -1  
 $EndComp
 $Comp
 L 4xxx:4049 U?
 U 5 1 5D4954F5
-P 14450 8300
-F 0 "U?" H 14450 8617 50  0000 C CNN
-F 1 "4049" H 14450 8526 50  0000 C CNN
-F 2 "" H 14450 8300 50  0001 C CNN
-F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 14450 8300 50  0001 C CNN
-	5    14450 8300
+P 13950 8300
+F 0 "U?" H 13950 8617 50  0000 C CNN
+F 1 "4049" H 13950 8526 50  0000 C CNN
+F 2 "" H 13950 8300 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 13950 8300 50  0001 C CNN
+	5    13950 8300
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	14150 4700 14050 4700
+	13650 4700 13550 4700
 Wire Wire Line
-	14050 4700 14050 5350
+	13550 4700 13550 5350
 Wire Wire Line
-	14050 5350 14150 5350
+	13550 5350 13650 5350
 Wire Wire Line
-	14150 6500 14050 6500
+	13650 6500 13550 6500
 Wire Wire Line
-	14050 6500 14050 7150
+	13550 6500 13550 7150
 Wire Wire Line
-	14050 7150 14150 7150
+	13550 7150 13650 7150
 Wire Wire Line
-	14150 8300 14050 8300
+	13650 8300 13550 8300
 Wire Wire Line
-	14900 7850 14050 7850
+	14900 7850 13550 7850
 Wire Wire Line
-	14050 7850 14050 8300
-Connection ~ 14050 8300
-$Comp
-L synthrotek2:Audio-Jack-2_Switch J?
-U 1 1 5D525D0E
-P 15100 8400
-F 0 "J?" H 15078 8725 50  0000 C CNN
-F 1 "Audio-Jack-2_Switch" H 15078 8634 50  0000 C CNN
-F 2 "" H 15350 8500 50  0001 C CNN
-F 3 "~" H 15350 8500 50  0001 C CNN
-	1    15100 8400
-	-1   0    0    -1  
-$EndComp
-Wire Wire Line
-	14900 8300 14750 8300
+	13550 7850 13550 8300
+Connection ~ 13550 8300
 Wire Wire Line
 	14900 8400 14800 8400
 Wire Wire Line
@@ -1115,37 +1074,24 @@ Wire Wire Line
 Wire Wire Line
 	14900 9050 14800 9050
 Wire Wire Line
-	14900 8950 14750 8950
-$Comp
-L synthrotek2:Audio-Jack-2_Switch J?
-U 1 1 5D561F94
-P 15100 9050
-F 0 "J?" H 15078 9375 50  0000 C CNN
-F 1 "Audio-Jack-2_Switch" H 15078 9284 50  0000 C CNN
-F 2 "" H 15350 9150 50  0001 C CNN
-F 3 "~" H 15350 9150 50  0001 C CNN
-	1    15100 9050
-	-1   0    0    -1  
-$EndComp
-Wire Wire Line
 	15300 8600 15300 8500
 Wire Wire Line
 	14800 8600 15300 8600
 Wire Wire Line
 	14800 8400 14800 8600
 Wire Wire Line
-	14050 8950 14150 8950
+	13550 8950 13650 8950
 Wire Wire Line
-	14050 8300 14050 8950
+	13550 8300 13550 8950
 $Comp
 L 4xxx:4049 U?
 U 6 1 5D4954FB
-P 14450 8950
-F 0 "U?" H 14450 9267 50  0000 C CNN
-F 1 "4049" H 14450 9176 50  0000 C CNN
-F 2 "" H 14450 8950 50  0001 C CNN
-F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 14450 8950 50  0001 C CNN
-	6    14450 8950
+P 13950 8950
+F 0 "U?" H 13950 9267 50  0000 C CNN
+F 1 "4049" H 13950 9176 50  0000 C CNN
+F 2 "" H 13950 8950 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 13950 8950 50  0001 C CNN
+	6    13950 8950
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -1164,20 +1110,7 @@ F 3 "~" H 15050 6050 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	14900 6050 14050 6050
-$Comp
-L synthrotek2:Audio-Jack-2_Switch J?
-U 1 1 5D638E44
-P 15100 6600
-F 0 "J?" H 15078 6925 50  0000 C CNN
-F 1 "Audio-Jack-2_Switch" H 15078 6834 50  0000 C CNN
-F 2 "" H 15350 6700 50  0001 C CNN
-F 3 "~" H 15350 6700 50  0001 C CNN
-	1    15100 6600
-	-1   0    0    -1  
-$EndComp
-Wire Wire Line
-	14900 6500 14750 6500
+	14900 6050 13550 6050
 Wire Wire Line
 	14900 6600 14800 6600
 Wire Wire Line
@@ -1188,19 +1121,6 @@ Wire Wire Line
 	14800 7250 14800 7450
 Wire Wire Line
 	14900 7250 14800 7250
-Wire Wire Line
-	14900 7150 14750 7150
-$Comp
-L synthrotek2:Audio-Jack-2_Switch J?
-U 1 1 5D638E51
-P 15100 7250
-F 0 "J?" H 15078 7575 50  0000 C CNN
-F 1 "Audio-Jack-2_Switch" H 15078 7484 50  0000 C CNN
-F 2 "" H 15350 7350 50  0001 C CNN
-F 3 "~" H 15350 7350 50  0001 C CNN
-	1    15100 7250
-	-1   0    0    -1  
-$EndComp
 Wire Wire Line
 	15300 6800 15300 6700
 Wire Wire Line
@@ -1221,20 +1141,7 @@ F 3 "~" H 15050 4250 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	14900 4250 14050 4250
-$Comp
-L synthrotek2:Audio-Jack-2_Switch J?
-U 1 1 5D64A448
-P 15100 4800
-F 0 "J?" H 15078 5125 50  0000 C CNN
-F 1 "Audio-Jack-2_Switch" H 15078 5034 50  0000 C CNN
-F 2 "" H 15350 4900 50  0001 C CNN
-F 3 "~" H 15350 4900 50  0001 C CNN
-	1    15100 4800
-	-1   0    0    -1  
-$EndComp
-Wire Wire Line
-	14900 4700 14750 4700
+	14900 4250 13550 4250
 Wire Wire Line
 	14900 4800 14800 4800
 Wire Wire Line
@@ -1245,19 +1152,6 @@ Wire Wire Line
 	14800 5450 14800 5650
 Wire Wire Line
 	14900 5450 14800 5450
-Wire Wire Line
-	14900 5350 14750 5350
-$Comp
-L synthrotek2:Audio-Jack-2_Switch J?
-U 1 1 5D64A455
-P 15100 5450
-F 0 "J?" H 15078 5775 50  0000 C CNN
-F 1 "Audio-Jack-2_Switch" H 15078 5684 50  0000 C CNN
-F 2 "" H 15350 5550 50  0001 C CNN
-F 3 "~" H 15350 5550 50  0001 C CNN
-	1    15100 5450
-	-1   0    0    -1  
-$EndComp
 Wire Wire Line
 	15300 5000 15300 4900
 Wire Wire Line
@@ -1348,32 +1242,32 @@ Connection ~ 15400 9250
 Wire Wire Line
 	15400 9250 15400 9400
 Wire Wire Line
-	14050 6050 14050 6500
-Connection ~ 14050 6500
+	13550 6050 13550 6500
+Connection ~ 13550 6500
 Wire Wire Line
-	14050 4250 14050 4700
-Connection ~ 14050 4700
-Text Label 13950 4700 2    50   ~ 0
+	13550 4250 13550 4700
+Connection ~ 13550 4700
+Text Label 13450 4700 2    50   ~ 0
 BPM_OUT
-Text Label 13950 6500 2    50   ~ 0
+Text Label 13450 6500 2    50   ~ 0
 MULTIPLIER_A_OUT
-Text Label 13950 8300 2    50   ~ 0
+Text Label 13450 8300 2    50   ~ 0
 MULTIPLIER_B_OUT
 Wire Wire Line
-	13950 4700 14050 4700
+	13450 4700 13550 4700
 Wire Wire Line
-	13950 6500 14050 6500
+	13450 6500 13550 6500
 Wire Wire Line
-	13950 8300 14050 8300
+	13450 8300 13550 8300
 $Comp
 L 4xxx:4049 U?
 U 7 1 5D913B26
-P 2400 8450
-F 0 "U?" H 2400 8767 50  0000 C CNN
-F 1 "4049" H 2400 8676 50  0000 C CNN
-F 2 "" H 2400 8450 50  0001 C CNN
-F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 2400 8450 50  0001 C CNN
-	7    2400 8450
+P 1100 8900
+F 0 "U?" H 1100 9217 50  0000 C CNN
+F 1 "4049" H 1100 9126 50  0000 C CNN
+F 2 "" H 1100 8900 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 1100 8900 50  0001 C CNN
+	7    1100 8900
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -1431,4 +1325,375 @@ F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4050bms.pdf" 
 	1    9900 9650
 	1    0    0    -1  
 $EndComp
+$Comp
+L Kicad_Library_4_Connector:Audio-Jack-2_Switch J?
+U 1 1 5D03B665
+P 850 4600
+F 0 "J?" H 828 4925 50  0000 C CNN
+F 1 "Audio-Jack-2_Switch" H 828 4834 50  0000 C CNN
+F 2 "" H 1100 4700 50  0001 C CNN
+F 3 "~" H 1100 4700 50  0001 C CNN
+	1    850  4600
+	1    0    0    -1  
+$EndComp
+$Comp
+L Kicad_Library_4_Connector:Audio-Jack-2_Switch J?
+U 1 1 5D07763C
+P 850 5600
+F 0 "J?" H 828 5925 50  0000 C CNN
+F 1 "Audio-Jack-2_Switch" H 828 5834 50  0000 C CNN
+F 2 "" H 1100 5700 50  0001 C CNN
+F 3 "~" H 1100 5700 50  0001 C CNN
+	1    850  5600
+	1    0    0    -1  
+$EndComp
+$Comp
+L Kicad_Library_4_Connector:Audio-Jack-2_Switch J?
+U 1 1 5D09B661
+P 15100 4800
+F 0 "J?" H 15078 5125 50  0000 C CNN
+F 1 "Audio-Jack-2_Switch" H 15078 5034 50  0000 C CNN
+F 2 "" H 15350 4900 50  0001 C CNN
+F 3 "~" H 15350 4900 50  0001 C CNN
+	1    15100 4800
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Kicad_Library_4_Connector:Audio-Jack-2_Switch J?
+U 1 1 5D0BC79E
+P 15100 5450
+F 0 "J?" H 15078 5775 50  0000 C CNN
+F 1 "Audio-Jack-2_Switch" H 15078 5684 50  0000 C CNN
+F 2 "" H 15350 5550 50  0001 C CNN
+F 3 "~" H 15350 5550 50  0001 C CNN
+	1    15100 5450
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Kicad_Library_4_Connector:Audio-Jack-2_Switch J?
+U 1 1 5D0DE854
+P 15100 6600
+F 0 "J?" H 15078 6925 50  0000 C CNN
+F 1 "Audio-Jack-2_Switch" H 15078 6834 50  0000 C CNN
+F 2 "" H 15350 6700 50  0001 C CNN
+F 3 "~" H 15350 6700 50  0001 C CNN
+	1    15100 6600
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Kicad_Library_4_Connector:Audio-Jack-2_Switch J?
+U 1 1 5D1007DC
+P 15100 7250
+F 0 "J?" H 15078 7575 50  0000 C CNN
+F 1 "Audio-Jack-2_Switch" H 15078 7484 50  0000 C CNN
+F 2 "" H 15350 7350 50  0001 C CNN
+F 3 "~" H 15350 7350 50  0001 C CNN
+	1    15100 7250
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Kicad_Library_4_Connector:Audio-Jack-2_Switch J?
+U 1 1 5D122382
+P 15100 8400
+F 0 "J?" H 15078 8725 50  0000 C CNN
+F 1 "Audio-Jack-2_Switch" H 15078 8634 50  0000 C CNN
+F 2 "" H 15350 8500 50  0001 C CNN
+F 3 "~" H 15350 8500 50  0001 C CNN
+	1    15100 8400
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Kicad_Library_4_Connector:Audio-Jack-2_Switch J?
+U 1 1 5D15693C
+P 15100 9050
+F 0 "J?" H 15078 9375 50  0000 C CNN
+F 1 "Audio-Jack-2_Switch" H 15078 9284 50  0000 C CNN
+F 2 "" H 15350 9150 50  0001 C CNN
+F 3 "~" H 15350 9150 50  0001 C CNN
+	1    15100 9050
+	-1   0    0    -1  
+$EndComp
+$Comp
+L 4xxx:4050 U?
+U 7 1 5D16D29B
+P 2200 8900
+F 0 "U?" H 2200 9217 50  0000 C CNN
+F 1 "4050" H 2200 9126 50  0000 C CNN
+F 2 "" H 2200 8900 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4050bms.pdf" H 2200 8900 50  0001 C CNN
+	7    2200 8900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5D1BB5AB
+P 2200 9600
+F 0 "#PWR?" H 2200 9350 50  0001 C CNN
+F 1 "GND" H 2205 9427 50  0000 C CNN
+F 2 "" H 2200 9600 50  0001 C CNN
+F 3 "" H 2200 9600 50  0001 C CNN
+	1    2200 9600
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 5D1CC1ED
+P 2600 8900
+F 0 "C?" H 2715 8946 50  0000 L CNN
+F 1 "C" H 2715 8855 50  0000 L CNN
+F 2 "" H 2638 8750 50  0001 C CNN
+F 3 "~" H 2600 8900 50  0001 C CNN
+	1    2600 8900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 5D1DF000
+P 2200 8200
+F 0 "#PWR?" H 2200 8050 50  0001 C CNN
+F 1 "+5V" H 2215 8373 50  0000 C CNN
+F 2 "" H 2200 8200 50  0001 C CNN
+F 3 "" H 2200 8200 50  0001 C CNN
+	1    2200 8200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2200 9400 2200 9500
+Wire Wire Line
+	2200 9500 2600 9500
+Wire Wire Line
+	2600 9500 2600 9050
+Connection ~ 2200 9500
+Wire Wire Line
+	2200 9500 2200 9600
+Wire Wire Line
+	2600 8300 2200 8300
+$Comp
+L power:GND #PWR?
+U 1 1 5D22442A
+P 1100 9600
+F 0 "#PWR?" H 1100 9350 50  0001 C CNN
+F 1 "GND" H 1105 9427 50  0000 C CNN
+F 2 "" H 1100 9600 50  0001 C CNN
+F 3 "" H 1100 9600 50  0001 C CNN
+	1    1100 9600
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 5D224430
+P 1500 8900
+F 0 "C?" H 1615 8946 50  0000 L CNN
+F 1 "C" H 1615 8855 50  0000 L CNN
+F 2 "" H 1538 8750 50  0001 C CNN
+F 3 "~" H 1500 8900 50  0001 C CNN
+	1    1500 8900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 5D224436
+P 1100 8200
+F 0 "#PWR?" H 1100 8050 50  0001 C CNN
+F 1 "+5V" H 1115 8373 50  0000 C CNN
+F 2 "" H 1100 8200 50  0001 C CNN
+F 3 "" H 1100 8200 50  0001 C CNN
+	1    1100 8200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1100 9400 1100 9500
+Wire Wire Line
+	1100 9500 1500 9500
+Wire Wire Line
+	1500 9500 1500 9050
+Connection ~ 1100 9500
+Wire Wire Line
+	1100 9500 1100 9600
+Wire Wire Line
+	1500 8300 1100 8300
+Connection ~ 1100 8300
+Wire Wire Line
+	1100 8300 1100 8200
+Wire Wire Line
+	1100 8300 1100 8400
+Wire Wire Line
+	1500 8300 1500 8750
+Connection ~ 2200 8300
+Wire Wire Line
+	2200 8300 2200 8200
+Wire Wire Line
+	2200 8300 2200 8400
+Wire Wire Line
+	2600 8300 2600 8750
+$Comp
+L Device:C C?
+U 1 1 5D30189A
+P 4600 1000
+F 0 "C?" H 4715 1046 50  0000 L CNN
+F 1 "C" H 4715 955 50  0000 L CNN
+F 2 "" H 4638 850 50  0001 C CNN
+F 3 "~" H 4600 1000 50  0001 C CNN
+	1    4600 1000
+	1    0    0    -1  
+$EndComp
+Connection ~ 4600 1150
+Wire Wire Line
+	4600 1150 5000 1150
+Connection ~ 4600 850 
+Wire Wire Line
+	4600 850  5200 850 
+Wire Wire Line
+	5200 850  5200 1250
+$Comp
+L Device:C C?
+U 1 1 5D32C674
+P 8400 950
+F 0 "C?" H 8515 996 50  0000 L CNN
+F 1 "C" H 8515 905 50  0000 L CNN
+F 2 "" H 8438 800 50  0001 C CNN
+F 3 "~" H 8400 950 50  0001 C CNN
+	1    8400 950 
+	1    0    0    -1  
+$EndComp
+Connection ~ 8400 800 
+Wire Wire Line
+	8400 800  9000 800 
+Wire Wire Line
+	9000 800  9000 1200
+Wire Wire Line
+	7850 1100 8400 1100
+Wire Wire Line
+	8800 1100 8400 1100
+Connection ~ 8400 1100
+$Comp
+L Device:CP C?
+U 1 1 5D3A47EF
+P 1100 7100
+F 0 "C?" H 1218 7146 50  0000 L CNN
+F 1 "CP" H 1218 7055 50  0000 L CNN
+F 2 "" H 1138 6950 50  0001 C CNN
+F 3 "~" H 1100 7100 50  0001 C CNN
+	1    1100 7100
+	1    0    0    -1  
+$EndComp
+Connection ~ 1100 6950
+Connection ~ 1100 7250
+$Comp
+L Device:C C?
+U 1 1 5D3E687A
+P 5550 5550
+F 0 "C?" H 5665 5596 50  0000 L CNN
+F 1 "C" H 5665 5505 50  0000 L CNN
+F 2 "" H 5588 5400 50  0001 C CNN
+F 3 "~" H 5550 5550 50  0001 C CNN
+	1    5550 5550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5550 5400 5550 3950
+Wire Wire Line
+	5550 3950 6300 3950
+Connection ~ 6300 3950
+Wire Wire Line
+	6300 3950 6300 3850
+Wire Wire Line
+	5550 5700 5550 7300
+Wire Wire Line
+	5550 7300 6300 7300
+Connection ~ 6300 7300
+Wire Wire Line
+	6300 7300 6300 7050
+$Comp
+L Device:R R?
+U 1 1 5D454556
+P 14500 8300
+F 0 "R?" V 14293 8300 50  0000 C CNN
+F 1 "R" V 14384 8300 50  0000 C CNN
+F 2 "" V 14430 8300 50  0001 C CNN
+F 3 "~" H 14500 8300 50  0001 C CNN
+	1    14500 8300
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	14650 8300 14900 8300
+Wire Wire Line
+	14350 8300 14250 8300
+$Comp
+L Device:R R?
+U 1 1 5D4C7BEE
+P 14500 8950
+F 0 "R?" V 14293 8950 50  0000 C CNN
+F 1 "R" V 14384 8950 50  0000 C CNN
+F 2 "" V 14430 8950 50  0001 C CNN
+F 3 "~" H 14500 8950 50  0001 C CNN
+	1    14500 8950
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	14650 8950 14900 8950
+Wire Wire Line
+	14350 8950 14250 8950
+$Comp
+L Device:R R?
+U 1 1 5D525092
+P 14500 6500
+F 0 "R?" V 14293 6500 50  0000 C CNN
+F 1 "R" V 14384 6500 50  0000 C CNN
+F 2 "" V 14430 6500 50  0001 C CNN
+F 3 "~" H 14500 6500 50  0001 C CNN
+	1    14500 6500
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5D525098
+P 14500 7150
+F 0 "R?" V 14293 7150 50  0000 C CNN
+F 1 "R" V 14384 7150 50  0000 C CNN
+F 2 "" V 14430 7150 50  0001 C CNN
+F 3 "~" H 14500 7150 50  0001 C CNN
+	1    14500 7150
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5D55146F
+P 14500 4700
+F 0 "R?" V 14293 4700 50  0000 C CNN
+F 1 "R" V 14384 4700 50  0000 C CNN
+F 2 "" V 14430 4700 50  0001 C CNN
+F 3 "~" H 14500 4700 50  0001 C CNN
+	1    14500 4700
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5D551475
+P 14500 5350
+F 0 "R?" V 14293 5350 50  0000 C CNN
+F 1 "R" V 14384 5350 50  0000 C CNN
+F 2 "" V 14430 5350 50  0001 C CNN
+F 3 "~" H 14500 5350 50  0001 C CNN
+	1    14500 5350
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	14650 4700 14900 4700
+Wire Wire Line
+	14650 5350 14900 5350
+Wire Wire Line
+	14350 5350 14250 5350
+Wire Wire Line
+	14250 4700 14350 4700
+Wire Wire Line
+	14350 6500 14250 6500
+Wire Wire Line
+	14650 7150 14900 7150
+Wire Wire Line
+	14350 7150 14250 7150
+Wire Wire Line
+	14650 6500 14900 6500
+Text Notes 9650 4250 0    50   ~ 0
+TODO\n\n- MIDI I/O\n- Output voltage switch (5v/10v)
 $EndSCHEMATC
