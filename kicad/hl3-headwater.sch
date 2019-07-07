@@ -1,4 +1,5 @@
 EESchema Schematic File Version 4
+LIBS:hl3-headwater-cache
 EELAYER 29 0
 EELAYER END
 $Descr A3 16535 11693
@@ -110,28 +111,6 @@ F 1 "LED_Dual_2pin" H 15000 2055 50  0000 C CNN
 F 2 "" H 15000 1750 50  0001 C CNN
 F 3 "~" H 15000 1750 50  0001 C CNN
 	1    15000 1750
-	1    0    0    -1  
-$EndComp
-$Comp
-L Connector:DIN-5 J?
-U 1 1 5CE752D0
-P 10950 7200
-F 0 "J?" H 10950 6926 50  0000 C CNN
-F 1 "DIN-5" H 10950 6835 50  0000 C CNN
-F 2 "" H 10950 7200 50  0001 C CNN
-F 3 "http://www.mouser.com/ds/2/18/40_c091_abd_e-75918.pdf" H 10950 7200 50  0001 C CNN
-	1    10950 7200
-	1    0    0    -1  
-$EndComp
-$Comp
-L Connector:DIN-5 J?
-U 1 1 5CE75347
-P 8750 6200
-F 0 "J?" H 8750 5926 50  0000 C CNN
-F 1 "DIN-5" H 8750 5835 50  0000 C CNN
-F 2 "" H 8750 6200 50  0001 C CNN
-F 3 "http://www.mouser.com/ds/2/18/40_c091_abd_e-75918.pdf" H 8750 6200 50  0001 C CNN
-	1    8750 6200
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -1167,17 +1146,6 @@ Wire Wire Line
 	15300 5000 15400 5000
 Connection ~ 15300 5000
 $Comp
-L 4xxx:4050 U?
-U 1 1 5CE74193
-P 9900 6400
-F 0 "U?" H 9900 6717 50  0000 C CNN
-F 1 "4050" H 9900 6626 50  0000 C CNN
-F 2 "" H 9900 6400 50  0001 C CNN
-F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4050bms.pdf" H 9900 6400 50  0001 C CNN
-	1    9900 6400
-	1    0    0    -1  
-$EndComp
-$Comp
 L power:+5V #PWR?
 U 1 1 5D6D5EAE
 P 15500 3650
@@ -1271,61 +1239,6 @@ F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf"
 	1    0    0    -1  
 $EndComp
 $Comp
-L 4xxx:4050 U?
-U 1 1 5D936797
-P 9900 7050
-F 0 "U?" H 9900 7367 50  0000 C CNN
-F 1 "4050" H 9900 7276 50  0000 C CNN
-F 2 "" H 9900 7050 50  0001 C CNN
-F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4050bms.pdf" H 9900 7050 50  0001 C CNN
-	1    9900 7050
-	1    0    0    -1  
-$EndComp
-$Comp
-L 4xxx:4050 U?
-U 1 1 5D947940
-P 9900 7700
-F 0 "U?" H 9900 8017 50  0000 C CNN
-F 1 "4050" H 9900 7926 50  0000 C CNN
-F 2 "" H 9900 7700 50  0001 C CNN
-F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4050bms.pdf" H 9900 7700 50  0001 C CNN
-	1    9900 7700
-	1    0    0    -1  
-$EndComp
-$Comp
-L 4xxx:4050 U?
-U 1 1 5D947946
-P 9900 8350
-F 0 "U?" H 9900 8667 50  0000 C CNN
-F 1 "4050" H 9900 8576 50  0000 C CNN
-F 2 "" H 9900 8350 50  0001 C CNN
-F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4050bms.pdf" H 9900 8350 50  0001 C CNN
-	1    9900 8350
-	1    0    0    -1  
-$EndComp
-$Comp
-L 4xxx:4050 U?
-U 1 1 5D958A85
-P 9900 9000
-F 0 "U?" H 9900 9317 50  0000 C CNN
-F 1 "4050" H 9900 9226 50  0000 C CNN
-F 2 "" H 9900 9000 50  0001 C CNN
-F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4050bms.pdf" H 9900 9000 50  0001 C CNN
-	1    9900 9000
-	1    0    0    -1  
-$EndComp
-$Comp
-L 4xxx:4050 U?
-U 1 1 5D958A8B
-P 9900 9650
-F 0 "U?" H 9900 9967 50  0000 C CNN
-F 1 "4050" H 9900 9876 50  0000 C CNN
-F 2 "" H 9900 9650 50  0001 C CNN
-F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4050bms.pdf" H 9900 9650 50  0001 C CNN
-	1    9900 9650
-	1    0    0    -1  
-$EndComp
-$Comp
 L Kicad_Library_4_Connector:Audio-Jack-2_Switch J?
 U 1 1 5D03B665
 P 850 4600
@@ -1412,17 +1325,6 @@ F 2 "" H 15350 9150 50  0001 C CNN
 F 3 "~" H 15350 9150 50  0001 C CNN
 	1    15100 9050
 	-1   0    0    -1  
-$EndComp
-$Comp
-L 4xxx:4050 U?
-U 7 1 5D16D29B
-P 2200 8900
-F 0 "U?" H 2200 9217 50  0000 C CNN
-F 1 "4050" H 2200 9126 50  0000 C CNN
-F 2 "" H 2200 8900 50  0001 C CNN
-F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4050bms.pdf" H 2200 8900 50  0001 C CNN
-	7    2200 8900
-	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR?
@@ -1562,7 +1464,7 @@ Wire Wire Line
 Wire Wire Line
 	9000 800  9000 1200
 Wire Wire Line
-	7850 1100 8400 1100
+	7850 1100 8100 1100
 Wire Wire Line
 	8800 1100 8400 1100
 Connection ~ 8400 1100
@@ -1695,5 +1597,344 @@ Wire Wire Line
 Wire Wire Line
 	14650 6500 14900 6500
 Text Notes 9650 4250 0    50   ~ 0
-TODO\n\n- MIDI I/O\n- Output voltage switch (5v/10v)
+TODO\n\n- Output voltage switch (5v/10v)
+Wire Wire Line
+	8250 1300 8100 1300
+Wire Wire Line
+	8100 1300 8100 1100
+Connection ~ 8100 1100
+Wire Wire Line
+	8100 1100 8400 1100
+$Comp
+L eurorack:Eurorack_Power_02x08 J?
+U 1 1 5D25F0BC
+P 3950 8900
+F 0 "J?" H 4000 9417 50  0000 C CNN
+F 1 "Conn_02x08_Odd_Even" H 4000 9326 50  0000 C CNN
+F 2 "" H 3950 8900 50  0001 C CNN
+F 3 "~" H 3950 8900 50  0001 C CNN
+	1    3950 8900
+	1    0    0    -1  
+$EndComp
+Text Notes 3650 9450 0    50   ~ 0
+Eurorack Power
+$Comp
+L power:GND #PWR?
+U 1 1 5D2DD88F
+P 3100 9500
+F 0 "#PWR?" H 3100 9250 50  0001 C CNN
+F 1 "GND" H 3105 9327 50  0000 C CNN
+F 2 "" H 3100 9500 50  0001 C CNN
+F 3 "" H 3100 9500 50  0001 C CNN
+	1    3100 9500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3100 9500 3100 8750
+Wire Wire Line
+	3100 8750 3500 8750
+Wire Wire Line
+	3500 8650 3500 8750
+Connection ~ 3500 8750
+Wire Wire Line
+	3500 8750 3500 8850
+Wire Wire Line
+	4400 8650 4400 8750
+Wire Wire Line
+	4400 8750 4400 8850
+Connection ~ 4400 8750
+Wire Wire Line
+	4400 8750 4600 8750
+Wire Wire Line
+	4600 8750 4600 8300
+Wire Wire Line
+	4600 8300 3100 8300
+Wire Wire Line
+	3100 8300 3100 8750
+Connection ~ 3100 8750
+$Comp
+L power:+5V #PWR?
+U 1 1 5D3C3D69
+P 4800 8300
+F 0 "#PWR?" H 4800 8150 50  0001 C CNN
+F 1 "+5V" H 4815 8473 50  0000 C CNN
+F 2 "" H 4800 8300 50  0001 C CNN
+F 3 "" H 4800 8300 50  0001 C CNN
+	1    4800 8300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4800 8300 4800 9050
+Wire Wire Line
+	4800 9050 4400 9050
+Wire Wire Line
+	3500 9050 3300 9050
+Wire Wire Line
+	3300 9050 3300 9500
+Wire Wire Line
+	3300 9500 4800 9500
+Wire Wire Line
+	4800 9500 4800 9050
+Connection ~ 4800 9050
+$Comp
+L 4xxx:4049 U?
+U 1 1 5D4DC968
+P 8000 10550
+F 0 "U?" H 8000 10867 50  0000 C CNN
+F 1 "4049" H 8000 10776 50  0000 C CNN
+F 2 "" H 8000 10550 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 8000 10550 50  0001 C CNN
+	1    8000 10550
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4xxx:4049 U?
+U 7 1 5D4E1390
+P 2200 8900
+F 0 "U?" H 2430 8946 50  0000 L CNN
+F 1 "4049" H 2430 8855 50  0000 L CNN
+F 2 "" H 2200 8900 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 2200 8900 50  0001 C CNN
+	7    2200 8900
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4xxx:4049 U?
+U 2 1 5D4E264A
+P 8850 10550
+F 0 "U?" H 8850 10867 50  0000 C CNN
+F 1 "4049" H 8850 10776 50  0000 C CNN
+F 2 "" H 8850 10550 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 8850 10550 50  0001 C CNN
+	2    8850 10550
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4xxx:4049 U?
+U 3 1 5D4E3C1F
+P 10100 8700
+F 0 "U?" H 10100 9017 50  0000 C CNN
+F 1 "4049" H 10100 8926 50  0000 C CNN
+F 2 "" H 10100 8700 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 10100 8700 50  0001 C CNN
+	3    10100 8700
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4xxx:4049 U?
+U 4 1 5D4E4D9D
+P 10950 8700
+F 0 "U?" H 10950 9017 50  0000 C CNN
+F 1 "4049" H 10950 8926 50  0000 C CNN
+F 2 "" H 10950 8700 50  0001 C CNN
+F 3 "http://www.intersil.com/content/dam/intersil/documents/cd40/cd4049ubms.pdf" H 10950 8700 50  0001 C CNN
+	4    10950 8700
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5D4E5DEC
+P 9550 10550
+F 0 "R?" V 9757 10550 50  0000 C CNN
+F 1 "220" V 9666 10550 50  0000 C CNN
+F 2 "" V 9480 10550 50  0001 C CNN
+F 3 "~" H 9550 10550 50  0001 C CNN
+	1    9550 10550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5D4E6ADF
+P 10850 10300
+F 0 "R?" H 10920 10346 50  0000 L CNN
+F 1 "220" H 10920 10255 50  0000 L CNN
+F 2 "" V 10780 10300 50  0001 C CNN
+F 3 "~" H 10850 10300 50  0001 C CNN
+	1    10850 10300
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5D4E77D1
+P 10050 10150
+F 0 "#PWR?" H 10050 9900 50  0001 C CNN
+F 1 "GND" H 10055 9977 50  0000 C CNN
+F 2 "" H 10050 10150 50  0001 C CNN
+F 3 "" H 10050 10150 50  0001 C CNN
+	1    10050 10150
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 5D4E84C6
+P 10850 9950
+F 0 "#PWR?" H 10850 9800 50  0001 C CNN
+F 1 "+5V" H 10865 10123 50  0000 C CNN
+F 2 "" H 10850 9950 50  0001 C CNN
+F 3 "" H 10850 9950 50  0001 C CNN
+	1    10850 9950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8300 10550 8550 10550
+Wire Wire Line
+	9150 10550 9400 10550
+$Comp
+L Connector:DIN-5_180degree J?
+U 1 1 5D5DBD7A
+P 10300 10650
+F 0 "J?" H 10300 10375 50  0000 C CNN
+F 1 "DIN-5_180degree" H 10300 10284 50  0000 C CNN
+F 2 "" H 10300 10650 50  0001 C CNN
+F 3 "http://www.mouser.com/ds/2/18/40_c091_abd_e-75918.pdf" H 10300 10650 50  0001 C CNN
+	1    10300 10650
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	9700 10550 10000 10550
+Wire Wire Line
+	10850 9950 10850 10150
+Wire Wire Line
+	10850 10450 10850 10550
+Wire Wire Line
+	10850 10550 10600 10550
+Wire Wire Line
+	10300 10350 10300 9950
+Wire Wire Line
+	10300 9950 10050 9950
+Wire Wire Line
+	10050 9950 10050 10150
+Text Label 7450 10550 2    50   ~ 0
+MIDI_OUT
+Wire Wire Line
+	7450 10550 7700 10550
+$Comp
+L midi:6N137 U?
+U 1 1 5D8A83FE
+P 8650 8600
+F 0 "U?" H 8650 9067 50  0000 C CNN
+F 1 "6N137" H 8650 8976 50  0000 C CNN
+F 2 "" H 8450 8950 50  0001 C CNN
+F 3 "" H 8450 8950 50  0001 C CNN
+	1    8650 8600
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5D932385
+P 7450 8050
+F 0 "R?" V 7243 8050 50  0000 C CNN
+F 1 "220" V 7334 8050 50  0000 C CNN
+F 2 "" V 7380 8050 50  0001 C CNN
+F 3 "~" H 7450 8050 50  0001 C CNN
+	1    7450 8050
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:D D?
+U 1 1 5D93343E
+P 7850 8350
+F 0 "D?" V 7804 8429 50  0000 L CNN
+F 1 "D" V 7895 8429 50  0000 L CNN
+F 2 "" H 7850 8350 50  0001 C CNN
+F 3 "~" H 7850 8350 50  0001 C CNN
+	1    7850 8350
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	7600 8050 7850 8050
+Wire Wire Line
+	8150 8050 8150 8500
+Wire Wire Line
+	8150 8500 8350 8500
+Wire Wire Line
+	7850 8200 7850 8050
+Connection ~ 7850 8050
+Wire Wire Line
+	7850 8050 8150 8050
+Wire Wire Line
+	7850 8500 7850 8700
+Wire Wire Line
+	7850 8700 8350 8700
+$Comp
+L Connector:DIN-5_180degree J?
+U 1 1 5D8AC9DB
+P 6700 8150
+F 0 "J?" H 6700 7875 50  0000 C CNN
+F 1 "DIN-5_180degree" H 6700 7784 50  0000 C CNN
+F 2 "" H 6700 8150 50  0001 C CNN
+F 3 "http://www.mouser.com/ds/2/18/40_c091_abd_e-75918.pdf" H 6700 8150 50  0001 C CNN
+	1    6700 8150
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	7000 8050 7300 8050
+Wire Wire Line
+	6400 8050 6150 8050
+Wire Wire Line
+	6150 8050 6150 8700
+Wire Wire Line
+	6150 8700 7850 8700
+Connection ~ 7850 8700
+$Comp
+L power:+5V #PWR?
+U 1 1 5DAAEE87
+P 9500 7850
+F 0 "#PWR?" H 9500 7700 50  0001 C CNN
+F 1 "+5V" H 9515 8023 50  0000 C CNN
+F 2 "" H 9500 7850 50  0001 C CNN
+F 3 "" H 9500 7850 50  0001 C CNN
+	1    9500 7850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9200 8400 8950 8400
+$Comp
+L power:GND #PWR?
+U 1 1 5DB0E8E0
+P 9200 9000
+F 0 "#PWR?" H 9200 8750 50  0001 C CNN
+F 1 "GND" H 9205 8827 50  0000 C CNN
+F 2 "" H 9200 9000 50  0001 C CNN
+F 3 "" H 9200 9000 50  0001 C CNN
+	1    9200 9000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9200 8800 9200 9000
+Wire Wire Line
+	8950 8800 9200 8800
+Wire Wire Line
+	10400 8700 10650 8700
+Wire Wire Line
+	8950 8700 9500 8700
+$Comp
+L Device:R R?
+U 1 1 5DC4699E
+P 9500 8400
+F 0 "R?" H 9570 8446 50  0000 L CNN
+F 1 "10K" H 9570 8355 50  0000 L CNN
+F 2 "" V 9430 8400 50  0001 C CNN
+F 3 "~" H 9500 8400 50  0001 C CNN
+	1    9500 8400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9500 8550 9500 8700
+Wire Wire Line
+	9500 8250 9500 8050
+Wire Wire Line
+	9500 8050 9200 8050
+Connection ~ 9500 8050
+Wire Wire Line
+	9500 8050 9500 7850
+Wire Wire Line
+	9200 8050 9200 8400
+Wire Wire Line
+	9800 8700 9500 8700
+Connection ~ 9500 8700
+Text Label 11500 8700 0    50   ~ 0
+MIDI_IN
+Wire Wire Line
+	11250 8700 11500 8700
 $EndSCHEMATC
