@@ -6,7 +6,7 @@ MIDI clock sources, three separate CV output channels, MIDI clock output, two
 discreet multipliers, saving and loading of custom presets, LCD and rotary
 encoder based UI, and an SPI API for serial control.
 
-![HL3 Headwater breadboard](/images/hl3-headwater-wip.jpg)
+![HL3 Headwater breadboard](/images/hl3-headwater-breadboard.jpg)
 
 # License
 
