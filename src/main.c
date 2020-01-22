@@ -91,6 +91,7 @@ int main(void) {
   while(1) {
     if(headwater_state_has_change_now(state.change_flags)) {
       headwater_state_handle_change_now(&state);
+      atmega_io_stop_play_output(state.output_enabled);
     } else if(lcd.mode == LCD_MODE_WRITE && ui_is_display_changed(&screen)) {
       ui_update_changed_display(&screen);
 

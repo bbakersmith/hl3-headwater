@@ -70,6 +70,13 @@ TODO HIGH
   - schematic
   - ui / front panel layout
   - pcb layout
+  - BUGFIXES
+    - xtal pads are wrong
+    - 0802 LCD connector is upside down
+    - stop / play LED not connected to MCU
+    - need silk labels on connectors
+    - need polarity labels on LEDs and diodes
+    - stop / play LED needs smaller value resistor
 
 - mode: tap
   X auto loop based on internal bpm

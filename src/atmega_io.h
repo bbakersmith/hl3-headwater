@@ -27,6 +27,7 @@
 #define BPM_PIN PORTC0
 #define MULTIPLIER_A_PIN PORTC1
 #define MULTIPLIER_B_PIN PORTC2
+#define STOP_PLAY_PIN PORTC4
 
 /**
  * Set state of BPM output pin.
@@ -42,6 +43,11 @@ void atmega_io_multiplier_a_output(bool enabled);
  * Set state of multiplier A output pin.
  */
 void atmega_io_multiplier_b_output(bool enabled);
+
+/**
+ * Set state of stop / play LED indicator pin.
+ */
+void atmega_io_stop_play_output(bool enabled);
 
 /**
  * Read inputs from parallel to serial shift register.

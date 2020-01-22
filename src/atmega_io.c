@@ -24,6 +24,14 @@ void atmega_io_multiplier_b_output(bool enabled) {
   }
 }
 
+void atmega_io_stop_play_output(bool enabled) {
+  if(enabled == 0) {
+    OUTPUT_PORT |= (1 << STOP_PLAY_PIN);
+  } else {
+    OUTPUT_PORT &= ~(1 << STOP_PLAY_PIN);
+  }
+}
+
 uint8_t atmega_io_sample_inputs(uint8_t count) {
   // snapshot inputs on falling edge of shift
   // UI_INPUT_PIN (Q) immediately set to H input
@@ -54,7 +62,8 @@ void atmega_io_init(void) {
   OUTPUT_DDR |=
     (1 << BPM_PIN)
     | (1 << MULTIPLIER_A_PIN)
-    | (1 << MULTIPLIER_B_PIN);
+    | (1 << MULTIPLIER_B_PIN)
+    | (1 << STOP_PLAY_PIN);
 
   // enable ui input
   UI_PORT |= (1 << UI_INPUT_PIN);
