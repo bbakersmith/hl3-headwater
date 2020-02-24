@@ -477,8 +477,8 @@ void headwater_ui_update_inputs(
 
   debounce_encoder_update(
     &inputs->rotary_encoder,
-    bytes_check_bit(input_flags, 2),
-    bytes_check_bit(input_flags, 3)
+    bytes_check_bit(input_flags, 3),
+    bytes_check_bit(input_flags, 2)
   );
 
   debounce_button_update(
